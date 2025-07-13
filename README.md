@@ -8,12 +8,41 @@ A cybersecurity-focused translation platform for Armenian documents, built for t
 
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/surenpoghosian" style="text-decoration: none;"><img src="https://avatars.githubusercontent.com/surenpoghosian?v=4" width="75px;" alt=""/><br /><sub><b>Suren Poghosyan</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/taron-mkrtumyan" style="text-decoration: none;"><img src="https://avatars.githubusercontent.com/taron-mkrtumyan?v=4" width="75px;" alt=""/><br /><sub><b>Taron Mkrtumyan</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/albert666h" style="text-decoration: none;"><img src="https://avatars.githubusercontent.com/albert666h?v=4" width="75px;" alt=""/><br /><sub><b>Albert Harutyunyan</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/0x3vAD" style="text-decoration: none;"><img src="https://avatars.githubusercontent.com/0x3vAD?v=4" width="75px;" alt=""/><br /><sub><b>Davit Ter-Torosyan</b></sub></a><br /></td>
-    <td align="center"><a href="https://www.linkedin.com/in/anahit-arzumanian/" style="text-decoration: none;"><img src="https://media.licdn.com/dms/image/v2/D4D03AQEqX9iVvYbA6A/profile-displayphoto-shrink_800_800/B4DZOXaA7sGUAo-/0/1733412000215?e=1758153600&v=beta&t=-FtPto-yBIRVrdxV7Ajkzm4W2D5N9bBsgqLgM1ieFLs" width="75px;" alt=""/><br /><sub><b>Anahit Arzumanian</b></sub></a><br /></td>
-    <!-- Add more contributors below in the same format -->
+    <td align="center">
+      <a href="https://github.com/surenpoghosian">
+        <img src="https://avatars.githubusercontent.com/surenpoghosian?v=4" width="75px;" alt=""/>
+      </a>
+      <br />
+      <sub><b><a href="https://github.com/surenpoghosian" style="text-decoration: none !important; color: inherit;">Suren Poghosyan</a></b></sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/taron-mkrtumyan">
+        <img src="https://avatars.githubusercontent.com/taron-mkrtumyan?v=4" width="75px;" alt=""/>
+      </a>
+      <br />
+      <sub><b><a href="https://github.com/taron-mkrtumyan" style="text-decoration: none !important; color: inherit;">Taron Mkrtumyan</a></b></sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/albert666h">
+        <img src="https://avatars.githubusercontent.com/albert666h?v=4" width="75px;" alt=""/>
+      </a>
+      <br />
+      <sub><b><a href="https://github.com/albert666h" style="text-decoration: none !important; color: inherit;">Albert Harutyunyan</a></b></sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/0x3vAD">
+        <img src="https://avatars.githubusercontent.com/0x3vAD?v=4" width="75px;" alt=""/>
+      </a>
+      <br />
+      <sub><b><a href="https://github.com/0x3vAD" style="text-decoration: none !important; color: inherit;">Davit Ter-Torosyan</a></b></sub>
+    </td>
+    <td align="center">
+      <a href="https://www.linkedin.com/in/anahit-arzumanian/">
+        <img src="https://media.licdn.com/dms/image/v2/D4D03AQEqX9iVvYbA6A/profile-displayphoto-shrink_800_800/B4DZOXaA7sGUAo-/0/1733412000215?e=1758153600&v=beta&t=-FtPto-yBIRVrdxV7Ajkzm4W2D5N9bBsgqLgM1ieFLs" width="75px;" alt=""/>
+      </a>
+      <br />
+      <sub><b><a href="https://www.linkedin.com/in/anahit-arzumanian/" style="text-decoration: none !important; color: inherit;">Anahit Arzumanian</a></b></sub>
+    </td>
   </tr>
 </table>
 
