@@ -22,11 +22,9 @@ A cybersecurity-focused translation platform for Armenian documents, built for t
 
 This project was developed as part of the [TUMO Labs CyberTech Sprint](https://tumolabs.am/en/cybertech-sprint/) - a 4-week intensive program designed to tackle real-world cybersecurity challenges. The sprint brings together participants to work with cybersecurity experts and develop innovative solutions.
 
-### Program Details
-- **Duration**: 4-week intensive sprint
-- **Focus**: Real-world cybersecurity challenges
-- **Partnership**: Information Systems Agency of Armenia (ISAA)
-- **Support**: German Federal Foreign Office & Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH
+## The Vision
+
+We decided to build a platform which encourages the localization of the cybersec libraries deployed in the github, and provide certificates to the users. This way we want to engage the community in raising the awareness among the students, adults, and people with poor foreign language skills.
 
 ## Features
 
@@ -37,6 +35,10 @@ This project was developed as part of the [TUMO Labs CyberTech Sprint](https://t
 - Certificate generation and verification
 - Analytics and reporting
 
+## Live Deployment
+
+🚀 **Live Demo**: [translate.surenpoghosyan.dev](https://translate.surenpoghosyan.dev)
+
 ## Tech Stack
 
 - **Framework**: Next.js 15
@@ -44,9 +46,6 @@ This project was developed as part of the [TUMO Labs CyberTech Sprint](https://t
 - **Styling**: Tailwind CSS
 - **Database**: API-driven architecture
 
-## Live Deployment
-
-🚀 **Live Demo**: [translate.surenpoghosyan.dev](https://translate.surenpoghosyan.dev)
 
 ---
 
