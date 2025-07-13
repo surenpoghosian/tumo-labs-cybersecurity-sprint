@@ -35,7 +35,7 @@ We decided to build a platform which encourages the localization of the cybersec
 - Certificate generation and verification
 - Analytics and reporting
 
-## Live Deployment
+## Prototype Deployment (to be validated)
 
 🚀 **Live Demo**: [translate.surenpoghosyan.dev](https://translate.surenpoghosyan.dev)
 
