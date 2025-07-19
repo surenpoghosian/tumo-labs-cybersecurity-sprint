@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -11,7 +11,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
-
 
 // Validate Firebase configuration
 const validateFirebaseConfig = () => {
@@ -35,6 +34,11 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
+
+// Configure GitHub Auth Provider
+export const githubProvider = new GithubAuthProvider();
+githubProvider.addScope('user:email');
+githubProvider.addScope('read:user');
 
 // Initialize Analytics (only in browser)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

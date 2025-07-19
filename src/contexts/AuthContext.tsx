@@ -11,12 +11,13 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { auth, googleProvider, githubProvider } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithGitHub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -51,6 +52,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error('Error signing in with Google:', error);
+      throw error;
+    }
+  };
+
+  const signInWithGitHub = async () => {
+    try {
+      await signInWithPopup(auth, githubProvider);
+    } catch (error) {
+      console.error('Error signing in with GitHub:', error);
       throw error;
     }
   };
@@ -99,10 +109,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     loading,
     signInWithGoogle,
-    signInWithEmail,
+    signInWithGitHub,
     signUpWithEmail,
     logout,
     resetPassword,
+    signInWithEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
