@@ -5,8 +5,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, TranslationProject, Certificate } from "@/data/mockData";
-import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Github, Eye } from "lucide-react";
+import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Github, Eye, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthGuard } from '@/components/auth/AuthGuard';
+import { useRouter } from 'next/navigation';
 
 interface DashboardData {
   user: User;
@@ -21,9 +24,13 @@ interface DashboardData {
   recentCertificates: Certificate[];
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  
+  const { user: authUser, logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -103,11 +110,49 @@ export default function DashboardPage() {
             <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
             <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
             <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
-            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-1">
-              <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                {user.name.charAt(0)}
-              </div>
-              <span className="text-sm font-medium">{user.name}</span>
+            
+            {/* User Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-1 hover:bg-gray-200 transition-colors"
+              >
+                <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  {authUser?.displayName?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
+                </div>
+                <span className="text-sm font-medium hidden md:block">
+                  {authUser?.displayName || authUser?.email?.split('@')[0] || 'User'}
+                </span>
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </button>
+              
+              {/* Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  <div className="p-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">
+                      {authUser?.displayName || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-500">{authUser?.email}</p>
+                  </div>
+                  <div className="p-1">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await logout();
+                          router.push('/');
+                        } catch (error) {
+                          console.error('Logout error:', error);
+                        }
+                      }}
+                      className="w-full flex items-center space-x-2 px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </nav>
         </div>
@@ -321,5 +366,13 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <AuthGuard requireAuth={true}>
+      <DashboardPageContent />
+    </AuthGuard>
   );
 } 

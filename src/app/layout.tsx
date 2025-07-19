@@ -1,27 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-// // Import the functions you need from the SDKs you need
-// import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
-// // TODO: Add SDKs for Firebase products that you want to use
-// // https://firebase.google.com/docs/web/setup#available-libraries
-
-// // Your web app's Firebase configuration
-// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// const firebaseConfig = {
-//   apiKey: "",
-//   authDomain: "cybersec-259b8.firebaseapp.com",
-//   projectId: "cybersec-259b8",
-//   storageBucket: "cybersec-259b8.firebasestorage.app",
-//   messagingSenderId: "1002878831445",
-//   appId: "1:1002878831445:web:61e5a9dd820a9821767ddc",
-//   measurementId: "G-JJX18CNQHH"
-// };
-
-// const app = initializeApp(firebaseConfig);
-// getAnalytics(app);
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
