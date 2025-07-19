@@ -29,6 +29,7 @@ export default function ForgotPasswordPage() {
     try {
       await resetPassword(email);
       setIsSuccess(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(getErrorMessage(error.code));
     } finally {
@@ -64,7 +65,7 @@ export default function ForgotPasswordPage() {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900">Check Your Email</h1>
-              <p className="text-gray-600">We've sent password reset instructions to your email</p>
+              <p className="text-gray-600">We`ve sent password reset instructions to your email</p>
             </div>
 
             <Card>
@@ -117,7 +118,7 @@ export default function ForgotPasswordPage() {
             <CardHeader>
               <CardTitle>Forgot Password</CardTitle>
               <CardDescription>
-                We'll send you a link to reset your password
+                We`ll send you a link to reset your password
               </CardDescription>
             </CardHeader>
             <CardContent>

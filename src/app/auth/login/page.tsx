@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Mail, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, BookOpen, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 

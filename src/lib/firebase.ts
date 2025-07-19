@@ -13,8 +13,6 @@ const firebaseConfig = {
 };
 
 
-console.log("Firebase config", firebaseConfig);
-
 // Validate Firebase configuration
 const validateFirebaseConfig = () => {
   const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
