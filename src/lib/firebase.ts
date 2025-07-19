@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -30,6 +31,9 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Firebase Auth
 export const auth = getAuth(app);
 
+// Initialize Firestore
+export const db = getFirestore(app);
+
 // Configure Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
@@ -53,10 +57,14 @@ if (typeof window !== 'undefined') {
 
 export { analytics };
 
-// Connect to Auth Emulator in development
+// Connect to emulators in development
 if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   // Uncomment to use Firebase Auth Emulator in development
   // connectAuthEmulator(auth, 'http://localhost:9099');
+  
+  // Uncomment to use Firestore Emulator in development
+  // You would need to import connectFirestoreEmulator first
+  // connectFirestoreEmulator(db, 'localhost', 8080);
 }
 
 export default app; 
