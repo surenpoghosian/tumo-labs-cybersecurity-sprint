@@ -1,12 +1,42 @@
 import { NextResponse } from 'next/server';
 import { getTranslationEntries, addTranslationEntry, TranslationMemoryEntry } from '@/lib/firestore';
+import { getAuth, isFirebaseAdminAvailable } from '@/lib/firebaseAdmin';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
   const category = searchParams.get('category');
-  
+
   try {
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized',
+        data: []
+      }, { status: 401 });
+    }
+
+    // Check if Firebase Admin is available and verify token
+    const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+    if (firebaseAdminAvailable) {
+      try {
+        const auth = await getAuth();
+        await auth.verifyIdToken(token);
+      } catch (authError) {
+        console.error('Token verification failed:', authError);
+        return NextResponse.json({
+          success: false,
+          error: 'Invalid token',
+          data: []
+        }, { status: 401 });
+      }
+    } else {
+      console.warn('Firebase Admin not available - skipping token verification in development mode');
+    }
+
     // Get all entries from Firestore
     let entries = await getTranslationEntries();
     
@@ -35,7 +65,8 @@ export async function GET(request: Request) {
       meta: {
         query,
         matchCount: entries.length,
-        searchType: query ? 'fuzzy' : 'all'
+        searchType: query ? 'fuzzy' : 'all',
+        authMode: firebaseAdminAvailable ? 'firebase' : 'development'
       }
     });
   } catch (error) {
@@ -50,6 +81,37 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized',
+        data: []
+      }, { status: 401 });
+    }
+
+    // Check if Firebase Admin is available and verify token
+    let decodedToken = null;
+    const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+    if (firebaseAdminAvailable) {
+      try {
+        const auth = await getAuth();
+        decodedToken = await auth.verifyIdToken(token);
+        console.log({ decodedToken });
+      } catch (authError) {
+        console.error('Token verification failed:', authError);
+        return NextResponse.json({
+          success: false,
+          error: 'Invalid token',
+          data: []
+        }, { status: 401 });
+      }
+    } else {
+      console.warn('Firebase Admin not available - skipping token verification in development mode');
+    }
+
     const body = await request.json();
 
     const newEntry: Omit<TranslationMemoryEntry, 'id'> = {
@@ -59,7 +121,7 @@ export async function POST(request: Request) {
       context: body.context || '',
       category: body.category || 'general',
       confidence: body.confidence || 0.9,
-      createdBy: 'user-1', // Current user
+      createdBy: decodedToken?.uid || 'user-1', // Use decoded token UID or fallback
       createdAt: new Date().toISOString(),
       usageCount: 1
     };
@@ -69,7 +131,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       data: { id, ...newEntry },
-      message: 'Translation memory entry added successfully'
+      message: 'Translation memory entry added successfully',
+      authMode: firebaseAdminAvailable ? 'firebase' : 'development'
     });
   } catch (error) {
     console.error('Error adding translation memory entry:', error);
@@ -82,7 +145,35 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   const body = await request.json();
-  
+  const authHeader = request.headers.get('authorization') || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+  if (!token) {
+    return NextResponse.json({
+      success: false,
+      error: 'Unauthorized',
+      data: []
+    }, { status: 401 });
+  }
+
+  // Check if Firebase Admin is available and verify token
+  const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+  if (firebaseAdminAvailable) {
+    try {
+      const auth = await getAuth();
+      await auth.verifyIdToken(token);
+    } catch (authError) {
+      console.error('Token verification failed:', authError);
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token',
+        data: []
+      }, { status: 401 });
+    }
+  } else {
+    console.warn('Firebase Admin not available - skipping token verification in development mode');
+  }
+
   // For now, just simulate updating usage count
   // In a real implementation, you'd update the Firestore document
   return NextResponse.json({
@@ -92,6 +183,7 @@ export async function PUT(request: Request) {
       usageCount: (body.usageCount || 0) + 1,
       lastUsed: new Date().toISOString()
     },
-    message: 'Translation memory usage updated'
+    message: 'Translation memory usage updated',
+    authMode: firebaseAdminAvailable ? 'firebase' : 'development'
   });
 } 

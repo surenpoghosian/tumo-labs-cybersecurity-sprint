@@ -52,7 +52,7 @@ function DashboardPageContent() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}` // Add this line
+          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
           uId: authUser.uid,
