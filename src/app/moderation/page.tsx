@@ -194,10 +194,10 @@ export default function ModerationPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      'pending': { color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      'in-progress': { color: 'bg-blue-100 text-blue-800', icon: Eye },
-      'approved': { color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      'rejected': { color: 'bg-red-100 text-red-800', icon: XCircle },
+      'pending': { color: 'bg-yellow-100 text-yellow-800', icon: Clock, label: 'Սպասվող' },
+      'in-progress': { color: 'bg-blue-100 text-blue-800', icon: Eye, label: 'Ընթացքում' },
+      'approved': { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: 'Հաստատված' },
+      'rejected': { color: 'bg-red-100 text-red-800', icon: XCircle, label: 'Մերժված' },
     };
     
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
@@ -206,7 +206,7 @@ export default function ModerationPage() {
     return (
       <Badge className={config.color}>
         <Icon className="h-3 w-3 mr-1" />
-        {status.replace('-', ' ')}
+        {config.label}
       </Badge>
     );
   };
@@ -230,7 +230,7 @@ export default function ModerationPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading moderation dashboard...</p>
+          <p className="text-gray-600">Մոդերացիայի վահանակը բեռնվում է...</p>
         </div>
       </div>
     );
@@ -241,8 +241,8 @@ export default function ModerationPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Moderation Dashboard</h1>
-          <p className="text-gray-600">Review and moderate translation submissions</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Մոդերացիայի վահանակ</h1>
+          <p className="text-gray-600">Վերանայեք և մոդերացրեք թարգմանության ներկայացումները</p>
         </div>
 
         {/* Stats Cards */}
@@ -251,7 +251,7 @@ export default function ModerationPage() {
             <CardContent className="p-6 text-center">
               <BarChart3 className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-              <div className="text-sm text-gray-600">Total Reviews</div>
+              <div className="text-sm text-gray-600">Ընդհանուր վերանայություններ</div>
             </CardContent>
           </Card>
           
@@ -259,7 +259,7 @@ export default function ModerationPage() {
             <CardContent className="p-6 text-center">
               <Clock className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats.pending}</div>
-              <div className="text-sm text-gray-600">Pending</div>
+              <div className="text-sm text-gray-600">Սպասվող</div>
             </CardContent>
           </Card>
           
@@ -267,7 +267,7 @@ export default function ModerationPage() {
             <CardContent className="p-6 text-center">
               <Eye className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats.inProgress}</div>
-              <div className="text-sm text-gray-600">In Progress</div>
+              <div className="text-sm text-gray-600">Ընթացքում</div>
             </CardContent>
           </Card>
           
@@ -275,7 +275,7 @@ export default function ModerationPage() {
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats.approved}</div>
-              <div className="text-sm text-gray-600">Approved</div>
+              <div className="text-sm text-gray-600">Հաստատված</div>
             </CardContent>
           </Card>
           
@@ -283,7 +283,7 @@ export default function ModerationPage() {
             <CardContent className="p-6 text-center">
               <XCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats.rejected}</div>
-              <div className="text-sm text-gray-600">Rejected</div>
+              <div className="text-sm text-gray-600">Մերժված</div>
             </CardContent>
           </Card>
         </div>
@@ -302,7 +302,7 @@ export default function ModerationPage() {
                     onClick={() => setFilter(status as any)}
                     className={filter === status ? 'bg-blue-600 hover:bg-blue-700' : ''}
                   >
-                    {status === 'assigned' ? 'Assigned to Me' : status.replace('-', ' ')}
+                    {status === 'assigned' ? 'Ազատված եմ' : status.replace('-', ' ')}
                   </Button>
                 ))}
               </div>
@@ -313,7 +313,7 @@ export default function ModerationPage() {
                 className="ml-auto"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+                Վերականգնել
               </Button>
             </div>
           </CardContent>
@@ -325,11 +325,12 @@ export default function ModerationPage() {
             <Card>
               <CardContent className="p-8 text-center">
                 <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Found</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Հաստատված վերանայություններ չեն գտնվել</h3>
                 <p className="text-gray-600">
-                  {filter === 'pending' ? 'No pending reviews at the moment.' : 
-                   filter === 'assigned' ? 'No reviews assigned to you.' : 
-                   'No reviews match your current filter.'}
+                  {filter === 'pending' ? 'Սպասվող վերանայություններ հիմա չկան։' : 
+                   filter === 'assigned' ? 'Ազատված եք վերանայությունների համար։' : 
+                   'Համապատասխան վերանայություններ չեն գտնվել։'
+                }
                 </p>
               </CardContent>
             </Card>
@@ -341,7 +342,7 @@ export default function ModerationPage() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5" />
-                        {review.file?.fileName || 'Unknown File'}
+                        {review.file?.fileName || 'Անհայտ ֆայլ'}
                       </CardTitle>
                       <div className="flex items-center gap-2 mt-2">
                         {getStatusBadge(review.status)}
@@ -352,9 +353,9 @@ export default function ModerationPage() {
                       </div>
                     </div>
                     <div className="text-right text-sm text-gray-500">
-                      <div>Created: {new Date(review.createdAt).toLocaleDateString()}</div>
+                      <div>Ստեղծվել է: {new Date(review.createdAt).toLocaleDateString()}</div>
                       {review.dueDate && (
-                        <div>Due: {new Date(review.dueDate).toLocaleDateString()}</div>
+                        <div>Վավերականացվել է: {new Date(review.dueDate).toLocaleDateString()}</div>
                       )}
                     </div>
                   </div>
@@ -364,24 +365,24 @@ export default function ModerationPage() {
                   {/* Review Info */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Project & File Info</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Առաջարկությունների և ֆայլի տեղեկություն</h4>
                       <div className="text-sm space-y-1">
-                        <div><strong>Project:</strong> {review.project?.title || 'Unknown Project'}</div>
-                        <div><strong>File Path:</strong> {review.file?.filePath || 'Unknown'}</div>
-                        <div><strong>Word Count:</strong> {review.file?.wordCount || 0} words</div>
+                        <div><strong>Առաջարկություն:</strong> {review.project?.title || 'Անհայտ առաջարկություն'}</div>
+                        <div><strong>Ֆայլի ուղի:</strong> {review.file?.filePath || 'Անհայտ'}</div>
+                        <div><strong>Բառանիշերի քանակ:</strong> {review.file?.wordCount || 0} բառ</div>
                         {review.translator && (
-                          <div><strong>Translator:</strong> {review.translator.name}</div>
+                          <div><strong>Թարգմանող:</strong> {review.translator.name}</div>
                         )}
                       </div>
                     </div>
                     
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Translation Preview</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Թարգմանության նախադիտում</h4>
                       <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
                         {review.file?.translatedText ? 
                           review.file.translatedText.substring(0, 200) + 
                           (review.file.translatedText?.length > 200 ? '...' : '') : 
-                          'No translation text available'
+                          'Թարգմանության տեքստ չկա'
                         }
                       </div>
                     </div>
@@ -397,7 +398,7 @@ export default function ModerationPage() {
                           className="bg-blue-600 hover:bg-blue-700"
                         >
                           <UserCheck className="h-4 w-4 mr-2" />
-                          {processing[review.id] ? 'Taking...' : 'Take Review'}
+                          {processing[review.id] ? 'Առաջարկում է...' : 'Առաջարկել'}
                         </Button>
                       </div>
                     )}
@@ -406,12 +407,12 @@ export default function ModerationPage() {
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Review Comments
+                            Վերանայությունների մեկնաբանություններ
                           </label>
                           <textarea
                             className="w-full p-3 border rounded-md resize-none"
                             rows={3}
-                            placeholder="Add your review comments..."
+                            placeholder="Ավելացրեք ձեր վերանայությունների մեկնաբանությունները..."
                             value={reviewDecision[review.id]?.comments || ''}
                             onChange={(e) => setReviewDecision(prev => ({
                               ...prev,
@@ -427,7 +428,7 @@ export default function ModerationPage() {
                             className="bg-green-600 hover:bg-green-700"
                           >
                             <CheckCircle className="h-4 w-4 mr-2" />
-                            {processing[review.id] ? 'Processing...' : 'Approve'}
+                            {processing[review.id] ? 'Ծրագրավորվում է...' : 'Հաստատել'}
                           </Button>
                           
                           <Button
@@ -437,7 +438,7 @@ export default function ModerationPage() {
                             className="border-red-300 text-red-700 hover:bg-red-50"
                           >
                             <XCircle className="h-4 w-4 mr-2" />
-                            {processing[review.id] ? 'Processing...' : 'Reject'}
+                            {processing[review.id] ? 'Ծրագրավորվում է...' : 'Մերժել'}
                           </Button>
                         </div>
                       </div>
@@ -445,7 +446,7 @@ export default function ModerationPage() {
                     
                     {review.status === 'approved' || review.status === 'rejected' ? (
                       <div className="text-sm text-gray-600">
-                        <strong>Review completed:</strong> {review.comments || 'No comments provided'}
+                        <strong>Վերանայությունը ավարտվել է:</strong> {review.comments || 'Մեկնաբանություն չկա'}
                       </div>
                     ) : null}
                   </div>

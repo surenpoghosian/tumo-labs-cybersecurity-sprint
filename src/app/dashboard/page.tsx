@@ -192,7 +192,7 @@ function DashboardPageContent() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-gray-600">Բեռնվում է վահանակը...</p>
         </div>
       </div>
     );
@@ -202,7 +202,7 @@ function DashboardPageContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
         <Card className="p-6">
-          <p className="text-red-600">Failed to load dashboard data</p>
+          <p className="text-red-600">Չհաջողվեց բեռնել վահանակի տվյալները</p>
         </Card>
       </div>
     );
@@ -216,14 +216,14 @@ function DashboardPageContent() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <span className="text-xl font-bold text-gray-900">Հայկական Կիբեռանվտանգության Փաստաթղթեր</span>
           </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            <Link href="/dashboard" className="text-orange-600 font-medium">Վահանակ</Link>
+            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Նախագծեր</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Վկայագրեր</Link>
             {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
-              <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Moderation</Link>
+              <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Մոդերացիա</Link>
             )}
             
             {/* User Menu */}
@@ -276,8 +276,8 @@ function DashboardPageContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {authUser?.displayName}!</h1>
-          <p className="text-gray-600">Continue contributing to Armenian cybersecurity education</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Բարի գալուստ, {authUser?.displayName}!</h1>
+          <p className="text-gray-600">Կանգնահատեք համագործակցությունը Հայկական Կիբեռանվտանգության Փաստաթղթերի համար</p>
         </div>
 
         {/* Stats Cards */}
@@ -286,7 +286,7 @@ function DashboardPageContent() {
             <CardContent className="p-6 text-center">
               <BookOpen className="h-8 w-8 text-orange-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats?.totalFiles || 0}</div>
-              <div className="text-sm text-gray-600">Total Files</div>
+              <div className="text-sm text-gray-600">Ընդհանուր ֆայլեր</div>
             </CardContent>
           </Card>
           
@@ -294,7 +294,7 @@ function DashboardPageContent() {
             <CardContent className="p-6 text-center">
               <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats?.filesInProgress || 0}</div>
-              <div className="text-sm text-gray-600">In Progress</div>
+              <div className="text-sm text-gray-600">Մեկնաբանված ֆայլեր</div>
             </CardContent>
           </Card>
           
@@ -302,7 +302,7 @@ function DashboardPageContent() {
             <CardContent className="p-6 text-center">
               <Eye className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats?.filesPending || 0}</div>
-              <div className="text-sm text-gray-600">Pending Review</div>
+              <div className="text-sm text-gray-600">Մուտքագրված վերլուծություն</div>
             </CardContent>
           </Card>
           
@@ -310,7 +310,7 @@ function DashboardPageContent() {
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats?.approvedTranslations || 0}</div>
-              <div className="text-sm text-gray-600">Approved</div>
+              <div className="text-sm text-gray-600">Հաստատված թարգմանություններ</div>
             </CardContent>
           </Card>
           
@@ -318,7 +318,7 @@ function DashboardPageContent() {
             <CardContent className="p-6 text-center">
               <Award className="h-8 w-8 text-purple-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{stats?.totalCertificates || 0}</div>
-              <div className="text-sm text-gray-600">Certificates</div>
+              <div className="text-sm text-gray-600">Վկայագրեր</div>
             </CardContent>
           </Card>
         </div>
@@ -326,7 +326,7 @@ function DashboardPageContent() {
          {/* Quick Actions */}
          <Card className="mt-8 mb-8">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>Արագ գործողություններ</CardTitle>
           </CardHeader>
           <CardContent>
             <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
@@ -337,7 +337,7 @@ function DashboardPageContent() {
                     title="Continue working on your assigned files"
                   >
                     <ArrowRight className="mr-2 h-4 w-4" />
-                    Continue My Work
+                    Շարունակել իմ աշխատանքը
                   </Button>
                 </Link>
               )}
@@ -347,7 +347,7 @@ function DashboardPageContent() {
                   title="Browse available cybersecurity projects to translate"
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
-                  Browse CyberSec Projects
+                  Տեսնել կիբեռանվտանգության Նախագծեր
                 </Button>
               </Link>
               <Link href="/translate">
@@ -357,7 +357,7 @@ function DashboardPageContent() {
                   title="Continue working on your current translation project"
                 >
                   <ArrowRight className="mr-2 h-4 w-4" />
-                  Continue Translation
+                  Շարունակել թարգմանություն
                 </Button>
               </Link>
               <Link href="/certificates">
@@ -367,7 +367,7 @@ function DashboardPageContent() {
                   title="View and manage your earned certificates"
                 >
                   <Award className="mr-2 h-4 w-4" />
-                  View Certificates
+                  Տեսնել Վկայագրեր
                 </Button>
               </Link>
             </div>
@@ -379,9 +379,9 @@ function DashboardPageContent() {
           <Card className="mt-8 mb-8">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>My Current Files</CardTitle>
+                <CardTitle>Միացած ֆայլեր</CardTitle>
                 <Badge variant="outline" className="text-xs">
-                  {dashboardData.currentFiles?.length} assigned
+                  {dashboardData.currentFiles?.length} վարձատրված
                 </Badge>
               </div>
             </CardHeader>
@@ -395,9 +395,9 @@ function DashboardPageContent() {
                           color: 'orange', 
                           bgColor: 'orange-50', 
                           borderColor: 'orange-200', 
-                          label: 'In Progress',
+                          label: 'Մեկնաբանված',
                           canEdit: true,
-                          buttonText: 'Continue Translation',
+                          buttonText: 'Շարունակել թարգմանություն',
                           buttonColor: 'bg-green-600 hover:bg-green-700'
                         };
                       case 'pending':
@@ -405,9 +405,9 @@ function DashboardPageContent() {
                           color: 'yellow', 
                           bgColor: 'yellow-50', 
                           borderColor: 'yellow-200', 
-                          label: 'Under Review',
+                          label: 'Մուտքագրված վերլուծություն',
                           canEdit: false,
-                          buttonText: 'View Status',
+                          buttonText: 'Տեսնել վիճակ',
                           buttonColor: 'bg-gray-400 cursor-not-allowed'
                         };
                       case 'rejected':
@@ -415,9 +415,9 @@ function DashboardPageContent() {
                           color: 'red', 
                           bgColor: 'red-50', 
                           borderColor: 'red-200', 
-                          label: 'Needs Revision',
+                          label: 'Պետք է վերանորոգել',
                           canEdit: true,
-                          buttonText: 'Make Revisions',
+                          buttonText: 'Արտագրել վերանորոգումները',
                           buttonColor: 'bg-red-600 hover:bg-red-700'
                         };
                       case 'accepted':
@@ -425,9 +425,9 @@ function DashboardPageContent() {
                           color: 'green', 
                           bgColor: 'green-50', 
                           borderColor: 'green-200', 
-                          label: 'Completed',
+                          label: 'Ավարտված',
                           canEdit: false,
-                          buttonText: 'View Translation',
+                          buttonText: 'Տեսնել թարգմանություն',
                           buttonColor: 'bg-gray-400'
                         };
                       default:
@@ -435,9 +435,9 @@ function DashboardPageContent() {
                           color: 'blue', 
                           bgColor: 'blue-50', 
                           borderColor: 'blue-200', 
-                          label: 'Available',
+                          label: 'Առաջարկվող',
                           canEdit: true,
-                          buttonText: 'Start Translation',
+                          buttonText: 'Սկսել թարգմանություն',
                           buttonColor: 'bg-blue-600 hover:bg-blue-700'
                         };
                     }
@@ -459,26 +459,26 @@ function DashboardPageContent() {
                       {/* Status-specific messages */}
                       {file.status === 'pending' && (
                         <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
-                          <strong>Under Review:</strong> Your translation is being reviewed by moderators. You cannot edit until review is complete.
+                          <strong>Մուտքագրված վերլուծություն:</strong> Ձեր թարգմանությունը մոդերատորների մոտ վերլուծվում է: Դուք չեք կարող խմբագրել այն մինչև վերլուծությունը ավարտվի:
                         </div>
                       )}
                       
                       {file.status === 'rejected' && (
                         <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
-                          <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. Please make revisions and resubmit.
+                          <strong>Պետք է վերանորոգել:</strong> Ձեր թարգմանությունը վերլուծվել է և պետք է փոփոխություններ արեք: Խնդրում ենք արտագրել փոփոխությունները և նորից ներկայացրեք:
                         </div>
                       )}
 
                       {file.status === 'accepted' && (
                         <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-xs text-green-800">
-                          <strong>Completed:</strong> Your translation has been accepted and published. Great work!
+                          <strong>Ավարտված:</strong> Ձեր թարգմանությունը հաստատվել է և հրապարակվել: Լավ աշխատանք!
                         </div>
                       )}
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span>{file.wordCount} words</span>
-                          <span>{file.estimatedHours}h estimated</span>
+                          <span>{file.wordCount} բառ</span>
+                          <span>{file.estimatedHours}ժ գնահատված</span>
                         </div>
                         
                         {statusInfo.canEdit ? (
@@ -509,10 +509,10 @@ function DashboardPageContent() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Recent Translation Projects</CardTitle>
+                <CardTitle>Նախկին թարգմանության Նախագծեր</CardTitle>
                 <Link href="/projects">
                   <Button variant="outline" size="sm">
-                    View All
+                    Տեսնել բոլորը
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -548,7 +548,7 @@ function DashboardPageContent() {
                             className="text-xs text-orange-600 hover:underline flex items-center"
                           >
                             <Github className="h-3 w-3 mr-1" />
-                            View PR
+                            Տեսնել PR
                           </a>
                         )}
                       </div>
@@ -558,9 +558,9 @@ function DashboardPageContent() {
               ) : (
                 <div className="text-center py-8">
                   <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No translation projects yet</p>
+                  <p className="text-gray-500">Միայնակ թարգմանության Նախագծեր դեռ չկան</p>
                   <Link href="/projects">
-                    <Button className="mt-4">Start Your First Project</Button>
+                    <Button className="mt-4">Սկսել Ձեր առաջին Նախագծը</Button>
                   </Link>
                 </div>
               )}
@@ -571,10 +571,10 @@ function DashboardPageContent() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Recent Certificates</CardTitle>
+                <CardTitle>Նախկին Վկայագրեր</CardTitle>
                 <Link href="/certificates">
                   <Button variant="outline" size="sm">
-                    View All
+                    Տեսնել բոլորը
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -590,18 +590,18 @@ function DashboardPageContent() {
                         <Badge variant="default">{certificate.category}</Badge>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        Verification: {certificate.verificationCode}
+                        Վավերացում: {certificate.verificationCode}
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : 'N/A'}
+                          {certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : 'Չհայտնված'}
                         </span>
                         <button
                           onClick={() => handleDownloadCertificate(certificate)}
                           className="text-xs text-orange-600 hover:underline"
                           title="Download certificate PDF"
                         >
-                          Download PDF
+                          Ներբեռնել PDF
                         </button>
                       </div>
                     </div>
@@ -610,9 +610,9 @@ function DashboardPageContent() {
               ) : (
                 <div className="text-center py-8">
                   <Award className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No certificates earned yet</p>
+                  <p className="text-gray-500">Վկայագրեր ավարտված դեռ չկան</p>
                   <p className="text-sm text-gray-400 mt-2">
-                    Complete translation projects to earn certificates
+                    Տեղադրել թարգմանության Նախագծեր վկայագրեր ավարտելու համար
                   </p>
                 </div>
               )}
@@ -623,39 +623,39 @@ function DashboardPageContent() {
         {/* Firestore Test Section */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>Translation Memory (Firestore Test)</CardTitle>
+            <CardTitle>Թարգմանության հիշողություն (Firestore փորձարկում)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex gap-4">
                 <input
                   type="text"
-                  placeholder="Original text (e.g., 'security')"
+                  placeholder="Բուն տեքստ (օր.՝ 'անվտանգություն')"
                   className="flex-1 px-3 py-2 border rounded"
                   value={testOriginal}
                   onChange={(e) => setTestOriginal(e.target.value)}
                 />
                 <input
                   type="text"
-                  placeholder="Armenian translation"
+                  placeholder="Հայերեն թարգմանություն"
                   className="flex-1 px-3 py-2 border rounded"
                   value={testTranslated}
                   onChange={(e) => setTestTranslated(e.target.value)}
                 />
                 <Button onClick={addTestEntry} disabled={addingTest}>
-                  {addingTest ? 'Adding...' : 'Add to Firestore'}
+                  {addingTest ? 'Ավելացվում է...' : 'Ավելացնել Firestore-ում'}
                 </Button>
               </div>
               
               <div>
                 <Button onClick={loadTestEntries} disabled={loadingTest} variant="outline">
-                  {loadingTest ? 'Loading...' : 'Load from Firestore'}
+                  {loadingTest ? 'Բեռնվում է...' : 'Բեռնել Firestore-ից'}
                 </Button>
               </div>
               
               {testEntries?.length && testEntries.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-medium">Entries from Firestore:</h4>
+                  <h4 className="font-medium">Գրառումներ Firestore-ից:</h4>
                   {testEntries.map((entry) => (
                     <div key={entry.id} className="bg-gray-50 p-2 rounded text-sm">
                       <strong>{entry.originalText}</strong> → {entry.translatedText}
