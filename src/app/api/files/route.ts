@@ -50,12 +50,12 @@ export async function GET(request: Request) {
 
     // Categorize files for better response
     const fileStats = {
-      total: files.length,
-      available: files.filter(f => f.status === 'not taken').length,
-      inProgress: files.filter(f => f.status === 'in progress').length,
-      pending: files.filter(f => f.status === 'pending').length,
-      accepted: files.filter(f => f.status === 'accepted').length,
-      rejected: files.filter(f => f.status === 'rejected').length
+      total: files?.length,
+      available: files.filter(f => f.status === 'not taken')?.length,
+      inProgress: files.filter(f => f.status === 'in progress')?.length,
+      pending: files.filter(f => f.status === 'pending')?.length,
+      accepted: files.filter(f => f.status === 'accepted')?.length,
+      rejected: files.filter(f => f.status === 'rejected')?.length
     };
 
     return NextResponse.json({
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
       data: files,
       meta: {
         ...fileStats,
-        isEmpty: files.length === 0,
+        isEmpty: files?.length === 0,
         userId
       }
     });
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
     }
 
     // Calculate word count if not provided
-    const calculatedWordCount = wordCount || originalText.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+    const calculatedWordCount = wordCount || originalText.trim().split(/\s+/).filter((word: string) => word?.length > 0)?.length;
     const calculatedEstimatedHours = estimatedHours || Math.max(0.5, Math.ceil(calculatedWordCount / 250)); // ~250 words per hour, minimum 0.5 hours
 
     // Create new file document

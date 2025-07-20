@@ -568,7 +568,7 @@ export async function seedExampleData(userId: string): Promise<{success: boolean
     // Create files for each project
     const allFiles: any[] = [];
     
-    for (let i = 0; i < projectIds.length; i++) {
+    for (let i = 0; i < projectIds?.length; i++) {
       const projectId = projectIds[i];
       const files = exampleFiles(i, projectId);
       const fileIds: string[] = [];
@@ -608,7 +608,7 @@ export async function seedExampleData(userId: string): Promise<{success: boolean
     
     return {
       success: true,
-      message: `Successfully created ${createdProjects.length} projects and ${allFiles.length} files`,
+      message: `Successfully created ${createdProjects?.length} projects and ${allFiles?.length} files`,
       data: {
         projects: createdProjects,
         files: allFiles,
@@ -654,7 +654,7 @@ export async function clearExampleData(userId: string): Promise<{success: boolea
 
     return {
       success: true,
-      message: `Deleted ${projectsSnapshot.docs.length} projects and ${filesSnapshot.docs.length} files`,
+      message: `Deleted ${projectsSnapshot.docs?.length} projects and ${filesSnapshot.docs?.length} files`,
     };
 
   } catch (error) {

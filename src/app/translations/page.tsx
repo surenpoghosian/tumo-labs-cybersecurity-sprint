@@ -196,7 +196,7 @@ export default function PublicTranslationsPage() {
         {/* Translations Grid */}
         {!loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredTranslations.length === 0 ? (
+            {filteredTranslations?.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Translations Found</h3>
@@ -237,7 +237,7 @@ export default function PublicTranslationsPage() {
                         <h4 className="text-sm font-medium text-gray-900 mb-1">Translation Preview</h4>
                         <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded line-clamp-3">
                           {translation.translatedText.substring(0, 200)}
-                          {translation.translatedText.length > 200 && '...'}
+                          {translation.translatedText?.length > 200 && '...'}
                         </p>
                       </div>
 
@@ -279,12 +279,12 @@ export default function PublicTranslationsPage() {
         )}
 
         {/* Stats Footer */}
-        {!loading && filteredTranslations.length > 0 && (
+        {!loading && filteredTranslations?.length > 0 && (
           <Card className="mt-8">
             <CardContent className="p-6 text-center">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <div className="text-2xl font-bold text-blue-600">{filteredTranslations.length}</div>
+                  <div className="text-2xl font-bold text-blue-600">{filteredTranslations?.length}</div>
                   <div className="text-sm text-gray-600">Approved Translations</div>
                 </div>
                 <div>

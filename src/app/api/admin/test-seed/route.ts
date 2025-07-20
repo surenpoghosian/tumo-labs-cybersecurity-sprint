@@ -21,7 +21,7 @@ export async function GET(request: Request) {
             title: p.title,
             version: p.version,
             developedBy: p.developedBy,
-            fileCount: p.files.length,
+            fileCount: p.files?.length,
             categories: p.categories
           })),
           files: result.data?.files.map((f: FirestoreFile) => ({
@@ -34,8 +34,8 @@ export async function GET(request: Request) {
             storageType: f.storageType
           })),
           totals: {
-            projects: result.data?.projects.length || 0,
-            files: result.data?.files.length || 0
+            projects: result.data?.projects?.length || 0,
+            files: result.data?.files?.length || 0
           }
         }
       });

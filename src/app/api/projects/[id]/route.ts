@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    const userId = await verifyAuthToken(authHeader);
+    await verifyAuthToken(authHeader); // ensure request is authenticated
     const firestore = await getFirestore();
     const { id: projectId } = await params;
 

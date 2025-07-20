@@ -33,12 +33,12 @@ export async function GET(request: Request) {
     // Categorize entries for better insights
     const categories = [...new Set(entries.map(e => e.category))];
     const stats = {
-      total: entries.length,
-      categories: categories.length,
-      averageConfidence: entries.length > 0 
-        ? entries.reduce((sum, e) => sum + e.confidence, 0) / entries.length 
+      total: entries?.length,
+      categories: categories?.length,
+      averageConfidence: entries?.length > 0 
+        ? entries.reduce((sum, e) => sum + e.confidence, 0) / entries?.length 
         : 0,
-      mostUsed: entries.length > 0 
+      mostUsed: entries?.length > 0 
         ? entries.reduce((max, e) => e.usageCount > max.usageCount ? e : max, entries[0])
         : null
     };
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       data: entries,
       meta: {
         ...stats,
-        isEmpty: entries.length === 0,
+        isEmpty: entries?.length === 0,
         userId
       }
     });

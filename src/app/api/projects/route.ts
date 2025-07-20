@@ -66,9 +66,9 @@ export async function GET(request: Request) {
       success: true,
       data: projects,
       meta: {
-        total: projects.length,
-        available: projects.filter(p => p.availableForTranslation).length,
-        isEmpty: projects.length === 0
+        total: projects?.length,
+        available: projects.filter(p => p.availableForTranslation)?.length,
+        isEmpty: projects?.length === 0
       }
     });
   } catch (error) {

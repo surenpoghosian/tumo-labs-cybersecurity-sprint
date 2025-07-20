@@ -193,7 +193,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Empty State with Seed Data Option */}
-        {!loading && projects.length === 0 && (
+        {!loading && projects?.length === 0 && (
           <div className="text-center py-12">
             <div className="bg-white rounded-lg p-8 max-w-md mx-auto shadow-sm border">
               <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -233,7 +233,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Projects Grid */}
-        {!loading && projects.length > 0 && (
+        {!loading && projects?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
               <Card key={project.id} className="hover:shadow-lg transition-shadow">
@@ -293,9 +293,9 @@ export default function ProjectsPage() {
                           {category.replace('-', ' ')}
                         </Badge>
                       ))}
-                      {project.categories.length > 2 && (
+                      {project.categories?.length > 2 && (
                         <Badge variant="outline" className="text-xs">
-                          +{project.categories.length - 2} more
+                          +{project.categories?.length - 2} more
                         </Badge>
                       )}
                     </div>
@@ -344,7 +344,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Filtered Empty State */}
-        {!loading && projects.length > 0 && filteredProjects.length === 0 && (
+        {!loading && projects?.length > 0 && filteredProjects?.length === 0 && (
           <div className="text-center py-12">
             <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
@@ -361,17 +361,17 @@ export default function ProjectsPage() {
         )}
 
         {/* Stats Summary */}
-        {!loading && projects.length > 0 && (
+        {!loading && projects?.length > 0 && (
           <Card className="mt-8">
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{projects.length}</div>
+                  <div className="text-2xl font-bold text-orange-600 mb-1">{projects?.length}</div>
                   <div className="text-sm text-gray-600">Total Projects</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600 mb-1">
-                    {projects.filter(p => p.availableForTranslation).length}
+                    {projects.filter(p => p.availableForTranslation)?.length}
                   </div>
                   <div className="text-sm text-gray-600">Available</div>
                 </div>
@@ -393,7 +393,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Admin Actions */}
-        {!loading && projects.length > 0 && user && (
+        {!loading && projects?.length > 0 && user && (
           <div className="mt-6 text-center">
             <Button 
               onClick={handleSeedData} 

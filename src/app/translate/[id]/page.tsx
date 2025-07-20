@@ -122,7 +122,7 @@ export default function TranslationPage() {
     setTranslatedText(value);
     
     // Update word count
-    const words = value.trim() ? value.trim().split(/\s+/).length : 0;
+    const words = value.trim() ? value.trim().split(/\s+/)?.length : 0;
     setWordCount(words);
     
     // Trigger auto-save

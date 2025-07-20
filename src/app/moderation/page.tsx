@@ -321,7 +321,7 @@ export default function ModerationPage() {
 
         {/* Reviews List */}
         <div className="space-y-6">
-          {reviews.length === 0 ? (
+          {reviews?.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -380,7 +380,7 @@ export default function ModerationPage() {
                       <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
                         {review.file?.translatedText ? 
                           review.file.translatedText.substring(0, 200) + 
-                          (review.file.translatedText.length > 200 ? '...' : '') : 
+                          (review.file.translatedText?.length > 200 ? '...' : '') : 
                           'No translation text available'
                         }
                       </div>

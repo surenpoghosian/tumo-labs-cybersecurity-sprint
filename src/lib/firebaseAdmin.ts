@@ -27,7 +27,7 @@ async function initializeFirebaseAdmin() {
     const firebaseAdmin = await getFirebaseAdmin();
     
     // Check if already initialized
-    if (firebaseAdmin.apps.length > 0) {
+    if (firebaseAdmin.apps?.length > 0) {
       isFirebaseAdminInitialized = true;
       return true;
     }

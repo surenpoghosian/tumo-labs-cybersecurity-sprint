@@ -18,7 +18,7 @@ const validateFirebaseConfig = () => {
   const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
   const missing = requiredKeys.filter(key => !firebaseConfig[key as keyof typeof firebaseConfig]);
   
-  if (missing.length > 0) {
+  if (missing?.length > 0) {
     console.error('Missing Firebase configuration:', missing);
     throw new Error(`Missing Firebase configuration: ${missing.join(', ')}`);
   }

@@ -144,10 +144,10 @@ export async function getUserDashboardData(userId: string) {
 
     // Calculate statistics safely
     const stats = {
-      totalFiles: currentFiles.length,
-      filesInProgress: currentFiles.filter(f => f.status === 'in progress').length,
-      filesPending: currentFiles.filter(f => f.status === 'pending').length,
-      totalCertificates: certificates.length,
+      totalFiles: currentFiles?.length,
+      filesInProgress: currentFiles.filter(f => f.status === 'in progress')?.length,
+      filesPending: currentFiles.filter(f => f.status === 'pending')?.length,
+      totalCertificates: certificates?.length,
       totalCredits: userProfile.totalCredits || 0,
       wordsTranslated: userProfile.totalWordsTranslated || 0,
       approvedTranslations: userProfile.approvedTranslations || 0,
@@ -161,7 +161,7 @@ export async function getUserDashboardData(userId: string) {
       recentProjects,
       certificates,
       translationMemory,
-      isEmpty: currentFiles.length === 0 && certificates.length === 0 && translationMemory.length === 0
+      isEmpty: currentFiles?.length === 0 && certificates?.length === 0 && translationMemory?.length === 0
     };
 
   } catch (error) {

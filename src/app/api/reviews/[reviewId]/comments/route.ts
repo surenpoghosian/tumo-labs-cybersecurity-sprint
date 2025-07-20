@@ -36,12 +36,12 @@ export async function GET(
     }
     
     const commentStats = {
-      total: reviewTask.detailedFeedback.length,
-      suggestions: reviewTask.detailedFeedback.filter(c => c.type === 'suggestion').length,
-      corrections: reviewTask.detailedFeedback.filter(c => c.type === 'correction').length,
-      questions: reviewTask.detailedFeedback.filter(c => c.type === 'question').length,
-      resolved: reviewTask.detailedFeedback.filter(c => c.resolved).length,
-      highPriority: reviewTask.detailedFeedback.filter(c => c.severity === 'high').length
+      total: reviewTask.detailedFeedback?.length,
+      suggestions: reviewTask.detailedFeedback.filter(c => c.type === 'suggestion')?.length,
+      corrections: reviewTask.detailedFeedback.filter(c => c.type === 'correction')?.length,
+      questions: reviewTask.detailedFeedback.filter(c => c.type === 'question')?.length,
+      resolved: reviewTask.detailedFeedback.filter(c => c.resolved)?.length,
+      highPriority: reviewTask.detailedFeedback.filter(c => c.severity === 'high')?.length
     };
     
     return NextResponse.json({

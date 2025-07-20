@@ -155,10 +155,10 @@ export async function PUT(request: Request) {
 
     // Update contribution count and certificates earned based on arrays
     if (certificates !== undefined) {
-      updateData.certificatesEarned = Array.isArray(certificates) ? certificates.length : 0;
+      updateData.certificatesEarned = Array.isArray(certificates) ? certificates?.length : 0;
     }
     if (contributedFiles !== undefined) {
-      updateData.contributionCount = contributedFiles ? Object.keys(contributedFiles).length : 0;
+      updateData.contributionCount = contributedFiles ? Object.keys(contributedFiles)?.length : 0;
     }
 
     await firestore.collection('userProfiles').doc(userId).update(updateData);

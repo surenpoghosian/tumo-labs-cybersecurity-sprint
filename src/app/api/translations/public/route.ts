@@ -116,15 +116,15 @@ export async function GET(request: Request) {
       success: true,
       data: publicTranslations,
       meta: {
-        total: publicTranslations.length,
+        total: publicTranslations?.length,
         totalWords,
-        categories: categories.length,
+        categories: categories?.length,
         availableCategories: categories,
         lastUpdated: new Date().toISOString(),
         // SEO metadata
         seo: {
           title: `Armenian Cybersecurity Translations - ${totalWords.toLocaleString()} Words Translated`,
-          description: `Access ${publicTranslations.length} professionally translated cybersecurity documents in Armenian covering ${categories.join(', ')}.`,
+          description: `Access ${publicTranslations?.length} professionally translated cybersecurity documents in Armenian covering ${categories.join(', ')}.`,
           keywords: [
             'armenian cybersecurity',
             'security documentation',
