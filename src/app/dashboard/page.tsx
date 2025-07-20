@@ -324,7 +324,7 @@ function DashboardPageContent() {
         </div>
 
          {/* Quick Actions */}
-         <Card className="mt-8">
+         <Card className="mt-8 mb-8">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
