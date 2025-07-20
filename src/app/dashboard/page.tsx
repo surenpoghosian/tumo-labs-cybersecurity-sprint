@@ -323,9 +323,60 @@ function DashboardPageContent() {
           </Card>
         </div>
 
+         {/* Quick Actions */}
+         <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
+                <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    title="Continue working on your assigned files"
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Continue My Work
+                  </Button>
+                </Link>
+              )}
+              <Link href="/projects">
+                <Button 
+                  className="w-full bg-orange-600 hover:bg-orange-700"
+                  title="Browse available cybersecurity projects to translate"
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Browse CyberSec Projects
+                </Button>
+              </Link>
+              <Link href="/translate">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  title="Continue working on your current translation project"
+                >
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  Continue Translation
+                </Button>
+              </Link>
+              <Link href="/certificates">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  title="View and manage your earned certificates"
+                >
+                  <Award className="mr-2 h-4 w-4" />
+                  View Certificates
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Current Files */}
         {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
-          <Card className="mt-8">
+          <Card className="mt-8 mb-8">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>My Current Files</CardTitle>
@@ -568,57 +619,6 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Quick Actions */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-              {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
-                <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    title="Continue working on your assigned files"
-                  >
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Continue My Work
-                  </Button>
-                </Link>
-              )}
-              <Link href="/projects">
-                <Button 
-                  className="w-full bg-orange-600 hover:bg-orange-700"
-                  title="Browse available cybersecurity projects to translate"
-                >
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Browse CyberSec Projects
-                </Button>
-              </Link>
-              <Link href="/translate">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  title="Continue working on your current translation project"
-                >
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                  Continue Translation
-                </Button>
-              </Link>
-              <Link href="/certificates">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  title="View and manage your earned certificates"
-                >
-                  <Award className="mr-2 h-4 w-4" />
-                  View Certificates
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Firestore Test Section */}
         <Card className="mt-8">
