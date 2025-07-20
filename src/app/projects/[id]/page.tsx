@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   BookOpen, 
-  Github, 
   ArrowLeft, 
   Clock, 
   AlertCircle, 
