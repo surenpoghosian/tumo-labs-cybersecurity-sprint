@@ -1,37 +1,24 @@
 import { NextResponse } from 'next/server';
-import { getUserTranslationProjects } from '@/data/mockData';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId') || 'user-1';
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  const userProjects = getUserTranslationProjects(userId);
-  
+// Legacy endpoint - replaced by file-based API
+export async function GET() {
   return NextResponse.json({
-    success: true,
-    data: userProjects
-  });
+    success: false,
+    error: 'This endpoint has been replaced by the file-based translation API. Please use /api/files instead.',
+    migration: {
+      newEndpoint: '/api/files',
+      documentation: 'See the file-based translation documentation for the new workflow.'
+    }
+  }, { status: 410 });
 }
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  
-  // Simulate creating translation
-  await new Promise(resolve => setTimeout(resolve, 600));
-  
-  const mockPRResponse = {
-    prUrl: `https://github.com/${body.owner}/${body.repo}/pull/${Math.floor(Math.random() * 1000) + 1000}`,
-    prNumber: Math.floor(Math.random() * 1000) + 1000,
-    status: 'open',
-    createdAt: new Date().toISOString()
-  };
-  
+export async function POST() {
   return NextResponse.json({
-    success: true,
-    data: mockPRResponse,
-    message: 'Pull request submitted successfully'
-  });
+    success: false,
+    error: 'This endpoint has been replaced by the file-based translation API. Please use /api/files instead.',
+    migration: {
+      newEndpoint: '/api/files',
+      documentation: 'See the file-based translation documentation for the new workflow.'
+    }
+  }, { status: 410 });
 } 

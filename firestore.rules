@@ -1,0 +1,154 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to check if user has access based on uId field
+    function hasAccess() {
+      return isAuthenticated() && request.auth.uid == resource.data.uId;
+    }
+    
+    // Helper function to check if user is admin or moderator
+    function isAdminOrModerator() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role in ['administrator', 'moderator'];
+    }
+    
+    // Helper function for creating new documents with uId
+    function canCreate() {
+      return isAuthenticated() && request.resource.data.uId == request.auth.uid;
+    }
+
+    // Enhanced User Profiles Collection
+    match /userProfiles/{userId} {
+      allow read: if isAuthenticated() && (userId == request.auth.uid || isAdminOrModerator());
+      allow create: if isAuthenticated() && userId == request.auth.uid && request.resource.data.uId == request.auth.uid;
+      allow update: if isAuthenticated() && (userId == request.auth.uid || isAdminOrModerator());
+      allow delete: if isAdminOrModerator();
+    }
+
+    // Enhanced Projects Collection (file-based)
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if canCreate();
+      allow update: if hasAccess() || isAdminOrModerator();
+      allow delete: if hasAccess() || isAdminOrModerator();
+    }
+
+    // Files Collection (core of file-based model)
+    match /files/{fileId} {
+      allow read: if isAuthenticated() && (
+        hasAccess() || 
+        resource.data.assignedTranslatorId == request.auth.uid ||
+        resource.data.reviewerId == request.auth.uid ||
+        isAdminOrModerator()
+      );
+      allow create: if canCreate();
+      allow update: if isAuthenticated() && (
+        hasAccess() || 
+        resource.data.assignedTranslatorId == request.auth.uid ||
+        resource.data.reviewerId == request.auth.uid ||
+        isAdminOrModerator()
+      );
+      allow delete: if hasAccess() || isAdminOrModerator();
+    }
+
+    // Translation Memory Collection (keep existing)
+    match /translationMemory/{entryId} {
+      allow read: if hasAccess();
+      allow create: if canCreate();
+      allow update: if hasAccess();
+      allow delete: if hasAccess();
+    }
+
+    // Enhanced Certificates Collection
+    match /certificates/{certificateId} {
+      // Public read for certificate verification (no auth required)
+      allow read: if true;
+      allow create: if canCreate();
+      allow update: if hasAccess() || isAdminOrModerator();
+      allow delete: if hasAccess() || isAdminOrModerator();
+    }
+
+    // Translation Sessions Collection (adapted for file-based)
+    match /translationSessions/{sessionId} {
+      allow read: if hasAccess();
+      allow create: if canCreate();
+      allow update: if hasAccess();
+      allow delete: if hasAccess();
+    }
+
+    // Reviews Collection (adapted for file-based)
+    match /reviews/{reviewId} {
+      allow read: if isAuthenticated() && (
+        hasAccess() || 
+        resource.data.reviewerId == request.auth.uid ||
+        isAdminOrModerator()
+      );
+      allow create: if canCreate();
+      allow update: if isAuthenticated() && (
+        hasAccess() || 
+        resource.data.reviewerId == request.auth.uid ||
+        isAdminOrModerator()
+      );
+      allow delete: if hasAccess() || isAdminOrModerator();
+    }
+
+    // Review Comments Collection (adapted for file-based)
+    match /reviewComments/{commentId} {
+      allow read: if isAuthenticated() && (
+        hasAccess() || 
+        isAdminOrModerator()
+      );
+      allow create: if canCreate();
+      allow update: if hasAccess() || isAdminOrModerator();
+      allow delete: if hasAccess() || isAdminOrModerator();
+    }
+
+    // Autosaves Collection (adapted for file-based)
+    match /autosaves/{autosaveId} {
+      allow read: if hasAccess();
+      allow create: if canCreate();
+      allow update: if hasAccess();
+      allow delete: if hasAccess();
+    }
+
+    // Legacy collections (maintain backward compatibility if needed)
+    match /translationProjects/{projectId} {
+      allow read: if hasAccess();
+      allow create: if canCreate();
+      allow update: if hasAccess();
+      allow delete: if hasAccess();
+    }
+
+    match /translationSegments/{segmentId} {
+      allow read: if hasAccess();
+      allow create: if canCreate();
+      allow update: if hasAccess();
+      allow delete: if hasAccess();
+    }
+
+    match /cyberSecProjects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdminOrModerator();
+      allow update: if isAdminOrModerator();
+      allow delete: if isAdminOrModerator();
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

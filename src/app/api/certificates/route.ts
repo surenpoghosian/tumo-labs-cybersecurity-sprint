@@ -1,51 +1,23 @@
 import { NextResponse } from 'next/server';
-import { getCertificatesByUserId } from '@/data/mockData';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId') || 'user-1';
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  const userCertificates = getCertificatesByUserId(userId);
-  
+// Certificate endpoint - simplified for now
+export async function GET() {
+  // Return empty certificates for now - will be implemented with proper auth later
   return NextResponse.json({
     success: true,
-    data: userCertificates,
+    data: [],
     meta: {
-      total: userCertificates.length,
-      byCategory: userCertificates.reduce((acc, cert) => {
-        acc[cert.category] = (acc[cert.category] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>)
+      total: 0,
+      byCategory: {},
+      note: 'Certificate functionality will be implemented with full authentication system'
     }
   });
 }
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  
-  // Simulate certificate generation after PR merge
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  const newCertificate = {
-    id: `cert-${Date.now()}`,
-    userId: body.userId,
-    projectId: body.projectId,
-    projectName: body.projectName,
-    githubRepo: body.githubRepo,
-    prUrl: body.prUrl,
-    mergedAt: new Date().toISOString(),
-    certificateType: 'translation' as const,
-    category: body.category,
-    verificationCode: `CYBS-CERT-2024-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
-    pdfUrl: `/certificates/cert-${Date.now()}.pdf`
-  };
-  
+export async function POST() {
   return NextResponse.json({
-    success: true,
-    data: newCertificate,
-    message: 'Certificate generated successfully'
-  });
+    success: false,
+    error: 'Certificate creation is temporarily disabled',
+    message: 'This feature will be available when the authentication system is fully implemented'
+  }, { status: 501 });
 } 
