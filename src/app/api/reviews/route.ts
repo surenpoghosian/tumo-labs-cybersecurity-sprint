@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreReview, FirestoreUserProfile, FirestoreFile, FirestoreProject } from '@/lib/firestore';
-import { admin } from '@/lib/firebaseAdmin';
 
 export async function GET(request: Request) {
   try {
