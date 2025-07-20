@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, TranslationProject, Certificate } from "@/data/mockData";
+import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile, TranslationMemoryEntry } from "@/lib/firestore";
 import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Github, Eye, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,22 +12,29 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useRouter } from 'next/navigation';
 
 interface DashboardData {
-  user: User;
+  user: FirestoreUserProfile;
   stats: {
-    totalProjects: number;
-    completedProjects: number;
-    inProgressProjects: number;
-    underReviewProjects: number;
+    totalFiles: number;
+    filesInProgress: number;
+    filesPending: number;
     totalCertificates: number;
+    totalCredits: number;
+    wordsTranslated: number;
+    approvedTranslations: number;
+    rejectedTranslations: number;
   };
-  recentProjects: TranslationProject[];
-  recentCertificates: Certificate[];
+  currentFiles: FirestoreFile[];
+  recentProjects: FirestoreProject[];
+  certificates: FirestoreCertificate[];
+  translationMemory: TranslationMemoryEntry[];
+  isEmpty: boolean;
 }
 
 function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
   
   // Firestore test states
   const [testOriginal, setTestOriginal] = useState('');
@@ -98,21 +105,63 @@ function DashboardPageContent() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!authUser) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch('/api/user');
+        const token = await authUser.getIdToken();
+        const response = await fetch('/api/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const result = await response.json();
-        setDashboardData(result.data);
+        if (result.success) {
+          setDashboardData(result.data);
+        } else {
+          console.error('Dashboard API returned error:', result.error);
+          setDashboardData(null);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        setDashboardData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboardData();
-  }, []);
+    if (authUser) {
+      fetchDashboardData();
+    }
+  }, [authUser]);
 
-  const handleDownloadCertificate = async (certificate: Certificate) => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!authUser) return;
+      
+      try {
+        const idToken = await authUser.getIdToken();
+        const response = await fetch('/api/user', {
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          }
+        });
+        
+        if (response.ok) {
+          const profile = await response.json();
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [authUser]);
+
+  const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
     try {
       const filename = `${certificate.id}.pdf`;
       const response = await fetch(`/api/certificates/download/${filename}`);
@@ -159,7 +208,7 @@ function DashboardPageContent() {
     );
   }
 
-  const { stats, recentProjects, recentCertificates } = dashboardData;
+  const { stats, recentProjects, certificates } = dashboardData;
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
@@ -173,6 +222,9 @@ function DashboardPageContent() {
             <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
             <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
             <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
+              <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Moderation</Link>
+            )}
             
             {/* User Menu */}
             <div className="relative">
@@ -233,15 +285,15 @@ function DashboardPageContent() {
           <Card>
             <CardContent className="p-6 text-center">
               <BookOpen className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.totalProjects}</div>
-              <div className="text-sm text-gray-600">Total Projects</div>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalFiles || 0}</div>
+              <div className="text-sm text-gray-600">Total Files</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
               <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.inProgressProjects}</div>
+              <div className="text-2xl font-bold text-gray-900">{stats?.filesInProgress || 0}</div>
               <div className="text-sm text-gray-600">In Progress</div>
             </CardContent>
           </Card>
@@ -249,27 +301,156 @@ function DashboardPageContent() {
           <Card>
             <CardContent className="p-6 text-center">
               <Eye className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.underReviewProjects}</div>
-              <div className="text-sm text-gray-600">Under Review</div>
+              <div className="text-2xl font-bold text-gray-900">{stats?.filesPending || 0}</div>
+              <div className="text-sm text-gray-600">Pending Review</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.completedProjects}</div>
-              <div className="text-sm text-gray-600">Completed</div>
+              <div className="text-2xl font-bold text-gray-900">{stats?.approvedTranslations || 0}</div>
+              <div className="text-sm text-gray-600">Approved</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
               <Award className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.totalCertificates}</div>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalCertificates || 0}</div>
               <div className="text-sm text-gray-600">Certificates</div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Current Files */}
+        {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+          <Card className="mt-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>My Current Files</CardTitle>
+                <Badge variant="outline" className="text-xs">
+                  {dashboardData.currentFiles.length} assigned
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {dashboardData.currentFiles.map((file) => {
+                  const getStatusInfo = () => {
+                    switch (file.status) {
+                      case 'in progress':
+                        return { 
+                          color: 'orange', 
+                          bgColor: 'orange-50', 
+                          borderColor: 'orange-200', 
+                          label: 'In Progress',
+                          canEdit: true,
+                          buttonText: 'Continue Translation',
+                          buttonColor: 'bg-green-600 hover:bg-green-700'
+                        };
+                      case 'pending':
+                        return { 
+                          color: 'yellow', 
+                          bgColor: 'yellow-50', 
+                          borderColor: 'yellow-200', 
+                          label: 'Under Review',
+                          canEdit: false,
+                          buttonText: 'View Status',
+                          buttonColor: 'bg-gray-400 cursor-not-allowed'
+                        };
+                      case 'rejected':
+                        return { 
+                          color: 'red', 
+                          bgColor: 'red-50', 
+                          borderColor: 'red-200', 
+                          label: 'Needs Revision',
+                          canEdit: true,
+                          buttonText: 'Make Revisions',
+                          buttonColor: 'bg-red-600 hover:bg-red-700'
+                        };
+                      case 'accepted':
+                        return { 
+                          color: 'green', 
+                          bgColor: 'green-50', 
+                          borderColor: 'green-200', 
+                          label: 'Completed',
+                          canEdit: false,
+                          buttonText: 'View Translation',
+                          buttonColor: 'bg-gray-400'
+                        };
+                      default:
+                        return { 
+                          color: 'blue', 
+                          bgColor: 'blue-50', 
+                          borderColor: 'blue-200', 
+                          label: 'Available',
+                          canEdit: true,
+                          buttonText: 'Start Translation',
+                          buttonColor: 'bg-blue-600 hover:bg-blue-700'
+                        };
+                    }
+                  };
+
+                  const statusInfo = getStatusInfo();
+
+                  return (
+                    <div key={file.id} className={`border rounded-lg p-4 bg-${statusInfo.bgColor} border-${statusInfo.borderColor}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">{file.fileName}</h4>
+                        <Badge className={`bg-${statusInfo.color}-100 text-${statusInfo.color}-800`}>
+                          <Clock className="h-3 w-3 mr-1" />
+                          {statusInfo.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">{file.filePath}</p>
+                      
+                      {/* Status-specific messages */}
+                      {file.status === 'pending' && (
+                        <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
+                          <strong>Under Review:</strong> Your translation is being reviewed by moderators. You cannot edit until review is complete.
+                        </div>
+                      )}
+                      
+                      {file.status === 'rejected' && (
+                        <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
+                          <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. Please make revisions and resubmit.
+                        </div>
+                      )}
+
+                      {file.status === 'accepted' && (
+                        <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-xs text-green-800">
+                          <strong>Completed:</strong> Your translation has been accepted and published. Great work!
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>{file.wordCount} words</span>
+                          <span>{file.estimatedHours}h estimated</span>
+                        </div>
+                        
+                        {statusInfo.canEdit ? (
+                          <Link href={`/translate/${file.id}`}>
+                            <Button size="sm" className={statusInfo.buttonColor}>
+                              <ArrowRight className="h-4 w-4 mr-1" />
+                              {statusInfo.buttonText}
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button size="sm" className={statusInfo.buttonColor} disabled>
+                            <ArrowRight className="h-4 w-4 mr-1" />
+                            {statusInfo.buttonText}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -287,30 +468,30 @@ function DashboardPageContent() {
               </div>
             </CardHeader>
             <CardContent>
-              {recentProjects.length > 0 ? (
+              {recentProjects?.length > 0 ? (
                 <div className="space-y-4">
                   {recentProjects.map((project) => (
                     <div key={project.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium">Project {project.id}</h4>
+                        <h4 className="font-medium">{project.title}</h4>
                         <Badge 
                           variant={
-                            project.status === 'merged' ? 'default' :
-                            project.status === 'under-review' ? 'secondary' :
+                            project.status === 'completed' ? 'default' :
+                            project.status === 'in progress' ? 'secondary' :
                             'outline'
                           }
                         >
-                          {project.status.replace('-', ' ')}
+                          {project.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{project.documentPath}</p>
+                      <p className="text-sm text-gray-600 mb-2">{project.description}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
                           {new Date(project.createdAt).toLocaleDateString()}
                         </span>
-                        {project.prUrl && (
+                        {project.source && (
                           <a 
-                            href={project.prUrl} 
+                            href={project.source} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-xs text-orange-600 hover:underline flex items-center"
@@ -349,9 +530,9 @@ function DashboardPageContent() {
               </div>
             </CardHeader>
             <CardContent>
-              {recentCertificates.length > 0 ? (
+              {certificates?.length > 0 ? (
                 <div className="space-y-4">
-                  {recentCertificates.map((certificate) => (
+                  {certificates.map((certificate) => (
                     <div key={certificate.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium">{certificate.projectName}</h4>
@@ -362,7 +543,7 @@ function DashboardPageContent() {
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {new Date(certificate.mergedAt).toLocaleDateString()}
+                          {certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : 'N/A'}
                         </span>
                         <button
                           onClick={() => handleDownloadCertificate(certificate)}
@@ -394,7 +575,18 @@ function DashboardPageContent() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+                <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    title="Continue working on your assigned files"
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Continue My Work
+                  </Button>
+                </Link>
+              )}
               <Link href="/projects">
                 <Button 
                   className="w-full bg-orange-600 hover:bg-orange-700"
@@ -461,7 +653,7 @@ function DashboardPageContent() {
                 </Button>
               </div>
               
-              {testEntries.length > 0 && (
+              {testEntries?.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Entries from Firestore:</h4>
                   {testEntries.map((entry) => (

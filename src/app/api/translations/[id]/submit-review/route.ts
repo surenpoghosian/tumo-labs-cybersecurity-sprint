@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getAllTranslationProjects, mockUsers, mockCyberSecProjects } from '@/data/mockData';
 
 export async function POST(
@@ -6,12 +7,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await verifyAuthToken();
     const { id } = await params;
     const translationId = id;
     const body = await request.json();
-    const { userId, completionNotes, requestCertificate = true } = body;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const notes = completionNotes;
+    const { completionNotes, requestCertificate = true } = body;
 
     // Find the translation project
     const translationProject = getAllTranslationProjects().find(p => p.id === translationId);
@@ -68,82 +68,76 @@ export async function POST(
       );
     }
 
-    // Simulate review submission processing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Update translation project status
-    translationProject.status = 'under-review';
+    // Calculate completion percentage
+    const completionPercentage = translationProject.totalSegments > 0 
+      ? Math.round((translationProject.completedSegments / translationProject.totalSegments) * 100)
+      : 0;
     
-    // Get the related cyber security project to build PR URL
-    const cyberSecProject = mockCyberSecProjects.find(p => p.id === translationProject.cyberSecProjectId);
-    const repoName = cyberSecProject ? cyberSecProject.name.toLowerCase().replace(/\s+/g, '-') : 'unknown-repo';
-
-    // Generate a mock GitHub PR URL (in real app, this would integrate with GitHub API)
-    const prNumber = Math.floor(Math.random() * 1000) + 100;
-    const prUrl = `https://github.com/armenian-cybersec/${repoName}/pull/${prNumber}`;
-    translationProject.prUrl = prUrl;
-
-    // Simulate review assignment (assign to a random moderator)
-    const moderators = mockUsers.filter(u => u.isModerator);
-    if (moderators.length > 0) {
-      const assignedReviewer = moderators[Math.floor(Math.random() * moderators.length)];
-      translationProject.reviewerId = assignedReviewer.id;
+    if (completionPercentage < 100) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Translation must be 100% complete before submission. Current progress: ${completionPercentage}%`,
+          code: 'INCOMPLETE_TRANSLATION',
+          details: {
+            currentProgress: completionPercentage,
+            requiredProgress: 100
+          }
+        },
+        { status: 400 }
+      );
     }
 
-    // Create a review task
-    const reviewTask = {
-      id: `review-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      translationProjectId: translationId,
-      reviewerId: translationProject.reviewerId || 'user-2',
-      status: 'pending' as const,
-      priority: 'medium' as const,
-      createdAt: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-      estimatedReviewTime: translationProject.estimatedHours || 2,
-      reviewType: 'translation' as const,
-      category: 'cybersecurity'
-    };
+    // Mock submission process
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // In a real app, this would be saved to database
-    console.log('Created review task:', reviewTask);
-
-    // Prepare response with next steps
-    const response = {
-      success: true,
-      data: {
-        translationProject: {
-          id: translationProject.id,
-          status: translationProject.status,
-          submittedAt: new Date().toISOString(),
-          prUrl: translationProject.prUrl,
-          assignedReviewer: moderators.find(m => m.id === translationProject.reviewerId)?.name || 'Unassigned'
-        },
-        reviewTask: {
-          id: reviewTask.id,
-          estimatedReviewTime: reviewTask.estimatedReviewTime,
-          dueDate: reviewTask.dueDate,
-          priority: reviewTask.priority
-        },
-        nextSteps: {
-          trackProgress: `/translate/${translationId}`,
-          viewPR: prUrl,
-          certificateEligible: requestCertificate,
-          estimatedCompletionTime: '3-7 business days'
-        }
+    // Generate a mock review ID
+    const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Find the source project for additional details
+    const sourceProject = mockCyberSecProjects.find(p => p.id === translationProject.cyberSecProjectId);
+    
+    const submissionResult = {
+      reviewId,
+      submissionId: `sub-${Date.now()}`,
+      translationId,
+      userId,
+      status: 'pending-review',
+      submittedAt: new Date().toISOString(),
+      estimatedReviewTime: '2-3 business days',
+      priority: 'normal', // Default priority since TranslationProject doesn't have priority property
+      projectDetails: {
+        title: sourceProject?.name || translationProject.documentPath,
+        difficulty: sourceProject?.difficulty || 'intermediate',
+        wordCount: translationProject.originalContent?.split(' ').length || 0,
+        category: sourceProject?.category || 'general'
       },
-      message: 'Translation successfully submitted for review',
-      actions: {
-        viewTranslation: `/translate/${translationId}`,
-        viewPR: prUrl,
-        trackReview: `/dashboard`,
-        browseCertificates: `/certificates`
-      }
+      reviewerAssignment: {
+        assignedReviewer: null, // Will be assigned by system
+        expectedAssignmentTime: '1 business day'
+      },
+      completionNotes: completionNotes || '',
+      certificateRequested: requestCertificate,
+      nextSteps: [
+        'Your translation has been submitted for review',
+        'A qualified reviewer will be assigned within 1 business day',
+        'Review process typically takes 2-3 business days',
+        requestCertificate ? 'Certificate will be issued upon successful review' : 'No certificate requested'
+      ]
     };
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      success: true,
+      data: submissionResult,
+      message: 'Translation submitted for review successfully'
+    });
 
   } catch (error) {
-    console.error('Submit for review error:', error);
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    console.error('Submit review API error:', error);
     return NextResponse.json(
       { 
         success: false, 

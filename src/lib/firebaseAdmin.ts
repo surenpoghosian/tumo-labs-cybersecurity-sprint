@@ -1,4 +1,5 @@
 import type { ServiceAccount } from 'firebase-admin';
+import { NextResponse } from 'next/server';
 
 // Lazy import Firebase Admin to avoid initialization issues
 let admin: typeof import('firebase-admin') | null = null;
@@ -106,3 +107,97 @@ export const isFirebaseAdminAvailableSync = (): boolean => {
 
 // Export admin for direct access if needed
 export { admin };
+
+// Simplified auth function that throws on error - For development only
+export async function verifyAuthToken(authHeader?: string): Promise<string> {
+  if (!authHeader) {
+    throw new Error('Unauthorized');
+  }
+
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  
+  if (!token) {
+    throw new Error('Unauthorized');
+  }
+
+  const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+  
+  if (firebaseAdminAvailable) {
+    try {
+      const auth = await getAuth();
+      const decodedToken = await auth.verifyIdToken(token);
+      return decodedToken.uid;
+    } catch (authError) {
+      console.error('Token verification failed:', authError);
+      throw new Error('Unauthorized');
+    }
+  } else {
+    console.warn('Firebase Admin not available - authentication disabled for development');
+    // In development without proper Firebase setup, you could extract user ID from token payload
+    // This is not secure and should only be used for development
+    throw new Error('Unauthorized');
+  }
+}
+
+// Auth function with request parameter for legacy compatibility
+export async function verifyAuthTokenWithRequest(request: Request): Promise<{ success: boolean; userId?: string; error?: NextResponse }> {
+  try {
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    if (!token) {
+      return {
+        success: false,
+        error: NextResponse.json({
+          success: false,
+          error: 'Authentication required. Please provide a valid Bearer token.',
+          data: []
+        }, { status: 401 })
+      };
+    }
+
+    const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+    
+    if (firebaseAdminAvailable) {
+      try {
+        const auth = await getAuth();
+        const decodedToken = await auth.verifyIdToken(token);
+        return { success: true, userId: decodedToken.uid };
+      } catch (authError) {
+        console.error('Token verification failed:', authError);
+        return {
+          success: false,
+          error: NextResponse.json({
+            success: false,
+            error: 'Invalid authentication token. Please login again.',
+            data: []
+          }, { status: 401 })
+        };
+      }
+    } else {
+      console.warn('Firebase Admin not available');
+      return {
+        success: false,
+        error: NextResponse.json({
+          success: false,
+          error: 'Authentication service unavailable. Please ensure Firebase Admin is properly configured.',
+          data: []
+        }, { status: 503 })
+      };
+    }
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return {
+      success: false,
+      error: NextResponse.json({
+        success: false,
+        error: 'Authentication failed'
+      }, { status: 500 })
+    };
+  }
+}
+
+export async function getFirestore() {
+  const admin = await import('firebase-admin');
+  return admin.firestore();
+}

@@ -5,69 +5,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { signUpWithEmail, signInWithGoogle, signInWithGitHub } = useAuth();
+  const { signInWithGoogle, signInWithGitHub } = useAuth();
   const router = useRouter();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      setError('Please enter your full name');
-      return false;
-    }
-    if (!formData.email) {
-      setError('Please enter your email address');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-    return true;
-  };
-
-  const handleEmailRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      await signUpWithEmail(formData.email, formData.password, formData.fullName);
-      router.push('/dashboard');
-    } catch (error: any) {
-      setError(getErrorMessage(error.code));
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleGoogleRegister = async () => {
     setIsLoading(true);
@@ -99,12 +46,6 @@ export default function RegisterPage() {
 
   const getErrorMessage = (errorCode: string) => {
     switch (errorCode) {
-      case 'auth/email-already-in-use':
-        return 'An account with this email already exists';
-      case 'auth/invalid-email':
-        return 'Invalid email address';
-      case 'auth/weak-password':
-        return 'Password is too weak. Please choose a stronger password';
       case 'auth/popup-closed-by-user':
         return 'Sign-up was cancelled';
       case 'auth/account-exists-with-different-credential':
@@ -116,7 +57,7 @@ export default function RegisterPage() {
       case 'auth/popup-blocked':
         return 'Popup was blocked by your browser. Please allow popups and try again';
       default:
-        return 'An error occurred during registration. Please try again';
+        return 'An error occurred during sign-up. Please try again';
     }
   };
 
@@ -131,8 +72,8 @@ export default function RegisterPage() {
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
             <BookOpen className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900">Join Armenian CyberSec Docs</h1>
-            <p className="text-gray-600">Start contributing to Armenian cybersecurity education</p>
+            <h1 className="text-2xl font-bold text-gray-900">Join Our Community</h1>
+            <p className="text-gray-600">Sign up to start translating cybersecurity docs</p>
           </div>
 
           <Card>
@@ -173,119 +114,11 @@ export default function RegisterPage() {
                 </Button>
               </div>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300" />
+              {error && (
+                <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-2 animate-in fade-in duration-200">
+                  {error}
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">Or sign up with email</span>
-                </div>
-              </div>
-
-              {/* Email/Password Form */}
-              <form onSubmit={handleEmailRegister} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input 
-                    type="text" 
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200"
-                    placeholder="Your full name"
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input 
-                    type="email" 
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200"
-                    placeholder="your@email.com"
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <div className="relative">
-                    <input 
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200"
-                      placeholder="••••••••"
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors duration-200"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                  <div className="relative">
-                    <input 
-                      type={showConfirmPassword ? "text" : "password"}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200"
-                      placeholder="••••••••"
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors duration-200"
-                      tabIndex={-1}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-2 animate-in fade-in duration-200">
-                    {error}
-                  </div>
-                )}
-
-                <Button 
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-orange-600 hover:bg-orange-700 transition-colors duration-200 h-11"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Creating Account...</span>
-                    </div>
-                  ) : (
-                    'Create Account'
-                  )}
-                </Button>
-              </form>
+              )}
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{" "}

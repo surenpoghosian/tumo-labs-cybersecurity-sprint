@@ -1,39 +1,77 @@
 import { NextResponse } from 'next/server';
-import { mockReviewTasks } from '@/data/mockData';
+import { verifyAuthToken } from '@/lib/firebaseAdmin';
+import { mockReviewTasks, getAllTranslationProjects } from '@/data/mockData';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ reviewId: string }> }
 ) {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const { reviewId } = await params;
-  const reviewTask = mockReviewTasks.find(task => task.id === reviewId);
-  
-  if (!reviewTask) {
+  try {
+    const userId = await verifyAuthToken();
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const { reviewId } = await params;
+    const reviewTask = mockReviewTasks.find(task => task.id === reviewId);
+    
+    if (!reviewTask) {
+      return NextResponse.json(
+        { success: false, error: 'Review not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Get the translation project to access translator information
+    const translationProject = getAllTranslationProjects().find(
+      p => p.id === reviewTask.translationProjectId
+    );
+    
+    // Check if user has access to this review (must be the reviewer or the translator)
+    if (reviewTask.reviewerId !== userId && translationProject?.assignedTranslatorId !== userId) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: You do not have access to this review' },
+        { status: 403 }
+      );
+    }
+    
+    const commentStats = {
+      total: reviewTask.detailedFeedback.length,
+      suggestions: reviewTask.detailedFeedback.filter(c => c.type === 'suggestion').length,
+      corrections: reviewTask.detailedFeedback.filter(c => c.type === 'correction').length,
+      questions: reviewTask.detailedFeedback.filter(c => c.type === 'question').length,
+      resolved: reviewTask.detailedFeedback.filter(c => c.resolved).length,
+      highPriority: reviewTask.detailedFeedback.filter(c => c.severity === 'high').length
+    };
+    
+    return NextResponse.json({
+      success: true,
+      data: reviewTask.detailedFeedback.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+      stats: commentStats,
+      meta: {
+        userId,
+        reviewId,
+        userRole: reviewTask.reviewerId === userId ? 'reviewer' : 'translator',
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    console.error('Review comments API error:', error);
     return NextResponse.json(
-      { success: false, error: 'Review not found' },
-      { status: 404 }
+      { 
+        success: false,
+        error: 'Failed to fetch review comments' 
+      }, 
+      { status: 500 }
     );
   }
-  
-  const commentStats = {
-    total: reviewTask.detailedFeedback.length,
-    suggestions: reviewTask.detailedFeedback.filter(c => c.type === 'suggestion').length,
-    corrections: reviewTask.detailedFeedback.filter(c => c.type === 'correction').length,
-    questions: reviewTask.detailedFeedback.filter(c => c.type === 'question').length,
-    resolved: reviewTask.detailedFeedback.filter(c => c.resolved).length,
-    highPriority: reviewTask.detailedFeedback.filter(c => c.severity === 'high').length
-  };
-  
-  return NextResponse.json({
-    success: true,
-    data: reviewTask.detailedFeedback.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ),
-    stats: commentStats
-  });
 }
 
 export async function POST(

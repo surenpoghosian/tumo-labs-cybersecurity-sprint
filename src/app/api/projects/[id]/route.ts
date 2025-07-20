@@ -1,99 +1,188 @@
 import { NextResponse } from 'next/server';
-import { getCyberSecProjectById } from '@/data/mockData';
+import { verifyAuthToken } from '@/lib/firebaseAdmin';
+import { getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreProject, getProjectFiles } from '@/lib/firestore';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const { id } = await params;
-  const project = getCyberSecProjectById(id);
-  
-  if (!project) {
+  try {
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
+    const { id: projectId } = await params;
+
+    const doc = await firestore.collection('projects').doc(projectId).get();
+
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const data = doc.data();
+    const project: FirestoreProject = {
+      id: doc.id,
+      ...data
+    } as FirestoreProject;
+
+    // Get project files
+    const files = await getProjectFiles(projectId, userId);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...project,
+        projectFiles: files // Include files in response for convenience
+      }
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    console.error('Error fetching project:', error);
     return NextResponse.json(
-      { success: false, error: 'Project not found' },
-      { status: 404 }
+      { error: 'Failed to fetch project' }, 
+      { status: 500 }
     );
   }
-  
-  // Add mock documentation content
-  const documentationContent = {
-    'project-1': `# OWASP Top 10 2021
+}
 
-## Introduction
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const userId = await verifyAuthToken();
+    const firestore = await getFirestore();
+    const { id: projectId } = await params;
+    
+    const body = await request.json();
+    const { 
+      title,
+      version,
+      description,
+      developedBy,
+      difficulty,
+      source,
+      categories,
+      status,
+      estimatedHours,
+      translationProgress,
+      availableForTranslation,
+      files
+    } = body;
 
-The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.
-
-## A01:2021 – Broken Access Control
-
-Access control enforces policy such that users cannot act outside of their intended permissions. Failures typically lead to unauthorized information disclosure, modification, or destruction of all data or performing a business function outside the user's limits.
-
-### Common Weaknesses
-- Violation of the principle of least privilege
-- Bypassing access control checks
-- Permitting viewing or editing someone else's account
-- Accessing API with missing access controls`,
-    'project-2': `# Metasploit Framework Documentation
-
-## Overview
-
-The Metasploit Framework is a Ruby-based, modular penetration testing platform that enables you to write, test, and execute exploit code.
-
-## Getting Started
-
-### Installation
-\`\`\`bash
-curl https://raw.githubusercontent.com/rapid7/metasploit-framework/master/msfinstall > msfinstall
-chmod 755 msfinstall
-./msfinstall
-\`\`\`
-
-### Basic Usage
-\`\`\`bash
-msfconsole
-use exploit/windows/smb/ms17_010_eternalblue
-set RHOSTS 192.168.1.100
-run
-\`\`\``,
-    'project-3': `# Wireshark User Guide
-
-## Introduction
-
-Wireshark is a network protocol analyzer. It lets you capture and interactively browse the traffic running on a computer network.
-
-## Starting Wireshark
-
-When you start Wireshark, you'll see the start screen with a list of available capture interfaces.
-
-### Capture Interfaces
-- Ethernet interfaces
-- Wireless interfaces  
-- USB interfaces
-- Bluetooth interfaces
-
-## Capturing Packets
-
-To start capturing:
-1. Select an interface
-2. Click Start
-3. Monitor live traffic`
-  };
-  
-  const content = documentationContent[id as keyof typeof documentationContent] || 'Documentation content not available';
-  
-  return NextResponse.json({
-    success: true,
-    data: {
-      ...project,
-      documentationContent: content,
-      availableDocuments: [
-        `${project.docsPath}`,
-        '/docs/installation.md',
-        '/docs/configuration.md',
-        '/docs/examples.md'
-      ]
+    // Get current project
+    const doc = await firestore.collection('projects').doc(projectId).get();
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
-  });
+
+    const currentData = doc.data();
+    
+    // Only allow updates by creator or admin
+    if (currentData?.createdBy !== userId) {
+      // Check if user is admin/moderator (you might want to add this check)
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Prepare update data
+    const updateData: Partial<FirestoreProject> = {
+      updatedAt: new Date().toISOString()
+    };
+
+    if (title !== undefined) updateData.title = title;
+    if (version !== undefined) updateData.version = version;
+    if (description !== undefined) updateData.description = description;
+    if (developedBy !== undefined) updateData.developedBy = developedBy;
+    if (difficulty !== undefined) updateData.difficulty = Number(difficulty);
+    if (source !== undefined) updateData.source = source;
+    if (categories !== undefined) {
+      if (!Array.isArray(categories)) {
+        return NextResponse.json(
+          { error: 'Categories must be an array' },
+          { status: 400 }
+        );
+      }
+      updateData.categories = categories;
+    }
+    if (status !== undefined) updateData.status = status;
+    if (estimatedHours !== undefined) updateData.estimatedHours = estimatedHours;
+    if (translationProgress !== undefined) updateData.translationProgress = translationProgress;
+    if (availableForTranslation !== undefined) updateData.availableForTranslation = availableForTranslation;
+    if (files !== undefined) updateData.files = files;
+
+    await firestore.collection('projects').doc(projectId).update(updateData);
+
+    const updatedDoc = await firestore.collection('projects').doc(projectId).get();
+    const updatedProject: FirestoreProject = {
+      id: projectId,
+      ...updatedDoc.data()
+    } as FirestoreProject;
+
+    return NextResponse.json(updatedProject);
+
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    console.error('Error updating project:', error);
+    return NextResponse.json(
+      { error: 'Failed to update project' }, 
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const userId = await verifyAuthToken();
+    const firestore = await getFirestore();
+    const { id: projectId } = await params;
+
+    const doc = await firestore.collection('projects').doc(projectId).get();
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const data = doc.data();
+    
+    // Only allow deletion by the creator or admin
+    if (data?.createdBy !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Delete associated files first
+    const files = await getProjectFiles(projectId, userId);
+    const batch = firestore.batch();
+    
+    files.forEach(file => {
+      const fileRef = firestore.collection('files').doc(file.id);
+      batch.delete(fileRef);
+    });
+
+    // Delete the project
+    const projectRef = firestore.collection('projects').doc(projectId);
+    batch.delete(projectRef);
+
+    await batch.commit();
+
+    return NextResponse.json({ message: 'Project and associated files deleted successfully' });
+
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    console.error('Error deleting project:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete project' }, 
+      { status: 500 }
+    );
+  }
 } 

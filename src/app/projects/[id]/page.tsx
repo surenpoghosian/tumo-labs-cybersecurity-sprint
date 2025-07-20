@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,296 +6,309 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CyberSecProject } from "@/data/mockData";
-import { BookOpen, Github, ArrowLeft, ArrowRight, FileText, Clock, Shield, AlertCircle, RefreshCw } from "lucide-react";
+import { 
+  BookOpen, 
+  Github, 
+  ArrowLeft, 
+  Clock, 
+  AlertCircle, 
+  Users,
+  FileText,
+  Zap,
+  RefreshCw,
+  Play,
+  CheckCircle,
+  ChevronDown
+} from "lucide-react";
 import Link from "next/link";
+import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
+import { FolderBrowser } from '@/components/projects/FolderBrowser';
+import { ProjectSync } from '@/components/projects/ProjectSync';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface ProjectWithContent extends CyberSecProject {
-  documentationContent: string;
-  availableDocuments: string[];
+interface ProjectDetailData extends FirestoreProject {
+  projectFiles: FirestoreFile[];
 }
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [project, setProject] = useState<ProjectWithContent | null>(null);
+  const { user } = useAuth();
+  const [project, setProject] = useState<ProjectDetailData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDocument, setSelectedDocument] = useState<string>('');
-  const [documentContent, setDocumentContent] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<FirestoreFile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`/api/projects/${params.id}`);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Project not found. The project may have been removed or the link is incorrect.');
-          } else {
-            setError('Failed to load project. Please try again later.');
-          }
-          return;
-        }
-        
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-          setProject(result.data);
-          const firstDocument = result.data.availableDocuments[0];
-          setSelectedDocument(firstDocument);
-          setDocumentContent(getDocumentContent(firstDocument));
-          setError(null);
-        } else {
-          setError('Project not found or invalid project data.');
-        }
-      } catch (error) {
-        console.error('Failed to fetch project:', error);
-        setError('Network error. Please check your connection and try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (params.id) {
+    if (user && params.id) {
       fetchProject();
     }
-  }, [params.id]);
+  }, [params.id, user]);
 
-  // Function to get document content based on the selected document
-  const getDocumentContent = (documentPath: string): string => {
-    // Simulate different content for different documents
-    const documentContents: { [key: string]: string } = {
-      '/docs/01-injection.md': `# Injection Flaws
+  const fetchProject = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
-Injection flaws, such as SQL, NoSQL, OS, and LDAP injection, occur when untrusted data is sent to an interpreter as part of a command or query. The attacker's hostile data can trick the interpreter into executing unintended commands or accessing data without proper authorization.
-
-## Common Types of Injection
-
-### SQL Injection
-SQL injection occurs when malicious SQL code is inserted into application queries.
-
-Example vulnerable code:
-\`\`\`sql
-SELECT * FROM users WHERE id = '\${userId}'
-\`\`\`
-
-### NoSQL Injection
-Similar to SQL injection but targets NoSQL databases like MongoDB.
-
-### OS Command Injection
-Occurs when user input is passed to system shell commands.
-
-## Prevention Techniques
-
-1. **Use Parameterized Queries**: Always use prepared statements
-2. **Input Validation**: Validate all user inputs
-3. **Least Privilege**: Run applications with minimal permissions
-4. **Escape Special Characters**: Properly escape user input`,
-
-      '/docs/02-authentication.md': `# Authentication and Session Management
-
-Authentication and session management are critical security controls. Weaknesses in these areas can lead to unauthorized access to user accounts and sensitive data.
-
-## Common Authentication Vulnerabilities
-
-### Weak Password Requirements
-- No complexity requirements
-- No minimum length
-- Common passwords allowed
-
-### Session Management Issues
-- Session tokens not properly randomized
-- Sessions don't expire
-- Session fixation vulnerabilities
-
-### Multi-Factor Authentication
-Implementing MFA significantly reduces authentication risks:
-- SMS-based (less secure)
-- App-based (TOTP)
-- Hardware tokens (most secure)
-
-## Best Practices
-
-1. **Strong Password Policies**
-2. **Account Lockout Mechanisms**
-3. **Session Timeout**
-4. **Secure Session Storage**
-5. **Regular Security Audits**`,
-
-      '/docs/03-sensitive-data.md': `# Sensitive Data Exposure
-
-Many applications don't properly protect sensitive data like financial information, healthcare records, or personal information. This can lead to data breaches and privacy violations.
-
-## Data Classification
-
-### Public Data
-- Marketing materials
-- Public documentation
-- General company information
-
-### Internal Data
-- Employee directories
-- Internal procedures
-- Business plans
-
-### Confidential Data
-- Customer information
-- Financial records
-- Trade secrets
-
-### Restricted Data
-- Personal health information
-- Payment card data
-- Government classified information
-
-## Protection Strategies
-
-1. **Data Encryption**
-   - At rest encryption
-   - In transit encryption
-   - End-to-end encryption
-
-2. **Access Controls**
-   - Role-based access
-   - Principle of least privilege
-   - Regular access reviews
-
-3. **Data Masking**
-   - Production data masking
-   - Test data anonymization
-   - Dynamic data masking`,
-
-      '/docs/04-xml-entities.md': `# XML External Entity (XXE) Attacks
-
-XXE attacks occur when XML input containing a reference to an external entity is processed by a weakly configured XML parser. This can lead to disclosure of confidential data, denial of service, and server-side request forgery.
-
-## How XXE Works
-
-XML parsers can process external entities, which can be exploited:
-
-\`\`\`xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE foo [
-  <!ENTITY xxe SYSTEM "file:///etc/passwd">
-]>
-<root>
-  <data>&xxe;</data>
-</root>
-\`\`\`
-
-## Types of XXE Attacks
-
-### File Disclosure
-Reading local files from the server
-
-### Server-Side Request Forgery (SSRF)
-Making requests to internal services
-
-### Denial of Service
-Causing resource exhaustion
-
-## Prevention Methods
-
-1. **Disable XML External Entity Processing**
-2. **Use Simple Data Formats** (JSON instead of XML)
-3. **Input Validation**
-4. **Web Application Firewalls**
-5. **Regular Security Testing**`,
-
-      '/docs/05-broken-access.md': `# Broken Access Control
-
-Access control enforces policies that restrict users from acting outside their intended permissions. Failures commonly lead to unauthorized disclosure, modification, or destruction of data.
-
-## Common Access Control Vulnerabilities
-
-### Vertical Privilege Escalation
-- Regular users gaining admin privileges
-- Bypassing authorization checks
-
-### Horizontal Privilege Escalation
-- Accessing other users' data
-- Modifying other users' accounts
-
-### Insecure Direct Object References
-- Predictable resource identifiers
-- Missing authorization checks
-
-## Access Control Models
-
-### Role-Based Access Control (RBAC)
-- Users assigned to roles
-- Roles have specific permissions
-- Simplifies permission management
-
-### Attribute-Based Access Control (ABAC)
-- More flexible than RBAC
-- Uses attributes for decisions
-- Context-aware access control
-
-## Implementation Guidelines
-
-1. **Deny by Default**
-2. **Implement Proper Authorization**
-3. **Use Centralized Access Control**
-4. **Regular Access Reviews**
-5. **Logging and Monitoring**`
-    };
-
-    return documentContents[documentPath] || `# ${documentPath}
-
-This document contains technical documentation that needs to be translated into Armenian. The content will focus on cybersecurity best practices, vulnerability descriptions, and prevention techniques.
-
-## Document Overview
-
-This documentation covers important security concepts and implementation guidelines for developers and security professionals.
-
-## Translation Guidelines
-
-When translating this document:
-- Maintain technical accuracy
-- Use consistent terminology
-- Preserve code examples
-- Keep formatting intact
-- Ensure clarity for Armenian readers
-
-## Technical Terms
-
-Many cybersecurity terms may need to be adapted for Armenian readers while maintaining their technical meaning.`;
+    try {
+      setLoading(true);
+      const token = await user.getIdToken();
+      
+      const response = await fetch(`/api/projects/${params.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Project not found. The project may have been removed or the link is incorrect.');
+        } else {
+          setError('Failed to load project. Please try again later.');
+        }
+        return;
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setProject(result.data);
+        setError(null);
+        
+        // Auto-select file with priority: assigned to user > available > any file
+        if (result.data.projectFiles && result.data.projectFiles.length > 0) {
+          // First priority: files assigned to the current user
+          const myAssignedFile = result.data.projectFiles.find((f: FirestoreFile) => 
+            f.assignedTranslatorId === user?.uid
+          );
+          
+          if (myAssignedFile) {
+            setSelectedFile(myAssignedFile);
+          } else {
+            // Second priority: truly available files (not taken and no assigned translator)
+            const availableFiles = result.data.projectFiles.filter((f: FirestoreFile) => 
+              f.status === 'not taken' && !f.assignedTranslatorId
+            );
+            
+            if (availableFiles.length > 0) {
+              setSelectedFile(availableFiles[0]);
+            } else {
+              // Fallback: first file in the list (might not be available)
+              setSelectedFile(result.data.projectFiles[0]);
+            }
+          }
+        }
+      } else {
+        setError('Project not found or invalid project data.');
+      }
+    } catch (error) {
+      console.error('Failed to fetch project:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Function to handle document selection
-  const handleDocumentSelect = (documentPath: string) => {
-    setSelectedDocument(documentPath);
-    setDocumentContent(getDocumentContent(documentPath));
+  const handleFileSelect = (file: FirestoreFile) => {
+    setSelectedFile(file);
   };
 
   const handleStartTranslation = async () => {
-    if (!project) return;
+    if (!selectedFile) return;
 
     try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      // Navigate directly to the translation page with the existing file ID
+      router.push(`/translate/${selectedFile.id}`);
+    } catch (error) {
+      console.error('Error starting translation:', error);
+      alert('Error starting translation. Please try again.');
+    }
+  };
+
+  const handleTakeFile = async () => {
+    if (!selectedFile || !user) return;
+
+    try {
+      const token = await user.getIdToken();
+      
+      const response = await fetch(`/api/files/${selectedFile.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          projectId: project.id,
-          documentPath: selectedDocument,
-          originalContent: documentContent
+          status: 'in progress',
+          assignedTranslatorId: user.uid,
         }),
       });
 
       const result = await response.json();
 
-      if (result.success) {
-        router.push(`/translate/${result.data.id}`);
+      if (response.ok) {
+        // Immediately redirect to translation page after successful assignment
+        router.push(`/translate/${selectedFile.id}`);
       } else {
-        console.error('Failed to create translation project');
+        console.error('Failed to take file:', result.error);
+        if (response.status === 403) {
+          alert('Access denied: This file may already be assigned to another translator or you do not have permission to take it.');
+        } else if (response.status === 404) {
+          alert('File not found. It may have been removed.');
+        } else {
+          alert(`Failed to assign file: ${result.error || 'Unknown error'}`);
+        }
+        // Refresh project data to get latest file statuses
+        fetchProject();
       }
     } catch (error) {
-      console.error('Error starting translation:', error);
+      console.error('Error taking file:', error);
+      alert('Network error. Please check your connection and try again.');
     }
+  };
+
+  const handleSyncComplete = () => {
+    fetchProject(); // Refresh project data after sync
+  };
+
+  const handleSeedData = async () => {
+    if (!user) return;
+    
+    setIsSeeding(true);
+    try {
+      const token = await user.getIdToken();
+      
+      const response = await fetch('/api/admin/seed-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'seed' }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Example data created successfully!');
+        // Refresh the page to show new data
+        window.location.reload();
+      } else {
+        alert(`Failed to create example data: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      alert('Error creating example data');
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  const getDifficultyBadge = (difficulty: number) => {
+    const configs = {
+      1: { label: 'Beginner', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
+      2: { label: 'Beginner+', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
+      3: { label: 'Intermediate', variant: 'default' as const, className: 'bg-yellow-100 text-yellow-800' },
+      4: { label: 'Advanced', variant: 'default' as const, className: 'bg-red-100 text-red-800' },
+      5: { label: 'Expert', variant: 'default' as const, className: 'bg-red-100 text-red-800' },
+    };
+    
+    const config = configs[difficulty as keyof typeof configs] || configs[3];
+    return (
+      <Badge variant={config.variant} className={config.className}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getFileActionButton = () => {
+    if (!selectedFile || !user) return null;
+
+    // Available files can be taken
+    if (selectedFile.status === 'not taken') {
+      return (
+        <Button onClick={handleTakeFile} className="bg-orange-600 hover:bg-orange-700">
+          <Users className="h-4 w-4 mr-2" />
+          Take This File
+        </Button>
+      );
+    }
+
+    // Files assigned to current user
+    if (selectedFile.assignedTranslatorId === user.uid) {
+      if (selectedFile.status === 'in progress') {
+        return (
+          <Button onClick={handleStartTranslation} className="bg-green-600 hover:bg-green-700">
+            <Play className="h-4 w-4 mr-2" />
+            Continue Translation
+          </Button>
+        );
+      }
+
+      if (selectedFile.status === 'pending') {
+        return (
+          <div className="space-y-2">
+            <Button disabled variant="outline" className="w-full">
+              <Clock className="h-4 w-4 mr-2" />
+              Under Review
+            </Button>
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+              <strong>Review in Progress:</strong> Your translation is being reviewed by moderators. 
+              You cannot edit until the review is complete.
+            </div>
+          </div>
+        );
+      }
+
+      if (selectedFile.status === 'rejected') {
+        return (
+          <div className="space-y-2">
+            <Button onClick={handleStartTranslation} className="bg-red-600 hover:bg-red-700">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Make Revisions
+            </Button>
+            <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+              <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. 
+              Please make revisions and resubmit.
+            </div>
+          </div>
+        );
+      }
+
+      if (selectedFile.status === 'accepted') {
+        return (
+          <div className="space-y-2">
+            <Button disabled variant="outline" className="w-full">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Translation Completed
+            </Button>
+            <div className="p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
+              <strong>Completed:</strong> Your translation has been accepted and published. Great work!
+            </div>
+          </div>
+        );
+      }
+    }
+
+    // Files assigned to someone else or other statuses
+    return (
+      <div className="space-y-2">
+        <Button disabled variant="outline" className="w-full">
+          <Users className="h-4 w-4 mr-2" />
+          {selectedFile.status === 'in progress' ? 'In Progress by Another User' : 
+           selectedFile.status === 'pending' ? 'Under Review by Another User' :
+           selectedFile.status === 'accepted' ? 'Already Completed' :
+           selectedFile.status === 'rejected' ? 'Needs Revision by Assigned User' :
+           'Not Available'}
+        </Button>
+        <p className="text-xs text-gray-500 text-center">
+          Status: {selectedFile.status}
+          {selectedFile.assignedTranslatorId && selectedFile.assignedTranslatorId !== user.uid && 
+            ' • Assigned to another translator'}
+        </p>
+      </div>
+    );
   };
 
   if (loading) {
@@ -308,281 +322,304 @@ Many cybersecurity terms may need to be adapted for Armenian readers while maint
     );
   }
 
-  if (!project) {
+  if (error || !project) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
-        <Card className="p-6 text-center">
-          <p className="text-red-600 mb-4">Project not found</p>
+        <Card className="p-6 text-center max-w-md">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Project Not Found</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          
+          {/* Show seed data button if no projects exist */}
+          {error?.includes('not found') && (
+            <div className="space-y-3">
+              <Button 
+                onClick={handleSeedData} 
+                disabled={isSeeding}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {isSeeding ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4 mr-2" />
+                )}
+                Create Example Data for Testing
+              </Button>
+              <p className="text-sm text-gray-600">
+                This will create sample projects and files for testing the translation system.
+              </p>
+            </div>
+          )}
+          
           <Link href="/projects">
-            <Button variant="outline">Back to Projects</Button>
+            <Button variant="outline" className="mt-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
           </Link>
         </Card>
       </div>
     );
   }
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const isProjectAdmin = project.createdBy === user?.uid;
+  const hasFiles = project.projectFiles && project.projectFiles.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/projects">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Projects
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-orange-600" />
-              <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
-            </div>
+          <div className="flex items-center space-x-2">
+            <BookOpen className="h-8 w-8 text-orange-600" />
+            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
           </div>
+          <nav className="flex items-center space-x-6">
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
+            <Link href="/projects" className="text-orange-600 font-medium">Projects</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+          </nav>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading project details...</p>
-          </div>
-        )}
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Link href="/projects" className="text-orange-600 hover:underline flex items-center">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Projects
+          </Link>
+        </div>
 
-        {/* Error State */}
-        {error && !loading && (
-          <div className="text-center py-12">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
-              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Project</h2>
-              <p className="text-gray-600 mb-6">{error}</p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button 
-                  onClick={() => window.location.reload()} 
-                  variant="outline"
-                  className="flex items-center"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-                <Link href="/projects">
-                  <Button className="bg-orange-600 hover:bg-orange-700">
-                    Back to Projects
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Project Content */}
-        {project && !loading && !error && (
-          <>
-            {/* Project Header */}
-            <div className="mb-8">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
+        {/* Project Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
               <p className="text-gray-600 mb-4">{project.description}</p>
-              <div className="flex items-center space-x-4">
-                <Badge className={getDifficultyColor(project.difficulty)}>
-                  {project.difficulty}
-                </Badge>
-                <Badge variant="secondary">
-                  {project.category.replace('-', ' ')}
-                </Badge>
-                <span className="text-sm text-gray-500">by {project.owner}</span>
+              
+              <div className="flex items-center gap-4 flex-wrap">
+                {getDifficultyBadge(project.difficulty)}
+                <Badge variant="outline">v{project.version}</Badge>
+                <Badge variant="outline">{project.developedBy}</Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Clock className="h-4 w-4" />
+                  {project.estimatedHours}h estimated
+                </div>
               </div>
             </div>
-            <div className="text-right">
-              {project.availableForTranslation ? (
-                <Button 
-                  onClick={handleStartTranslation}
-                  className="bg-orange-600 hover:bg-orange-700"
-                  size="lg"
-                  title="Begin translating this project to Armenian"
-                >
-                  Start Translation
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  disabled 
-                  size="lg"
-                  title="This project has been fully translated"
-                >
-                  Translation Complete
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex justify-between text-sm mb-2">
-              <span>Translation Progress</span>
-              <span>{project.translationProgress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-orange-600 h-3 rounded-full transition-all"
-                style={{ width: `${project.translationProgress}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Clock className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{project.estimatedHours}</div>
-              <div className="text-sm text-gray-600">Estimated Hours</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6 text-center">
-              <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{project.availableDocuments.length}</div>
-              <div className="text-sm text-gray-600">Documents</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{project.translationProgress}%</div>
-              <div className="text-sm text-gray-600">Completed</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Github className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-xl font-bold text-gray-900">
-                <a 
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-600 hover:underline"
-                >
-                  View Repo
+            
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <a href={project.source} target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4 mr-2" />
+                  View Repository
                 </a>
-              </div>
-              <div className="text-sm text-gray-600">GitHub</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Documentation Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Document List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Available Documents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {project.availableDocuments.map((doc, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleDocumentSelect(doc)}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      selectedDocument === doc 
-                        ? 'bg-orange-50 border-orange-200 text-orange-900' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-4 w-4" />
-                      <span className="text-sm font-medium">{doc.split('/').pop()}</span>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">{doc}</div>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Documentation Content */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Documentation Preview</CardTitle>
-                <Badge variant="outline">{selectedDocument.split('/').pop()}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
-                <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
-                  {documentContent}
-                </pre>
-              </div>
-              <div className="mt-4 text-sm text-gray-600">
-                <p>📝 This is the original documentation that needs to be translated into Armenian.</p>
-                <p>🔒 Cybersecurity terminology requires precise translation to maintain accuracy.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Translation Guidelines */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Translation Guidelines</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">📚 Cybersecurity Terms</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Keep technical terms consistent across translations</li>
-                  <li>• Use established Armenian cybersecurity vocabulary</li>
-                  <li>• Provide transliteration for new terms when needed</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">✍️ Style & Format</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Maintain original formatting and structure</li>
-                  <li>• Preserve code examples and command syntax</li>
-                  <li>• Keep URLs and references intact</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">🔍 Review Process</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Translations reviewed by security experts</li>
-                  <li>• Focus on technical accuracy and clarity</li>
-                  <li>• GitHub PR submitted after approval</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">🏆 Recognition</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Certificate issued after PR merge</li>
-                  <li>• Contributor credit in repository</li>
-                  <li>• Recognition in Armenian tech community</li>
-                </ul>
-              </div>
+              </Button>
             </div>
+          </div>
+
+          {/* Progress Overview */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                    {hasFiles ? project.projectFiles.length : 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Files</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-1">
+                    {hasFiles ? project.projectFiles.filter(f => f.status === 'not taken').length : 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Available</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600 mb-1">
+                    {hasFiles ? project.projectFiles.filter(f => f.status === 'in progress').length : 0}
+                  </div>
+                  <div className="text-sm text-gray-600">In Progress</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 mb-1">
+                    {hasFiles ? Math.round((project.projectFiles.filter(f => f.status === 'accepted').length / project.projectFiles.length) * 100) || 0 : 0}%
+                  </div>
+                  <div className="text-sm text-gray-600">Complete</div>
+                </div>
+              </div>
+            
+            {/* Debug Information */}
+            {hasFiles && (
+              <details className="mt-4 bg-gray-50 rounded-lg group">
+                <summary className="cursor-pointer p-3 select-none text-sm font-medium text-gray-700 flex items-center justify-between">
+                  <span>File Statuses ({project.projectFiles.length})</span>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
+                </summary>
+                <div className="p-3 pt-0 text-xs space-y-1">
+                  {project.projectFiles.map((file) => (
+                    <div key={file.id} className="flex justify-between">
+                      <span className="truncate max-w-xs">{file.fileName}</span>
+                      <span className={`font-medium ${
+                        file.status === 'not taken' ? 'text-green-600' : 
+                        file.status === 'in progress' ? 'text-orange-600' : 
+                        'text-gray-600'
+                      }`}>
+                        {file.status}
+                        {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && ' (other user)'}
+                        {file.assignedTranslatorId === user?.uid && ' (YOU)'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
           </CardContent>
         </Card>
-          </>
-        )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* File Browser */}
+          <div className="lg:col-span-2">
+            {hasFiles ? (
+              <div className="space-y-4">
+                {/* Show notice if no files are available */}
+                {/* {project.projectFiles.filter(f => f.status === 'not taken').length === 0 && (
+                  <Card className="border-orange-200 bg-orange-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-5 w-5 text-orange-600" />
+                        <div>
+                          <h4 className="font-medium text-orange-900">All files are currently assigned</h4>
+                          <p className="text-sm text-orange-700">
+                            All files in this project are being worked on. You can view the progress below or try another project.
+                          </p>
+                          {user && (
+                            <Button 
+                              onClick={handleSeedData} 
+                              disabled={isSeeding}
+                              size="sm"
+                              className="mt-2 bg-orange-600 hover:bg-orange-700"
+                            >
+                              {isSeeding ? (
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Zap className="h-4 w-4 mr-2" />
+                              )}
+                              Create Available Test Files
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )} */}
+                
+                <FolderBrowser
+                  files={project.projectFiles}
+                  onFileSelect={handleFileSelect}
+                  selectedFileId={selectedFile?.id}
+                  showFileStats={true}
+                  allowFileActions={true}
+                />
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Files Found</h3>
+                  <p className="text-gray-600 mb-4">
+                    This project doesn`t have any documentation files yet.
+                  </p>
+                  {isProjectAdmin && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-blue-600">
+                        Use the Repository Sync below to import documents from GitHub.
+                      </p>
+                      <Button 
+                        onClick={handleSeedData} 
+                        disabled={isSeeding}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isSeeding ? (
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Zap className="h-4 w-4 mr-2" />
+                        )}
+                        Add Sample Files for Testing
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Selected File Details */}
+            {selectedFile && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Selected File
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{selectedFile.fileName}</h4>
+                    <p className="text-sm text-gray-500">{selectedFile.filePath}</p>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Word Count:</span>
+                      <span className="font-medium">{selectedFile.wordCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Estimated Time:</span>
+                      <span className="font-medium">{selectedFile.estimatedHours}h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Status:</span>
+                      <Badge variant={selectedFile.status === 'not taken' ? 'secondary' : 'default'}>
+                        {selectedFile.status.replace('-', ' ')}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {getFileActionButton()}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Repository Sync */}
+            {isProjectAdmin && (
+              <ProjectSync
+                project={project}
+                onSyncComplete={handleSyncComplete}
+                isProjectAdmin={isProjectAdmin}
+              />
+            )}
+
+            {/* Categories */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {project.categories.map((category, index) => (
+                    <Badge key={index} variant="outline">
+                      {category.replace('-', ' ')}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
