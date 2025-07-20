@@ -236,7 +236,7 @@ export default function ProjectsPage() {
         {!loading && projects?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <Card key={project.id} className="hover:shadow-lg transition-shadow">
+              <Card key={project.id} className="hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-2">
@@ -252,8 +252,8 @@ export default function ProjectsPage() {
                     {project.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="space-y-4 flex-1 flex flex-col">
                     {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-sm mb-1">
@@ -301,7 +301,7 @@ export default function ProjectsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-between pt-4">
+                    <div className="flex items-center justify-between pt-4 mt-auto">
                       <Button variant="outline" size="sm" asChild>
                         <a 
                           href={project.source}
@@ -310,7 +310,6 @@ export default function ProjectsPage() {
                           title="View project source code on GitHub"
                         >
                           <Github className="h-4 w-4 mr-1" />
-                          Repository
                         </a>
                       </Button>
                       
@@ -392,7 +391,7 @@ export default function ProjectsPage() {
           </Card>
         )}
 
-        {/* Admin Actions */}
+        {/* Admin Actions
         {!loading && projects?.length > 0 && user && (
           <div className="mt-6 text-center">
             <Button 
@@ -409,7 +408,7 @@ export default function ProjectsPage() {
               Add More Example Data
             </Button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
