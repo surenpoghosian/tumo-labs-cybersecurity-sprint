@@ -38,6 +38,7 @@ export default function TranslationPage() {
   const [translatedText, setTranslatedText] = useState('');
   const [translatorNotes, setTranslatorNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reviewInfo, setReviewInfo] = useState<any | null>(null);
   
   // UI state

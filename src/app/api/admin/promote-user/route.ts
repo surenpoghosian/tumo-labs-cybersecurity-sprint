@@ -6,7 +6,7 @@ import { FirestoreUserProfile } from '@/lib/firestore';
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    const userId = await verifyAuthToken(authHeader);
+    await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();
