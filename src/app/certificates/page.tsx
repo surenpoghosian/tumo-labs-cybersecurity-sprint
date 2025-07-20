@@ -130,7 +130,7 @@ export default function CertificatesPage() {
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter verification code (e.g., CYBS-CERT-2024-001)"
+                  placeholder="Enter verification code (e.g., CYBS-CERT-2025-001)"
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>

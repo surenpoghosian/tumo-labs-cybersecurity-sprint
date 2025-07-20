@@ -358,7 +358,7 @@ export default function ProjectsPage() {
             </Button>
           </div>
         )}
- {/* Stats Summary
+       {/* Stats Summary
         {!loading && projects?.length > 0 && (
           <Card className="mt-8">
             <CardContent className="p-6">
