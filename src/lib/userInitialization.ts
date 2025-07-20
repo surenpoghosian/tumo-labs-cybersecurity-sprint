@@ -142,6 +142,28 @@ export async function getUserDashboardData(userId: string) {
       translationMemory = [];
     }
 
+    // Dynamically count approved and rejected files for the user (more reliable than relying on cached profile fields)
+    let approvedCount = userProfile.approvedTranslations || 0;
+    let rejectedCount = userProfile.rejectedTranslations || 0;
+
+    try {
+      const approvedSnap = await firestore
+        .collection('files')
+        .where('assignedTranslatorId', '==', userId)
+        .where('status', '==', 'accepted')
+        .get();
+      approvedCount = approvedSnap.size;
+
+      const rejectedSnap = await firestore
+        .collection('files')
+        .where('assignedTranslatorId', '==', userId)
+        .where('status', '==', 'rejected')
+        .get();
+      rejectedCount = rejectedSnap.size;
+    } catch (countErr) {
+      console.error('Error counting approved/rejected translations:', countErr);
+    }
+
     // Calculate statistics safely
     const stats = {
       totalFiles: currentFiles?.length,
@@ -150,8 +172,8 @@ export async function getUserDashboardData(userId: string) {
       totalCertificates: certificates?.length,
       totalCredits: userProfile.totalCredits || 0,
       wordsTranslated: userProfile.totalWordsTranslated || 0,
-      approvedTranslations: userProfile.approvedTranslations || 0,
-      rejectedTranslations: userProfile.rejectedTranslations || 0
+      approvedTranslations: approvedCount,
+      rejectedTranslations: rejectedCount
     };
 
     return {

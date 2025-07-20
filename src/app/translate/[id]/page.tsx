@@ -38,6 +38,8 @@ export default function TranslationPage() {
   const [translatedText, setTranslatedText] = useState('');
   const [translatorNotes, setTranslatorNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [reviewInfo, setReviewInfo] = useState<any | null>(null);
   
   // UI state
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -94,6 +96,25 @@ export default function TranslationPage() {
       const fileData = await fileResponse.json();
       setFile(fileData);
       setTranslatedText(fileData.translatedText || '');
+
+      // Fetch review information if the file has been reviewed
+      if (['rejected', 'accepted'].includes(fileData.status)) {
+        try {
+          const reviewRes = await fetch(`/api/reviews?fileId=${fileId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (reviewRes.ok) {
+            const reviewResult = await reviewRes.json();
+            if (reviewResult.success && reviewResult.data?.length > 0) {
+              setReviewInfo(reviewResult.data[0]);
+            }
+          }
+        } catch (err) {
+          console.log('Could not load review info:', err);
+        }
+      }
       
       // Load project details
       if (fileData.projectId) {
@@ -457,6 +478,11 @@ export default function TranslationPage() {
                 <strong>Translation Rejected:</strong> Your translation was reviewed and needs revisions. 
                 Please review the feedback and make necessary changes before resubmitting.
               </p>
+              {reviewInfo?.comments && (
+                <p className="mt-2 text-sm text-red-700">
+                  <strong>Reviewer Comments:</strong> {reviewInfo.comments}
+                </p>
+              )}
             </div>
           </div>
         </div>

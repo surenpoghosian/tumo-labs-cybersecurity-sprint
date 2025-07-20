@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 interface DashboardData {
   user: FirestoreUserProfile;
@@ -159,6 +161,45 @@ function DashboardPageContent() {
     };
 
     fetchUserProfile();
+  }, [authUser]);
+
+  // Listen in real-time for changes to the user's profile (e.g., approvedTranslations)
+  useEffect(() => {
+    if (!authUser) return;
+
+    const profileDocRef = doc(db, 'userProfiles', authUser.uid);
+
+    const unsubscribe = onSnapshot(profileDocRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+
+      const updatedProfile = docSnap.data() as Partial<FirestoreUserProfile>;
+
+      setDashboardData((prev) => {
+        if (!prev) return prev;
+
+        const updatedStats = {
+          ...prev.stats,
+          approvedTranslations: updatedProfile.approvedTranslations ?? prev.stats.approvedTranslations,
+          rejectedTranslations: updatedProfile.rejectedTranslations ?? prev.stats.rejectedTranslations,
+          totalCredits: updatedProfile.totalCredits ?? prev.stats.totalCredits,
+          wordsTranslated: updatedProfile.totalWordsTranslated ?? prev.stats.wordsTranslated,
+          totalCertificates: Array.isArray(updatedProfile.certificates)
+            ? updatedProfile.certificates.length
+            : prev.stats.totalCertificates,
+        };
+
+        return {
+          ...prev,
+          user: {
+            ...prev.user,
+            ...updatedProfile,
+          } as FirestoreUserProfile,
+          stats: updatedStats,
+        };
+      });
+    });
+
+    return () => unsubscribe();
   }, [authUser]);
 
   const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
