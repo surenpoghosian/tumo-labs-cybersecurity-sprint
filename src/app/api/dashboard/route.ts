@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getUserDashboardData } from '@/lib/userInitialization';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     
     // Get comprehensive dashboard data with safe initialization
     const dashboardData = await getUserDashboardData(userId);

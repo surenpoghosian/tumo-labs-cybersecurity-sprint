@@ -48,6 +48,9 @@ export interface FirestoreProject {
   estimatedHours?: number;
   translationProgress?: number;
   availableForTranslation: boolean;
+  // GitHub sync fields
+  lastSyncedAt?: string;
+  lastSyncSha?: string;
 }
 
 // File collection (new - core of file-based model)
@@ -57,6 +60,7 @@ export interface FirestoreFile {
   projectId: string;
   fileName: string;
   filePath: string;
+  folderPath?: string; // Folder organization
   originalText: string; // Full file content
   translatedText: string; // Full translated content
   status: 'not taken' | 'in progress' | 'pending' | 'rejected' | 'accepted'; // From MongoDB plan
@@ -70,6 +74,12 @@ export interface FirestoreFile {
   createdAt: string;
   updatedAt: string;
   lastModified: string;
+  // Enhanced storage and sync fields
+  storageType?: 'firestore' | 'firebase_storage' | 'github_raw';
+  contentUrl?: string; // For external storage
+  fileSize?: number; // File size in bytes
+  githubSha?: string; // For version tracking
+  lastSyncedAt?: string; // Last sync from GitHub
 }
 
 // Translation (embedded in File or separate collection)

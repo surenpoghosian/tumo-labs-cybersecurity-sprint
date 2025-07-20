@@ -3,9 +3,10 @@ import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreFile, updateUserStats } from '@/lib/firestore';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
 
     let files: FirestoreFile[] = [];
@@ -94,7 +95,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();

@@ -8,7 +8,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     const { id: projectId } = await params;
 
@@ -28,8 +29,11 @@ export async function GET(
     const files = await getProjectFiles(projectId, userId);
 
     return NextResponse.json({
-      ...project,
-      projectFiles: files // Include files in response for convenience
+      success: true,
+      data: {
+        ...project,
+        projectFiles: files // Include files in response for convenience
+      }
     });
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {

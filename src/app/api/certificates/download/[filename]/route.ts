@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { mockCertificates, getUserById, Certificate, User } from '@/data/mockData';
 
 export async function GET(
@@ -6,6 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
+    const userId = await verifyAuthToken();
     const { filename } = await params;
     
     // Extract certificate ID from filename (format: cert-{id}.pdf)
@@ -22,6 +24,18 @@ export async function GET(
           code: 'CERTIFICATE_NOT_FOUND'
         },
         { status: 404 }
+      );
+    }
+
+    // Check if the authenticated user owns this certificate
+    if (certificate.userId !== userId) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Forbidden: You can only download your own certificates',
+          code: 'FORBIDDEN'
+        },
+        { status: 403 }
       );
     }
 
@@ -45,11 +59,15 @@ export async function GET(
     const response = new NextResponse(pdfContent);
     response.headers.set('Content-Type', 'application/pdf');
     response.headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-    response.headers.set('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    response.headers.set('Cache-Control', 'private, max-age=3600'); // Cache for 1 hour privately
     
     return response;
     
   } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     console.error('Certificate download error:', error);
     return NextResponse.json(
       { 

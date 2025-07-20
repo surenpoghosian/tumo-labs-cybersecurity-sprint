@@ -34,6 +34,7 @@ function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
   
   // Firestore test states
   const [testOriginal, setTestOriginal] = useState('');
@@ -104,8 +105,18 @@ function DashboardPageContent() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!authUser) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch('/api/dashboard');
+        const token = await authUser.getIdToken();
+        const response = await fetch('/api/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const result = await response.json();
         if (result.success) {
           setDashboardData(result.data);
@@ -121,8 +132,34 @@ function DashboardPageContent() {
       }
     };
 
-    fetchDashboardData();
-  }, []);
+    if (authUser) {
+      fetchDashboardData();
+    }
+  }, [authUser]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!authUser) return;
+      
+      try {
+        const idToken = await authUser.getIdToken();
+        const response = await fetch('/api/user', {
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          }
+        });
+        
+        if (response.ok) {
+          const profile = await response.json();
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [authUser]);
 
   const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
     try {
@@ -185,6 +222,9 @@ function DashboardPageContent() {
             <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
             <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
             <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
+              <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Moderation</Link>
+            )}
             
             {/* User Menu */}
             <div className="relative">
@@ -282,6 +322,48 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Current Files */}
+        {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+          <Card className="mt-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>My Current Files</CardTitle>
+                <Badge variant="outline" className="text-xs">
+                  {dashboardData.currentFiles.length} in progress
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {dashboardData.currentFiles.map((file) => (
+                  <div key={file.id} className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{file.fileName}</h4>
+                      <Badge className="bg-blue-100 text-blue-800">
+                        <Clock className="h-3 w-3 mr-1" />
+                        In Progress
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{file.filePath}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span>{file.wordCount} words</span>
+                        <span>{file.estimatedHours}h estimated</span>
+                      </div>
+                      <Link href={`/translate/${file.id}`}>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <ArrowRight className="h-4 w-4 mr-1" />
+                          Continue Translation
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -406,7 +488,18 @@ function DashboardPageContent() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+                <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    title="Continue working on your assigned files"
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Continue My Work
+                  </Button>
+                </Link>
+              )}
               <Link href="/projects">
                 <Button 
                   className="w-full bg-orange-600 hover:bg-orange-700"

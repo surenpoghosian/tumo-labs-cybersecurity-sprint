@@ -4,9 +4,10 @@ import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreUserProfile } from '@/lib/firestore';
 import { initializeNewUser, createSampleDataForNewUser } from '@/lib/userInitialization';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     
     // Initialize user profile if it doesn't exist
     const userProfile = await initializeNewUser(userId);
@@ -27,7 +28,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const body = await request.json();
     const { createSampleData = false, email, name } = body;
     

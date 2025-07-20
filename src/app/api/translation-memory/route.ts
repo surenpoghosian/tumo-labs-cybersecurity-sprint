@@ -3,9 +3,10 @@ import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { TranslationMemoryEntry } from '@/lib/firestore';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
 
     let entries: TranslationMemoryEntry[] = [];
@@ -77,7 +78,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();
@@ -184,7 +186,8 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();

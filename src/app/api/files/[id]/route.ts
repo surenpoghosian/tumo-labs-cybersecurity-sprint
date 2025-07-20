@@ -8,7 +8,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     const { id: fileId } = await params;
 
@@ -49,7 +50,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     const { id: fileId } = await params;
     
@@ -71,8 +73,13 @@ export async function PUT(
 
     const currentData = doc.data();
     
-    // Check if user has access
-    if (currentData?.uId !== userId && currentData?.assignedTranslatorId !== userId) {
+    // Check if user has access to update this file
+    // Allow if: user owns file, user is assigned, or user is taking an available file
+    const isOwner = currentData?.uId === userId;
+    const isAssigned = currentData?.assignedTranslatorId === userId;
+    const isTakingAvailableFile = status === 'in progress' && currentData?.status === 'not taken' && !currentData?.assignedTranslatorId;
+    
+    if (!isOwner && !isAssigned && !isTakingAvailableFile) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

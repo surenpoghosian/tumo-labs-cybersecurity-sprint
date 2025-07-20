@@ -3,9 +3,10 @@ import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreProject } from '@/lib/firestore';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await verifyAuthToken(); // Verify user is authenticated
+    const authHeader = request.headers.get('authorization') || '';
+    await verifyAuthToken(authHeader); // Verify user is authenticated
     const firestore = await getFirestore();
 
     let projects: FirestoreProject[] = [];
@@ -17,13 +18,44 @@ export async function GET() {
         .where('availableForTranslation', '==', true)
         .get();
 
-      snapshot.forEach((doc) => {
+      // Process each project and calculate real statistics
+      for (const doc of snapshot.docs) {
         const data = doc.data();
+        const projectId = doc.id;
+        
+        // Get files for this project to calculate real progress
+        const filesSnapshot = await firestore
+          .collection('files')
+          .where('projectId', '==', projectId)
+          .get();
+
+        let totalFiles = 0;
+        let completedFiles = 0;
+        let totalWords = 0;
+        let estimatedHours = 0;
+
+        filesSnapshot.forEach(fileDoc => {
+          const fileData = fileDoc.data();
+          totalFiles++;
+          // Count both accepted and pending files as progress (pending means translated, waiting for review)
+          if (fileData.status === 'accepted' || fileData.status === 'pending') {
+            completedFiles++;
+          }
+          totalWords += fileData.wordCount || 0;
+          estimatedHours += fileData.estimatedHours || 0;
+        });
+
+        // Calculate real translation progress
+        const translationProgress = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+
         projects.push({
           ...data,
-          id: doc.id,
+          id: projectId,
+          files: filesSnapshot.docs.map(d => d.id), // Update with actual file IDs
+          translationProgress,
+          estimatedHours: estimatedHours || data.estimatedHours || 0,
         } as FirestoreProject);
-      });
+      }
     } catch (err) {
       console.log('No projects found or collection does not exist', err);
       projects = [];

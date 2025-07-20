@@ -109,10 +109,34 @@ export const isFirebaseAdminAvailableSync = (): boolean => {
 export { admin };
 
 // Simplified auth function that throws on error - For development only
-export async function verifyAuthToken(): Promise<string> {
-  // For development/testing purposes, return a mock user ID
-  // In production, this should be replaced with actual Firebase Auth token verification
-  return 'user-123-sample';
+export async function verifyAuthToken(authHeader?: string): Promise<string> {
+  if (!authHeader) {
+    throw new Error('Unauthorized');
+  }
+
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  
+  if (!token) {
+    throw new Error('Unauthorized');
+  }
+
+  const firebaseAdminAvailable = await isFirebaseAdminAvailable();
+  
+  if (firebaseAdminAvailable) {
+    try {
+      const auth = await getAuth();
+      const decodedToken = await auth.verifyIdToken(token);
+      return decodedToken.uid;
+    } catch (authError) {
+      console.error('Token verification failed:', authError);
+      throw new Error('Unauthorized');
+    }
+  } else {
+    console.warn('Firebase Admin not available - authentication disabled for development');
+    // In development without proper Firebase setup, you could extract user ID from token payload
+    // This is not secure and should only be used for development
+    throw new Error('Unauthorized');
+  }
 }
 
 // Auth function with request parameter for legacy compatibility

@@ -1,17 +1,38 @@
 import { NextResponse } from 'next/server';
+import { verifyAuthToken } from '@/lib/firebaseAdmin';
 
 // Certificate endpoint - simplified for now
 export async function GET() {
-  // Return empty certificates for now - will be implemented with proper auth later
-  return NextResponse.json({
-    success: true,
-    data: [],
-    meta: {
-      total: 0,
-      byCategory: {},
-      note: 'Certificate functionality will be implemented with full authentication system'
+  try {
+    const userId = await verifyAuthToken();
+    
+    // Return empty certificates for now - will be implemented with proper auth later
+    return NextResponse.json({
+      success: true,
+      data: [],
+      meta: {
+        userId,
+        total: 0,
+        byCategory: {},
+        note: 'Certificate functionality will be implemented with full authentication system',
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  });
+    
+    console.error('Certificates API error:', error);
+    return NextResponse.json(
+      { 
+        success: false,
+        error: 'Failed to fetch certificates' 
+      }, 
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST() {
