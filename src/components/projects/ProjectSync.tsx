@@ -246,11 +246,11 @@ export function ProjectSync({ project, onSyncComplete, isProjectAdmin }: Project
                       </div>
                       <div className="flex items-center gap-1">
                         <Folder className="h-4 w-4" />
-                        {lastSyncResult.folderStructure.length} folders
+                        {lastSyncResult.folderStructure?.length} folders
                       </div>
                     </div>
                     
-                    {lastSyncResult.folderStructure.length > 0 && (
+                    {lastSyncResult.folderStructure?.length > 0 && (
                       <div className="mt-2">
                         <div className="text-sm text-green-700 mb-1">Folder structure:</div>
                         <div className="flex flex-wrap gap-1">
@@ -265,7 +265,7 @@ export function ProjectSync({ project, onSyncComplete, isProjectAdmin }: Project
                   </div>
                 )}
                 
-                {lastSyncResult.errors && lastSyncResult.errors.length > 0 && (
+                {lastSyncResult.errors && lastSyncResult.errors?.length > 0 && (
                   <div className="mt-2">
                     <div className="text-sm text-red-700 mb-1">Errors:</div>
                     <ul className="text-sm text-red-600 space-y-1">

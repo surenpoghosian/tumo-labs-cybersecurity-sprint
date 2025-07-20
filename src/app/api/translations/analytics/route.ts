@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     // Calculate statistics
     const totalWords = segments.reduce((sum, segment) => sum + segment.actualWords, 0);
     const translatedWords = segments.filter(s => s.status === 'completed' || s.status === 'reviewed').reduce((sum, segment) => sum + segment.actualWords, 0);
-    const totalSessions = sessions.length;
+    const totalSessions = sessions?.length;
     const totalTime = sessions.reduce((sum, session) => {
       if (session.endTime) {
         const duration = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
@@ -55,17 +55,17 @@ export async function GET(request: Request) {
       
       dailyProgress.push({
         date: date.toISOString().split('T')[0],
-        wordsTranslated: dayProjects.reduce((sum, p) => sum + (p.translatedContent?.split(' ').length || 0), 0),
+        wordsTranslated: dayProjects.reduce((sum, p) => sum + (p.translatedContent?.split(' ')?.length || 0), 0),
         sessionsCompleted: sessions.filter(s => {
           const sDate = new Date(s.startTime);
           return sDate.toDateString() === date.toDateString();
-        }).length
+        })?.length
       });
     }
     
     // Quality metrics (using project quality scores since segments don't have quality scores)
-    const qualityScore = projects.length > 0 
-      ? projects.reduce((sum, p) => sum + (p.qualityScore || 0.8), 0) / projects.length 
+    const qualityScore = projects?.length > 0 
+      ? projects.reduce((sum, p) => sum + (p.qualityScore || 0.8), 0) / projects?.length 
       : 0;
     
     // Project categories
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
         acc[category] = { count: 0, wordsTranslated: 0 };
       }
       acc[category].count++;
-      acc[category].wordsTranslated += project.translatedContent?.split(' ').length || 0;
+      acc[category].wordsTranslated += project.translatedContent?.split(' ')?.length || 0;
       return acc;
     }, {} as Record<string, { count: number; wordsTranslated: number }>);
     
@@ -88,10 +88,10 @@ export async function GET(request: Request) {
         description: `You've translated ${translatedWords} words in the last ${timeframe}!`,
         achievedAt: new Date().toISOString()
       }] : []),
-      ...(projects.length >= 5 ? [{ 
+      ...(projects?.length >= 5 ? [{ 
         type: 'productivity', 
         title: 'Productive Translator', 
-        description: `Completed ${projects.length} projects!`,
+        description: `Completed ${projects?.length} projects!`,
         achievedAt: new Date().toISOString()
       }] : []),
       ...(qualityScore >= 0.9 ? [{ 
@@ -109,8 +109,8 @@ export async function GET(request: Request) {
           totalWords,
           translatedWords,
           completionRate: totalWords > 0 ? (translatedWords / totalWords) * 100 : 0,
-          totalProjects: projects.length,
-          completedProjects: projects.filter(p => p.status === 'merged').length,
+          totalProjects: projects?.length,
+          completedProjects: projects.filter(p => p.status === 'merged')?.length,
           totalSessions,
           totalTime: Math.round(totalTime),
           averageSessionTime: totalSessions > 0 ? Math.round(totalTime / totalSessions) : 0,
@@ -126,9 +126,9 @@ export async function GET(request: Request) {
         userId,
         timeframe,
         dataPointsCount: {
-          projects: projects.length,
-          segments: segments.length,
-          sessions: sessions.length
+          projects: projects?.length,
+          segments: segments?.length,
+          sessions: sessions?.length
         }
       }
     });

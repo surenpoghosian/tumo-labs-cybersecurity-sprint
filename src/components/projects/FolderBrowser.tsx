@@ -68,7 +68,7 @@ export function FolderBrowser({
       let currentNode = root;
 
       // Create folder structure
-      for (let i = 0; i < pathParts.length - 1; i++) {
+      for (let i = 0; i < pathParts?.length - 1; i++) {
         const folderName = pathParts[i];
         const folderPath = currentPath === 'root' ? folderName : `${currentPath}/${folderName}`;
 
@@ -90,7 +90,7 @@ export function FolderBrowser({
       }
 
       // Add file to the current folder
-      const fileName = pathParts[pathParts.length - 1];
+      const fileName = pathParts[pathParts?.length - 1];
       const fileNode: FolderNode = {
         name: fileName,
         path: file.filePath,
@@ -309,11 +309,11 @@ export function FolderBrowser({
 
   const totalStats = useMemo(() => {
     const stats = {
-      total: files.length,
-      available: files.filter(f => f.status === 'not taken').length,
-      inProgress: files.filter(f => f.status === 'in progress').length,
-      pending: files.filter(f => f.status === 'pending').length,
-      accepted: files.filter(f => f.status === 'accepted').length,
+      total: files?.length,
+      available: files.filter(f => f.status === 'not taken')?.length,
+      inProgress: files.filter(f => f.status === 'in progress')?.length,
+      pending: files.filter(f => f.status === 'pending')?.length,
+      accepted: files.filter(f => f.status === 'accepted')?.length,
       totalWords: files.reduce((sum, f) => sum + f.wordCount, 0),
       totalHours: files.reduce((sum, f) => sum + f.estimatedHours, 0),
     };
@@ -339,7 +339,7 @@ export function FolderBrowser({
       </CardHeader>
       
       <CardContent>
-        {files.length === 0 ? (
+        {files?.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p>No documents found in this project.</p>
@@ -351,7 +351,7 @@ export function FolderBrowser({
           </div>
         )}
         
-        {showFileStats && files.length > 0 && (
+        {showFileStats && files?.length > 0 && (
           <div className="mt-6 pt-4 border-t">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
               <div className="text-center">

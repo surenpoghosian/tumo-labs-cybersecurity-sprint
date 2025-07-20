@@ -91,11 +91,11 @@ export async function GET(request: Request) {
     }
 
     const stats = {
-      total: reviews.length,
-      pending: reviews.filter(r => r.status === 'pending').length,
-      inProgress: reviews.filter(r => r.status === 'in-progress').length,
-      approved: reviews.filter(r => r.status === 'approved').length,
-      rejected: reviews.filter(r => r.status === 'rejected').length,
+      total: reviews?.length,
+      pending: reviews.filter(r => r.status === 'pending')?.length,
+      inProgress: reviews.filter(r => r.status === 'in-progress')?.length,
+      approved: reviews.filter(r => r.status === 'approved')?.length,
+      rejected: reviews.filter(r => r.status === 'rejected')?.length,
     };
     
     return NextResponse.json({

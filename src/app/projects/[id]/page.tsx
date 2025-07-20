@@ -78,7 +78,7 @@ export default function ProjectDetailPage() {
         setError(null);
         
         // Auto-select file with priority: assigned to user > available > any file
-        if (result.data.projectFiles && result.data.projectFiles.length > 0) {
+        if (result.data.projectFiles && result.data.projectFiles?.length > 0) {
           // First priority: files assigned to the current user
           const myAssignedFile = result.data.projectFiles.find((f: FirestoreFile) => 
             f.assignedTranslatorId === user?.uid
@@ -92,7 +92,7 @@ export default function ProjectDetailPage() {
               f.status === 'not taken' && !f.assignedTranslatorId
             );
             
-            if (availableFiles.length > 0) {
+            if (availableFiles?.length > 0) {
               setSelectedFile(availableFiles[0]);
             } else {
               // Fallback: first file in the list (might not be available)
@@ -363,7 +363,7 @@ export default function ProjectDetailPage() {
   }
 
   const isProjectAdmin = project.createdBy === user?.uid;
-  const hasFiles = project.projectFiles && project.projectFiles.length > 0;
+  const hasFiles = project.projectFiles && project.projectFiles?.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
@@ -425,25 +425,25 @@ export default function ProjectDetailPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600 mb-1">
-                    {hasFiles ? project.projectFiles.length : 0}
+                    {hasFiles ? project.projectFiles?.length : 0}
                   </div>
                   <div className="text-sm text-gray-600">Total Files</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600 mb-1">
-                    {hasFiles ? project.projectFiles.filter(f => f.status === 'not taken').length : 0}
+                    {hasFiles ? project.projectFiles.filter(f => f.status === 'not taken')?.length : 0}
                   </div>
                   <div className="text-sm text-gray-600">Available</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-orange-600 mb-1">
-                    {hasFiles ? project.projectFiles.filter(f => f.status === 'in progress').length : 0}
+                    {hasFiles ? project.projectFiles.filter(f => f.status === 'in progress')?.length : 0}
                   </div>
                   <div className="text-sm text-gray-600">In Progress</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600 mb-1">
-                    {hasFiles ? Math.round((project.projectFiles.filter(f => f.status === 'accepted').length / project.projectFiles.length) * 100) || 0 : 0}%
+                    {hasFiles ? Math.round((project.projectFiles.filter(f => f.status === 'accepted')?.length / project.projectFiles?.length) * 100) || 0 : 0}%
                   </div>
                   <div className="text-sm text-gray-600">Complete</div>
                 </div>
@@ -453,7 +453,7 @@ export default function ProjectDetailPage() {
             {hasFiles && (
               <details className="mt-4 bg-gray-50 rounded-lg group">
                 <summary className="cursor-pointer p-3 select-none text-sm font-medium text-gray-700 flex items-center justify-between">
-                  <span>File Statuses ({project.projectFiles.length})</span>
+                  <span>File Statuses ({project.projectFiles?.length})</span>
                   <ChevronDown className="h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
                 <div className="p-3 pt-0 text-xs space-y-1">
@@ -484,7 +484,7 @@ export default function ProjectDetailPage() {
             {hasFiles ? (
               <div className="space-y-4">
                 {/* Show notice if no files are available */}
-                {/* {project.projectFiles.filter(f => f.status === 'not taken').length === 0 && (
+                {/* {project.projectFiles.filter(f => f.status === 'not taken')?.length === 0 && (
                   <Card className="border-orange-200 bg-orange-50">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">

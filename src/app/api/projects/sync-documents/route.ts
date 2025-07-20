@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     // Discover documentation files
     const documentationFiles = await githubManager.discoverDocumentationFiles(githubUrl);
     
-    if (documentationFiles.length === 0) {
+    if (documentationFiles?.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No documentation files found in repository',
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
 
           // Calculate word count for estimations
           const wordCount = fileContent 
-            ? fileContent.trim().split(/\s+/).filter(word => word.length > 0).length
+            ? fileContent.trim().split(/\s+/).filter(word => word?.length > 0)?.length
             : 0;
           
           const estimatedHours = Math.max(0.5, Math.ceil(wordCount / 250));
@@ -202,11 +202,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Successfully synced ${syncedFiles.length} files from repository`,
-      syncedFiles: syncedFiles.length,
-      totalFiles: documentationFiles.length,
+      message: `Successfully synced ${syncedFiles?.length} files from repository`,
+      syncedFiles: syncedFiles?.length,
+      totalFiles: documentationFiles?.length,
       folderStructure: Object.keys(folderStructure),
-      errors: errors.length > 0 ? errors : undefined,
+      errors: errors?.length > 0 ? errors : undefined,
       data: {
         syncedFiles: syncedFiles.map(f => ({
           id: f.id,

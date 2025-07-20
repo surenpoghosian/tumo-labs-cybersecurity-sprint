@@ -109,7 +109,7 @@ export async function POST(
       projectDetails: {
         title: sourceProject?.name || translationProject.documentPath,
         difficulty: sourceProject?.difficulty || 'intermediate',
-        wordCount: translationProject.originalContent?.split(' ').length || 0,
+        wordCount: translationProject.originalContent?.split(' ')?.length || 0,
         category: sourceProject?.category || 'general'
       },
       reviewerAssignment: {

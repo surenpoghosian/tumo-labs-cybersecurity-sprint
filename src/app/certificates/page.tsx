@@ -181,7 +181,7 @@ export default function CertificatesPage() {
         )}
 
         {/* Certificates Grid */}
-        {!loading && certificates.length > 0 && (
+        {!loading && certificates?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {certificates.map((certificate) => (
               <Card key={certificate.id} className="hover:shadow-lg transition-shadow">
@@ -250,7 +250,7 @@ export default function CertificatesPage() {
         )}
 
         {/* Empty State */}
-        {!loading && certificates.length === 0 && (
+        {!loading && certificates?.length === 0 && (
           <div className="text-center py-12">
             <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
@@ -266,7 +266,7 @@ export default function CertificatesPage() {
         )}
 
         {/* Statistics */}
-        {!loading && certificates.length > 0 && (
+        {!loading && certificates?.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Certificate Statistics</CardTitle>
@@ -274,7 +274,7 @@ export default function CertificatesPage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{certificates.length}</div>
+                  <div className="text-2xl font-bold text-orange-600 mb-1">{certificates?.length}</div>
                   <div className="text-sm text-gray-600">Total Certificates</div>
                 </div>
                 <div>
@@ -291,7 +291,7 @@ export default function CertificatesPage() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-600 mb-1">
-                    {certificates.filter(c => c.certificateType === 'translation').length}
+                    {certificates.filter(c => c.certificateType === 'translation')?.length}
                   </div>
                   <div className="text-sm text-gray-600">Translation Certs</div>
                 </div>

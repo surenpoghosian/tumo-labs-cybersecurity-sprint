@@ -324,13 +324,13 @@ function DashboardPageContent() {
         </div>
 
         {/* Current Files */}
-        {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+        {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
           <Card className="mt-8">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>My Current Files</CardTitle>
                 <Badge variant="outline" className="text-xs">
-                  {dashboardData.currentFiles.length} assigned
+                  {dashboardData.currentFiles?.length} assigned
                 </Badge>
               </div>
             </CardHeader>
@@ -468,7 +468,7 @@ function DashboardPageContent() {
               </div>
             </CardHeader>
             <CardContent>
-              {recentProjects?.length > 0 ? (
+              {recentProjects?.length && recentProjects.length > 0 ? (
                 <div className="space-y-4">
                   {recentProjects.map((project) => (
                     <div key={project.id} className="border rounded-lg p-4">
@@ -530,7 +530,7 @@ function DashboardPageContent() {
               </div>
             </CardHeader>
             <CardContent>
-              {certificates?.length > 0 ? (
+              {certificates?.length && certificates.length > 0 ? (
                 <div className="space-y-4">
                   {certificates.map((certificate) => (
                     <div key={certificate.id} className="border rounded-lg p-4">
@@ -575,8 +575,8 @@ function DashboardPageContent() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-              {dashboardData.currentFiles && dashboardData.currentFiles.length > 0 && (
+            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
                 <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
                   <Button 
                     className="w-full bg-green-600 hover:bg-green-700"
@@ -653,7 +653,7 @@ function DashboardPageContent() {
                 </Button>
               </div>
               
-              {testEntries?.length > 0 && (
+              {testEntries?.length && testEntries.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Entries from Firestore:</h4>
                   {testEntries.map((entry) => (

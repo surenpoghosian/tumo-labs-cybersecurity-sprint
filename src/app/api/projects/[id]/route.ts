@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    const userId = await verifyAuthToken(authHeader);
+    await verifyAuthToken(authHeader); // ensure request is authenticated
     const firestore = await getFirestore();
     const { id: projectId } = await params;
 
@@ -25,8 +25,13 @@ export async function GET(
       ...data
     } as FirestoreProject;
 
-    // Get project files
-    const files = await getProjectFiles(projectId, userId);
+    // Get project files (visible to all users)
+    const filesSnap = await firestore
+      .collection('files')
+      .where('projectId', '==', projectId)
+      .get();
+
+    const files = filesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return NextResponse.json({
       success: true,
