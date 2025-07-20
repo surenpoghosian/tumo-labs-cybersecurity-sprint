@@ -502,8 +502,35 @@ Protecting Domain Name System infrastructure from attacks and ensuring reliable 
     ]
   ];
 
-  // Cast to the expected FirestoreFile shape so TypeScript is satisfied
-  return (baseFiles[projectIndex] || []) as Omit<FirestoreFile, 'id'>[];
+  // Generate additional placeholder files for experimentation
+  const additionalFiles: Omit<FirestoreFile, 'id'>[] = [];
+  for (let i = 1; i <= 20; i++) {
+    additionalFiles.push({
+      uId: 'example-admin',
+      projectId,
+      fileName: `generated-${i}.md`,
+      filePath: `docs/generated/generated-${i}.md`,
+      folderPath: 'docs/generated',
+      originalText: `# Placeholder Content ${i}\n\nThis is generated file ${i} for seeding and experimentation.`,
+      translatedText: '',
+      status: 'not taken',
+      translations: [],
+      wordCount: 50,
+      estimatedHours: 0.5,
+      actualHours: 0,
+      createdBy: 'example-admin',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+      storageType: 'firestore',
+      fileSize: 500,
+      githubSha: '',
+      lastSyncedAt: new Date().toISOString(),
+    });
+  }
+
+  // Merge base files with the generated placeholders
+  return ([...(baseFiles[projectIndex] || []), ...additionalFiles]) as Omit<FirestoreFile, 'id'>[];
 };
 
 export async function seedExampleData(userId: string): Promise<{success: boolean, message: string, data?: any}> {

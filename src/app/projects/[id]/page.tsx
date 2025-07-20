@@ -17,7 +17,8 @@ import {
   Zap,
   RefreshCw,
   Play,
-  CheckCircle
+  CheckCircle,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
@@ -450,9 +451,12 @@ export default function ProjectDetailPage() {
             
             {/* Debug Information */}
             {hasFiles && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">File Status Debug:</h4>
-                <div className="text-xs space-y-1">
+              <details className="mt-4 bg-gray-50 rounded-lg group">
+                <summary className="cursor-pointer p-3 select-none text-sm font-medium text-gray-700 flex items-center justify-between">
+                  <span>File Statuses ({project.projectFiles.length})</span>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
+                </summary>
+                <div className="p-3 pt-0 text-xs space-y-1">
                   {project.projectFiles.map((file) => (
                     <div key={file.id} className="flex justify-between">
                       <span className="truncate max-w-xs">{file.fileName}</span>
@@ -468,7 +472,7 @@ export default function ProjectDetailPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </details>
             )}
           </CardContent>
         </Card>
