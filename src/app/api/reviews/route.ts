@@ -272,6 +272,19 @@ export async function POST(request: Request) {
 
     await batch.commit();
 
+    // After committing review & file status, update translator statistics
+    const fileData = fileDoc.data() as FirestoreFile;
+    const translatorId = fileData.assignedTranslatorId || fileData.uId;
+    if (translatorId) {
+      const statsRef = firestore.collection('userProfiles').doc(translatorId);
+      const incField = decision === 'approve' ? 'approvedTranslations' : 'rejectedTranslations';
+      const firebaseAdmin = await import('firebase-admin');
+      await statsRef.update({
+        [incField]: firebaseAdmin.firestore.FieldValue.increment(1),
+        updatedAt: new Date().toISOString()
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: {
