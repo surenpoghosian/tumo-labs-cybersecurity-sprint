@@ -302,6 +302,11 @@ export default function TranslationPage() {
   const canTranslate = file.assignedTranslatorId === user?.uid || 
                        (file.status === 'not taken' && !file.assignedTranslatorId) ||
                        file.createdBy === user?.uid; // Allow file creator to edit
+
+  // Check if file is in read-only mode (submitted for review)
+  const isUnderReview = file.status === 'pending';
+  const isReadOnly = isUnderReview && file.assignedTranslatorId === user?.uid;
+  
   const statusInfo = getFileStatusInfo();
 
   if (!canTranslate) {
@@ -315,6 +320,50 @@ export default function TranslationPage() {
             {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && 
               " (assigned to someone else)"}
           </p>
+          <div className="space-y-2">
+            {project && (
+              <Link href={`/projects/${project.id}`}>
+                <Button className="bg-orange-600 hover:bg-orange-700">
+                  Back to Project
+                </Button>
+              </Link>
+            )}
+            <Link href="/projects">
+              <Button variant="outline">
+                Browse Other Projects
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show read-only view if file is under review
+  if (isReadOnly) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+        <Card className="p-6 text-center max-w-lg">
+          <Timer className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Translation Under Review</h2>
+          <p className="text-gray-600 mb-4">
+            Your translation has been submitted and is currently being reviewed by our moderation team. 
+            You cannot make changes until the review is complete.
+          </p>
+          
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center mb-2">
+              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+              <span className="font-medium text-yellow-800">Review Status: Pending</span>
+            </div>
+            <p className="text-sm text-yellow-700">
+              • Translation submitted successfully<br/>
+              • Awaiting moderator review<br/>
+              • You will be notified when review is complete<br/>
+              • If rejected, you&apos;ll be able to make revisions
+            </p>
+          </div>
+
           <div className="space-y-2">
             {project && (
               <Link href={`/projects/${project.id}`}>
@@ -394,6 +443,23 @@ export default function TranslationPage() {
           </div>
         </div>
       </header>
+
+      {/* Rejection Notice Banner */}
+      {file.status === 'rejected' && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">
+                <strong>Translation Rejected:</strong> Your translation was reviewed and needs revisions. 
+                Please review the feedback and make necessary changes before resubmitting.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -430,7 +430,7 @@ export default function ProjectDetailPage() {
             {hasFiles ? (
               <div className="space-y-4">
                 {/* Show notice if no files are available */}
-                {project.projectFiles.filter(f => f.status === 'not taken').length === 0 && (
+                {/* {project.projectFiles.filter(f => f.status === 'not taken').length === 0 && (
                   <Card className="border-orange-200 bg-orange-50">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
@@ -459,7 +459,7 @@ export default function ProjectDetailPage() {
                       </div>
                     </CardContent>
                   </Card>
-                )}
+                )} */}
                 
                 <FolderBrowser
                   files={project.projectFiles}
