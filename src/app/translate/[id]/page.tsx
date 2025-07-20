@@ -321,7 +321,7 @@ export default function TranslationPage() {
             {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && 
               " (assigned to someone else)"}
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2 space-x-2">
             {project && (
               <Link href={`/projects/${project.id}`}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
@@ -365,7 +365,7 @@ export default function TranslationPage() {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 space-x-2">
             {project && (
               <Link href={`/projects/${project.id}`}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
