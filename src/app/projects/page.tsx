@@ -358,8 +358,7 @@ export default function ProjectsPage() {
             </Button>
           </div>
         )}
-
-        {/* Stats Summary */}
+ {/* Stats Summary
         {!loading && projects?.length > 0 && (
           <Card className="mt-8">
             <CardContent className="p-6">
@@ -389,7 +388,8 @@ export default function ProjectsPage() {
               </div>
             </CardContent>
           </Card>
-        )}
+        )} */}
+       
 
         {/* Admin Actions
         {!loading && projects?.length > 0 && user && (
