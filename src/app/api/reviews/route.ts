@@ -79,9 +79,10 @@ export async function GET(request: Request) {
 
       // Get translator information
       let translatorData = null;
-      if (fileData?.assignedTranslatorId) {
+      const translatorId = fileData?.assignedTranslatorId || fileData?.uId;
+      if (translatorId) {
         try {
-          const translatorDoc = await firestore.collection('userProfiles').doc(fileData.assignedTranslatorId).get();
+          const translatorDoc = await firestore.collection('userProfiles').doc(translatorId).get();
           if (translatorDoc.exists) {
             const data = translatorDoc.data();
             translatorData = {
