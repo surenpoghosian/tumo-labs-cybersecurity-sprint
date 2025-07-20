@@ -412,7 +412,7 @@ export default function ProjectDetailPage() {
             <div className="flex gap-2">
               <Button variant="outline" asChild>
                 <a href={project.source} target="_blank" rel="noopener noreferrer">
-                  <Github className="h-4 w-4 mr-2" />
+                  {/* <Github className="h-4 w-4 mr-2" /> */}
                   View Repository
                 </a>
               </Button>
