@@ -25,8 +25,13 @@ export async function GET(
       ...data
     } as FirestoreProject;
 
-    // Get project files
-    const files = await getProjectFiles(projectId, userId);
+    // Get project files (visible to all users)
+    const filesSnap = await firestore
+      .collection('files')
+      .where('projectId', '==', projectId)
+      .get();
+
+    const files = filesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return NextResponse.json({
       success: true,
