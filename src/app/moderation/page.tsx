@@ -370,7 +370,15 @@ export default function ModerationPage() {
                         <div><strong>File Path:</strong> {review.file?.filePath || 'Unknown'}</div>
                         <div><strong>Word Count:</strong> {review.file?.wordCount || 0} words</div>
                         {review.translator && (
-                          <div><strong>Translator:</strong> {review.translator.name}</div>
+                          <div className="space-y-0.5">
+                            <div><strong>Translator:</strong> {review.translator.name}</div>
+                            {review.translator.username && (
+                              <div className="text-xs text-gray-500"><strong>Username:</strong> {review.translator.username}</div>
+                            )}
+                            {review.translator.email && (
+                              <div className="text-xs text-gray-500"><strong>Email:</strong> {review.translator.email}</div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
