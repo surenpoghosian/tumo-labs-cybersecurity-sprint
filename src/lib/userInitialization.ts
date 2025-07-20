@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getFirestore } from './firebaseAdmin';
 import { FirestoreUserProfile, FirestoreFile, FirestoreProject, FirestoreCertificate, TranslationMemoryEntry } from './firestore';
 

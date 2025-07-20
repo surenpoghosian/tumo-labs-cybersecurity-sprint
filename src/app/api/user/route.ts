@@ -88,6 +88,7 @@ export async function PUT(request: Request) {
       } else {
         currentProfile = { id: userId, ...doc.data() } as FirestoreUserProfile;
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // If any error getting profile, initialize a new one
       currentProfile = await initializeNewUser(userId, email, name);
