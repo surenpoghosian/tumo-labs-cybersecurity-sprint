@@ -104,8 +104,8 @@ export default function ModerationPage() {
       setStats(result.stats || { total: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0 });
       setUserRole(result.meta?.userRole || 'contributor');
 
-      // Check if user is authorized
-      if (!result.meta?.isModerator && result.meta?.userRole !== 'administrator') {
+      // Allow access if user is explicitly marked as moderator or if their role is moderator/administrator
+      if (!result.meta?.isModerator && !['moderator', 'administrator'].includes(result.meta?.userRole)) {
         router.push('/dashboard');
         return;
       }
@@ -138,8 +138,8 @@ export default function ModerationPage() {
         throw new Error('Failed to take review');
       }
 
-      // Refresh reviews
-      await fetchReviews();
+      // Switch to in-progress view so the newly assigned review is visible
+      setFilter('in-progress');
       
     } catch (error) {
       console.error('Error taking review:', error);
@@ -362,7 +362,7 @@ export default function ModerationPage() {
                 
                 <CardContent className="space-y-4">
                   {/* Review Info */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Project & File Info</h4>
                       <div className="text-sm space-y-1">
@@ -374,7 +374,18 @@ export default function ModerationPage() {
                         )}
                       </div>
                     </div>
-                    
+                  
+
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Original Text</h4>
+                      <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                        {review.file?.originalText ?
+                          review.file.originalText.substring(0, 200) +
+                          (review.file.originalText?.length > 200 ? '...' : '') :
+                          'No original text available'}
+                      </div>
+                    </div>
+
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Translation Preview</h4>
                       <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">

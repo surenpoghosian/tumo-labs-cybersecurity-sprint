@@ -6,33 +6,47 @@ import { FirestoreReview, FirestoreUserProfile, FirestoreFile, FirestoreProject 
 
 export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
-    // Get user profile to check if they are a moderator
+    // Get user profile and determine moderation privileges
     const userDoc = await firestore.collection('userProfiles').doc(userId).get();
-    const userProfile = userDoc.exists ? userDoc.data() as FirestoreUserProfile : null;
+    const userProfile = userDoc.exists ? (userDoc.data() as FirestoreUserProfile) : null;
+    const hasModerationPrivilege = !!(
+      userProfile?.isModerator ||
+      userProfile?.role === 'moderator' ||
+      userProfile?.role === 'administrator'
+    );
     
     const url = new URL(request.url);
     const status = url.searchParams.get('status') || 'all';
+    const fileIdParam = url.searchParams.get('fileId');
     const assignedToMe = url.searchParams.get('assignedToMe') === 'true';
 
-    let query = firestore.collection('reviews').orderBy('createdAt', 'desc');
+    // Start with base collection reference
+    let query: FirebaseFirestore.Query = firestore.collection('reviews');
 
     // Filter by status if specified
     if (status !== 'all') {
       query = query.where('status', '==', status) as any;
     }
 
+    // Filter by fileId if provided
+    if (fileIdParam) {
+      query = query.where('fileId', '==', fileIdParam) as any;
+    }
+
     // If assignedToMe is true, only show reviews assigned to this user
     if (assignedToMe) {
       query = query.where('reviewerId', '==', userId) as any;
-    } else if (!userProfile?.isModerator && userProfile?.role !== 'administrator') {
+    } else if (!hasModerationPrivilege) {
       // Non-moderators can only see their own submitted translations or assigned reviews
       query = query.where('createdBy', '==', userId) as any;
     }
 
     const snapshot = await query.get();
+    // Collect reviews then sort by createdAt descending to keep previous behaviour
     const reviews: any[] = [];
 
     // Fetch additional data for each review
@@ -90,6 +104,9 @@ export async function GET(request: Request) {
       });
     }
 
+    // Sort the reviews array by createdAt in-memory (desc)
+    reviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     const stats = {
       total: reviews?.length,
       pending: reviews.filter(r => r.status === 'pending')?.length,
@@ -105,7 +122,7 @@ export async function GET(request: Request) {
       meta: {
         userId,
         userRole: userProfile?.role || 'contributor',
-        isModerator: userProfile?.isModerator || false,
+        isModerator: hasModerationPrivilege,
         filters: { status, assignedToMe },
         timestamp: new Date().toISOString()
       }
@@ -129,7 +146,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();
@@ -142,11 +160,16 @@ export async function POST(request: Request) {
       takeReview = false // If true, assign this review to the current user
     } = body;
 
-    // Get user profile to check if they are a moderator
+    // Get user profile and determine moderation privileges
     const userDoc = await firestore.collection('userProfiles').doc(userId).get();
-    const userProfile = userDoc.exists ? userDoc.data() as FirestoreUserProfile : null;
-    
-    if (!userProfile?.isModerator && userProfile?.role !== 'administrator') {
+    const userProfile = userDoc.exists ? (userDoc.data() as FirestoreUserProfile) : null;
+    const hasModerationPrivilege = !!(
+      userProfile?.isModerator ||
+      userProfile?.role === 'moderator' ||
+      userProfile?.role === 'administrator'
+    );
+
+    if (!hasModerationPrivilege) {
       return NextResponse.json({ 
         error: 'Unauthorized: Only moderators can review translations' 
       }, { status: 403 });
