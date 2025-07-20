@@ -11,14 +11,7 @@ interface GitHubFile {
   content?: string;
 }
 
-interface GitHubTree {
-  path: string;
-  mode: string;
-  type: 'blob' | 'tree';
-  sha: string;
-  size?: number;
-  url: string;
-}
+
 
 export class GitHubDocumentManager {
   private octokit: Octokit;
@@ -62,7 +55,7 @@ export class GitHubDocumentManager {
           docsPath
         );
         allFiles.push(...files);
-      } catch (error) {
+      } catch {
         console.log(`No ${docsPath} directory found in ${repoUrl}`);
       }
     }
@@ -144,12 +137,13 @@ export class GitHubDocumentManager {
         throw new Error('Path is a directory, not a file');
       }
 
-      if (response.data.content) {
+      // Check if it's a file type before accessing content
+      if (response.data.type === 'file' && 'content' in response.data && response.data.content) {
         return Buffer.from(response.data.content, 'base64').toString('utf8');
       }
 
       // For large files, fetch from download_url
-      if (response.data.download_url) {
+      if (response.data.type === 'file' && response.data.download_url) {
         const contentResponse = await fetch(response.data.download_url);
         return await contentResponse.text();
       }
@@ -164,28 +158,7 @@ export class GitHubDocumentManager {
   /**
    * Get repository tree structure
    */
-  async getRepositoryTree(
-    owner: string,
-    repo: string,
-    recursive: boolean = true
-  ): Promise<GitHubTree[]> {
-    try {
-      const response = await this.octokit.rest.git.getTree({
-        owner,
-        repo,
-        tree_sha: 'HEAD',
-        recursive: recursive ? 'true' : undefined,
-      });
-
-      return response.data.tree.filter(item => 
-        item.type === 'blob' && 
-        this.isDocumentationFile(item.path || '')
-      );
-    } catch (error) {
-      console.error('Error fetching repository tree:', error);
-      return [];
-    }
-  }
+ 
 
   /**
    * Check if file is a documentation file

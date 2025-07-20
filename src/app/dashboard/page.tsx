@@ -330,36 +330,123 @@ function DashboardPageContent() {
               <div className="flex items-center justify-between">
                 <CardTitle>My Current Files</CardTitle>
                 <Badge variant="outline" className="text-xs">
-                  {dashboardData.currentFiles.length} in progress
+                  {dashboardData.currentFiles.length} assigned
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.currentFiles.map((file) => (
-                  <div key={file.id} className="border rounded-lg p-4 bg-blue-50 border-blue-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{file.fileName}</h4>
-                      <Badge className="bg-blue-100 text-blue-800">
-                        <Clock className="h-3 w-3 mr-1" />
-                        In Progress
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{file.filePath}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>{file.wordCount} words</span>
-                        <span>{file.estimatedHours}h estimated</span>
+                {dashboardData.currentFiles.map((file) => {
+                  const getStatusInfo = () => {
+                    switch (file.status) {
+                      case 'in progress':
+                        return { 
+                          color: 'orange', 
+                          bgColor: 'orange-50', 
+                          borderColor: 'orange-200', 
+                          label: 'In Progress',
+                          canEdit: true,
+                          buttonText: 'Continue Translation',
+                          buttonColor: 'bg-green-600 hover:bg-green-700'
+                        };
+                      case 'pending':
+                        return { 
+                          color: 'yellow', 
+                          bgColor: 'yellow-50', 
+                          borderColor: 'yellow-200', 
+                          label: 'Under Review',
+                          canEdit: false,
+                          buttonText: 'View Status',
+                          buttonColor: 'bg-gray-400 cursor-not-allowed'
+                        };
+                      case 'rejected':
+                        return { 
+                          color: 'red', 
+                          bgColor: 'red-50', 
+                          borderColor: 'red-200', 
+                          label: 'Needs Revision',
+                          canEdit: true,
+                          buttonText: 'Make Revisions',
+                          buttonColor: 'bg-red-600 hover:bg-red-700'
+                        };
+                      case 'accepted':
+                        return { 
+                          color: 'green', 
+                          bgColor: 'green-50', 
+                          borderColor: 'green-200', 
+                          label: 'Completed',
+                          canEdit: false,
+                          buttonText: 'View Translation',
+                          buttonColor: 'bg-gray-400'
+                        };
+                      default:
+                        return { 
+                          color: 'blue', 
+                          bgColor: 'blue-50', 
+                          borderColor: 'blue-200', 
+                          label: 'Available',
+                          canEdit: true,
+                          buttonText: 'Start Translation',
+                          buttonColor: 'bg-blue-600 hover:bg-blue-700'
+                        };
+                    }
+                  };
+
+                  const statusInfo = getStatusInfo();
+
+                  return (
+                    <div key={file.id} className={`border rounded-lg p-4 bg-${statusInfo.bgColor} border-${statusInfo.borderColor}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">{file.fileName}</h4>
+                        <Badge className={`bg-${statusInfo.color}-100 text-${statusInfo.color}-800`}>
+                          <Clock className="h-3 w-3 mr-1" />
+                          {statusInfo.label}
+                        </Badge>
                       </div>
-                      <Link href={`/translate/${file.id}`}>
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                          <ArrowRight className="h-4 w-4 mr-1" />
-                          Continue Translation
-                        </Button>
-                      </Link>
+                      <p className="text-sm text-gray-600 mb-3">{file.filePath}</p>
+                      
+                      {/* Status-specific messages */}
+                      {file.status === 'pending' && (
+                        <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
+                          <strong>Under Review:</strong> Your translation is being reviewed by moderators. You cannot edit until review is complete.
+                        </div>
+                      )}
+                      
+                      {file.status === 'rejected' && (
+                        <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
+                          <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. Please make revisions and resubmit.
+                        </div>
+                      )}
+
+                      {file.status === 'accepted' && (
+                        <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-xs text-green-800">
+                          <strong>Completed:</strong> Your translation has been accepted and published. Great work!
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>{file.wordCount} words</span>
+                          <span>{file.estimatedHours}h estimated</span>
+                        </div>
+                        
+                        {statusInfo.canEdit ? (
+                          <Link href={`/translate/${file.id}`}>
+                            <Button size="sm" className={statusInfo.buttonColor}>
+                              <ArrowRight className="h-4 w-4 mr-1" />
+                              {statusInfo.buttonText}
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button size="sm" className={statusInfo.buttonColor} disabled>
+                            <ArrowRight className="h-4 w-4 mr-1" />
+                            {statusInfo.buttonText}
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

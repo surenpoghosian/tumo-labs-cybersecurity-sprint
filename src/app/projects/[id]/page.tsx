@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,7 +16,8 @@ import {
   FileText,
   Zap,
   RefreshCw,
-  Play
+  Play,
+  CheckCircle
 } from "lucide-react";
 import Link from "next/link";
 import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
@@ -222,6 +224,7 @@ export default function ProjectDetailPage() {
   const getFileActionButton = () => {
     if (!selectedFile || !user) return null;
 
+    // Available files can be taken
     if (selectedFile.status === 'not taken') {
       return (
         <Button onClick={handleTakeFile} className="bg-orange-600 hover:bg-orange-700">
@@ -231,24 +234,71 @@ export default function ProjectDetailPage() {
       );
     }
 
+    // Files assigned to current user
     if (selectedFile.assignedTranslatorId === user.uid) {
-      return (
-        <Button onClick={handleStartTranslation} className="bg-green-600 hover:bg-green-700">
-          <Play className="h-4 w-4 mr-2" />
-          Continue Translation
-        </Button>
-      );
+      if (selectedFile.status === 'in progress') {
+        return (
+          <Button onClick={handleStartTranslation} className="bg-green-600 hover:bg-green-700">
+            <Play className="h-4 w-4 mr-2" />
+            Continue Translation
+          </Button>
+        );
+      }
+
+      if (selectedFile.status === 'pending') {
+        return (
+          <div className="space-y-2">
+            <Button disabled variant="outline" className="w-full">
+              <Clock className="h-4 w-4 mr-2" />
+              Under Review
+            </Button>
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+              <strong>Review in Progress:</strong> Your translation is being reviewed by moderators. 
+              You cannot edit until the review is complete.
+            </div>
+          </div>
+        );
+      }
+
+      if (selectedFile.status === 'rejected') {
+        return (
+          <div className="space-y-2">
+            <Button onClick={handleStartTranslation} className="bg-red-600 hover:bg-red-700">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Make Revisions
+            </Button>
+            <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+              <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. 
+              Please make revisions and resubmit.
+            </div>
+          </div>
+        );
+      }
+
+      if (selectedFile.status === 'accepted') {
+        return (
+          <div className="space-y-2">
+            <Button disabled variant="outline" className="w-full">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Translation Completed
+            </Button>
+            <div className="p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
+              <strong>Completed:</strong> Your translation has been accepted and published. Great work!
+            </div>
+          </div>
+        );
+      }
     }
 
-    // File is assigned to someone else or has a different status
+    // Files assigned to someone else or other statuses
     return (
       <div className="space-y-2">
         <Button disabled variant="outline" className="w-full">
           <Users className="h-4 w-4 mr-2" />
           {selectedFile.status === 'in progress' ? 'In Progress by Another User' : 
-           selectedFile.status === 'pending' ? 'Pending Review' :
+           selectedFile.status === 'pending' ? 'Under Review by Another User' :
            selectedFile.status === 'accepted' ? 'Already Completed' :
-           selectedFile.status === 'rejected' ? 'Needs Revision' :
+           selectedFile.status === 'rejected' ? 'Needs Revision by Assigned User' :
            'Not Available'}
         </Button>
         <p className="text-xs text-gray-500 text-center">

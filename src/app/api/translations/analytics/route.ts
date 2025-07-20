@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
-import { getAllTranslationProjects, getTranslationSegmentsByProjectId, mockTranslationSessions } from '@/data/mockData';
+import { getAllTranslationProjects, getTranslationSegmentsByProjectId, mockTranslationSessions, mockCyberSecProjects } from '@/data/mockData';
 
 export async function GET(request: Request) {
   try {
@@ -33,23 +33,29 @@ export async function GET(request: Request) {
     sessions = sessions.filter(s => new Date(s.startTime) >= cutoffDate);
     
     // Calculate statistics
-    const totalWords = segments.reduce((sum, segment) => sum + segment.wordCount, 0);
-    const translatedWords = segments.filter(s => s.isTranslated).reduce((sum, segment) => sum + segment.wordCount, 0);
+    const totalWords = segments.reduce((sum, segment) => sum + segment.actualWords, 0);
+    const translatedWords = segments.filter(s => s.status === 'completed' || s.status === 'reviewed').reduce((sum, segment) => sum + segment.actualWords, 0);
     const totalSessions = sessions.length;
-    const totalTime = sessions.reduce((sum, session) => sum + session.duration, 0);
+    const totalTime = sessions.reduce((sum, session) => {
+      if (session.endTime) {
+        const duration = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
+        return sum + Math.max(0, duration); // Duration in milliseconds
+      }
+      return sum;
+    }, 0);
     
     // Progress by day
     const dailyProgress = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dayProjects = projects.filter(p => {
-        const pDate = new Date(p.lastModified);
+        const pDate = new Date(p.completedAt || p.createdAt);
         return pDate.toDateString() === date.toDateString();
       });
       
       dailyProgress.push({
         date: date.toISOString().split('T')[0],
-        wordsTranslated: dayProjects.reduce((sum, p) => sum + (p.translatedWords || 0), 0),
+        wordsTranslated: dayProjects.reduce((sum, p) => sum + (p.translatedContent?.split(' ').length || 0), 0),
         sessionsCompleted: sessions.filter(s => {
           const sDate = new Date(s.startTime);
           return sDate.toDateString() === date.toDateString();
@@ -57,20 +63,20 @@ export async function GET(request: Request) {
       });
     }
     
-    // Quality metrics
-    const qualityScore = segments.length > 0 
-      ? segments.reduce((sum, s) => sum + (s.qualityScore || 0.8), 0) / segments.length 
+    // Quality metrics (using project quality scores since segments don't have quality scores)
+    const qualityScore = projects.length > 0 
+      ? projects.reduce((sum, p) => sum + (p.qualityScore || 0.8), 0) / projects.length 
       : 0;
     
     // Project categories
     const categoryStats = projects.reduce((acc, project) => {
-      project.categories.forEach(category => {
-        if (!acc[category]) {
-          acc[category] = { count: 0, wordsTranslated: 0 };
-        }
-        acc[category].count++;
-        acc[category].wordsTranslated += project.translatedWords || 0;
-      });
+      const sourceProject = mockCyberSecProjects.find(sp => sp.id === project.cyberSecProjectId);
+      const category = sourceProject?.category || 'general';
+      if (!acc[category]) {
+        acc[category] = { count: 0, wordsTranslated: 0 };
+      }
+      acc[category].count++;
+      acc[category].wordsTranslated += project.translatedContent?.split(' ').length || 0;
       return acc;
     }, {} as Record<string, { count: number; wordsTranslated: number }>);
     
@@ -104,7 +110,7 @@ export async function GET(request: Request) {
           translatedWords,
           completionRate: totalWords > 0 ? (translatedWords / totalWords) * 100 : 0,
           totalProjects: projects.length,
-          completedProjects: projects.filter(p => p.status === 'completed').length,
+          completedProjects: projects.filter(p => p.status === 'merged').length,
           totalSessions,
           totalTime: Math.round(totalTime),
           averageSessionTime: totalSessions > 0 ? Math.round(totalTime / totalSessions) : 0,

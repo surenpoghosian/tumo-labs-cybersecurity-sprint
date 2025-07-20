@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -43,7 +42,6 @@ export function FolderBrowser({
   onFileSelect, 
   selectedFileId, 
   showFileStats = true,
-  allowFileActions = true 
 }: FolderBrowserProps) {
   const { user } = useAuth();
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['root']));
@@ -142,22 +140,56 @@ export function FolderBrowser({
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      'not taken': { variant: 'secondary' as const, icon: FileText, label: 'Available' },
-      'in progress': { variant: 'default' as const, icon: Zap, label: 'In Progress' },
-      'pending': { variant: 'outline' as const, icon: Clock, label: 'Pending Review' },
-      'rejected': { variant: 'destructive' as const, icon: AlertCircle, label: 'Rejected' },
-      'accepted': { variant: 'default' as const, icon: CheckCircle, label: 'Accepted' },
+      'not taken': { 
+        variant: 'secondary' as const, 
+        icon: FileText, 
+        label: 'Available',
+        canAccess: true,
+        description: 'Ready for translation'
+      },
+      'in progress': { 
+        variant: 'default' as const, 
+        icon: Zap, 
+        label: 'In Progress',
+        canAccess: true,
+        description: 'Currently being translated'
+      },
+      'pending': { 
+        variant: 'outline' as const, 
+        icon: Clock, 
+        label: 'Under Review',
+        canAccess: false,
+        description: 'Submitted for moderator review'
+      },
+      'rejected': { 
+        variant: 'destructive' as const, 
+        icon: AlertCircle, 
+        label: 'Needs Revision',
+        canAccess: true,
+        description: 'Requires changes before resubmission'
+      },
+      'accepted': { 
+        variant: 'default' as const, 
+        icon: CheckCircle, 
+        label: 'Completed',
+        canAccess: false,
+        description: 'Translation completed and approved'
+      },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig['not taken'];
     const Icon = config.icon;
 
-    return (
-      <Badge variant={config.variant} className="text-xs">
-        <Icon className="h-3 w-3 mr-1" />
-        {config.label}
-      </Badge>
-    );
+    return {
+      badge: (
+        <Badge variant={config.variant} className="text-xs">
+          <Icon className="h-3 w-3 mr-1" />
+          {config.label}
+        </Badge>
+      ),
+      canAccess: config.canAccess,
+      description: config.description
+    };
   };
 
   const formatFileSize = (bytes: number) => {
@@ -215,20 +247,29 @@ export function FolderBrowser({
 
     // File node
     const isAssignedToMe = node.file?.assignedTranslatorId === user?.uid;
+    const statusInfo = node.file ? getStatusBadge(node.file.status) : null;
+    const canSelectFile = statusInfo?.canAccess && (isAssignedToMe || node.file?.status === 'not taken');
     
     return (
       <div 
         key={node.path}
-        className={`flex items-center gap-2 p-2 cursor-pointer rounded-md transition-colors ${
+        className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
           depth > 0 ? 'ml-' + (depth * 4) : ''
         } ${
           isSelected 
             ? 'bg-orange-50 border border-orange-200' 
             : isAssignedToMe 
               ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200' 
-              : 'hover:bg-gray-50'
+              : canSelectFile
+                ? 'hover:bg-gray-50 cursor-pointer'
+                : 'opacity-60 cursor-not-allowed'
         }`}
-        onClick={() => node.file && onFileSelect(node.file)}
+        onClick={() => {
+          if (node.file && canSelectFile) {
+            onFileSelect(node.file);
+          }
+        }}
+        title={!canSelectFile && statusInfo ? statusInfo.description : undefined}
       >
         <div className="w-4 h-4" /> {/* Spacer for alignment */}
         <FileText className="h-4 w-4 text-gray-500" />
@@ -236,7 +277,16 @@ export function FolderBrowser({
         
         {showFileStats && node.file && (
           <div className="flex items-center gap-2">
-            {getStatusBadge(node.file.status)}
+            {statusInfo?.badge}
+            
+            {/* Access restriction indicator */}
+            {!canSelectFile && (
+              <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
+                {node.file.status === 'pending' && 'Under Review'}
+                {node.file.status === 'accepted' && 'Completed'}
+                {node.file.assignedTranslatorId && node.file.assignedTranslatorId !== user?.uid && 'Assigned to Other'}
+              </Badge>
+            )}
             
             {node.file.assignedTranslatorId && (
               <Badge 
@@ -251,13 +301,6 @@ export function FolderBrowser({
             <Badge variant="outline" className="text-xs">
               {node.file.wordCount} words
             </Badge>
-            
-            {node.file.estimatedHours && (
-              <Badge variant="outline" className="text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                {node.file.estimatedHours}h
-              </Badge>
-            )}
           </div>
         )}
       </div>

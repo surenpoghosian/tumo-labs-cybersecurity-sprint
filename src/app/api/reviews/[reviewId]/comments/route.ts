@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
-import { mockReviewTasks } from '@/data/mockData';
+import { mockReviewTasks, getAllTranslationProjects } from '@/data/mockData';
 
 export async function GET(
   request: Request,
@@ -22,8 +22,13 @@ export async function GET(
       );
     }
     
+    // Get the translation project to access translator information
+    const translationProject = getAllTranslationProjects().find(
+      p => p.id === reviewTask.translationProjectId
+    );
+    
     // Check if user has access to this review (must be the reviewer or the translator)
-    if (reviewTask.reviewerId !== userId && reviewTask.translatorId !== userId) {
+    if (reviewTask.reviewerId !== userId && translationProject?.assignedTranslatorId !== userId) {
       return NextResponse.json(
         { success: false, error: 'Forbidden: You do not have access to this review' },
         { status: 403 }

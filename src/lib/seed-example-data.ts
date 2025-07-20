@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Seed script to populate Firestore with example projects and files for testing
 import { getFirestore } from './firebaseAdmin';
 import { FirestoreProject, FirestoreFile } from './firestore';
@@ -501,7 +502,8 @@ Protecting Domain Name System infrastructure from attacks and ensuring reliable 
     ]
   ];
 
-  return baseFiles[projectIndex] || [];
+  // Cast to the expected FirestoreFile shape so TypeScript is satisfied
+  return (baseFiles[projectIndex] || []) as Omit<FirestoreFile, 'id'>[];
 };
 
 export async function seedExampleData(userId: string): Promise<{success: boolean, message: string, data?: any}> {

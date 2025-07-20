@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
-import { FirestoreReview, FirestoreFile, FirestoreProject, FirestoreUserProfile } from '@/lib/firestore';
+import { FirestoreReview, FirestoreUserProfile, FirestoreFile, FirestoreProject } from '@/lib/firestore';
 
 export async function GET(request: Request) {
   try {
@@ -39,23 +40,23 @@ export async function GET(request: Request) {
       const reviewData = { id: doc.id, ...doc.data() } as FirestoreReview & { id: string };
       
       // Get file information
-      let fileData = null;
+      let fileData: (FirestoreFile & { id: string }) | null = null;
       try {
         const fileDoc = await firestore.collection('files').doc(reviewData.fileId).get();
         if (fileDoc.exists) {
-          fileData = { id: fileDoc.id, ...fileDoc.data() };
+          fileData = { id: fileDoc.id, ...fileDoc.data() } as FirestoreFile & { id: string };
         }
       } catch (error) {
         console.log('Could not fetch file data:', error);
       }
 
       // Get project information
-      let projectData = null;
+      let projectData: (FirestoreProject & { id: string }) | null = null;
       if (fileData?.projectId) {
         try {
           const projectDoc = await firestore.collection('projects').doc(fileData.projectId).get();
           if (projectDoc.exists) {
-            projectData = { id: projectDoc.id, ...projectDoc.data() };
+            projectData = { id: projectDoc.id, ...projectDoc.data() } as FirestoreProject & { id: string };
           }
         } catch (error) {
           console.log('Could not fetch project data:', error);

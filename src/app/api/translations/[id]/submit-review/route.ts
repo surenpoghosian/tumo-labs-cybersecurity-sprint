@@ -69,7 +69,9 @@ export async function POST(
     }
 
     // Calculate completion percentage
-    const completionPercentage = translationProject.translationProgress || 0;
+    const completionPercentage = translationProject.totalSegments > 0 
+      ? Math.round((translationProject.completedSegments / translationProject.totalSegments) * 100)
+      : 0;
     
     if (completionPercentage < 100) {
       return NextResponse.json(
@@ -93,7 +95,7 @@ export async function POST(
     const reviewId = `review-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     // Find the source project for additional details
-    const sourceProject = mockCyberSecProjects.find(p => p.id === translationProject.sourceProjectId);
+    const sourceProject = mockCyberSecProjects.find(p => p.id === translationProject.cyberSecProjectId);
     
     const submissionResult = {
       reviewId,
@@ -103,12 +105,12 @@ export async function POST(
       status: 'pending-review',
       submittedAt: new Date().toISOString(),
       estimatedReviewTime: '2-3 business days',
-      priority: translationProject.priority || 'normal',
+      priority: 'normal', // Default priority since TranslationProject doesn't have priority property
       projectDetails: {
-        title: translationProject.title,
+        title: sourceProject?.name || translationProject.documentPath,
         difficulty: sourceProject?.difficulty || 'intermediate',
-        wordCount: translationProject.wordCount || 0,
-        category: sourceProject?.categories?.[0] || 'general'
+        wordCount: translationProject.originalContent?.split(' ').length || 0,
+        category: sourceProject?.category || 'general'
       },
       reviewerAssignment: {
         assignedReviewer: null, // Will be assigned by system

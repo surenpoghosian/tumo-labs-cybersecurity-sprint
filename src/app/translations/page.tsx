@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,6 @@ import {
   BookOpen, 
   Search, 
   Shield, 
-  Clock, 
   CheckCircle,
   ArrowRight,
   Filter,

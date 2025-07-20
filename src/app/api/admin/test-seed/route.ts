@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { seedExampleData } from '@/lib/seed-example-data';
+import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
 
 export async function GET(request: Request) {
   try {
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
         success: true,
         message: 'Test data seeded successfully',
         data: {
-          projects: result.data?.projects.map(p => ({
+          projects: result.data?.projects.map((p: FirestoreProject) => ({
             id: p.id,
             title: p.title,
             version: p.version,
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
             fileCount: p.files.length,
             categories: p.categories
           })),
-          files: result.data?.files.map(f => ({
+          files: result.data?.files.map((f: FirestoreFile) => ({
             id: f.id,
             fileName: f.fileName,
             filePath: f.filePath,
