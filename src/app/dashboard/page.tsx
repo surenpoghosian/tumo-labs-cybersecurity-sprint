@@ -39,71 +39,71 @@ function DashboardPageContent() {
   const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
   
   // Firestore test states
-  const [testOriginal, setTestOriginal] = useState('');
-  const [testTranslated, setTestTranslated] = useState('');
-  const [testEntries, setTestEntries] = useState<{id: string, originalText: string, translatedText: string, category: string}[]>([]);
-  const [addingTest, setAddingTest] = useState(false);
-  const [loadingTest, setLoadingTest] = useState(false);
+  // const [testOriginal, setTestOriginal] = useState('');
+  // const [testTranslated, setTestTranslated] = useState('');
+  // const [testEntries, setTestEntries] = useState<{id: string, originalText: string, translatedText: string, category: string}[]>([]);
+  // const [addingTest, setAddingTest] = useState(false);
+  // const [loadingTest, setLoadingTest] = useState(false);
   
   const { user: authUser, logout } = useAuth();
   const router = useRouter();
 
   // Firestore test functions
-  const addTestEntry = async () => {
-    if (!testOriginal || !testTranslated || !authUser) return;
+  // const addTestEntry = async () => {
+  //   if (!testOriginal || !testTranslated || !authUser) return;
     
-    setAddingTest(true);
-    try {
-      // Get the user's ID token
-      const idToken = await authUser.getIdToken();
+  //   setAddingTest(true);
+  //   try {
+  //     // Get the user's ID token
+  //     const idToken = await authUser.getIdToken();
       
-      const response = await fetch('/api/translation-memory', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          uId: authUser.uid,
-          originalText: testOriginal,
-          translatedText: testTranslated,
-          context: 'test',
-          category: 'cybersecurity',
-          confidence: 0.9
-        })
-      });
+  //     const response = await fetch('/api/translation-memory', {
+  //       method: 'POST',
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${idToken}`
+  //       },
+  //       body: JSON.stringify({
+  //         uId: authUser.uid,
+  //         originalText: testOriginal,
+  //         translatedText: testTranslated,
+  //         context: 'test',
+  //         category: 'cybersecurity',
+  //         confidence: 0.9
+  //       })
+  //     });
       
-      if (response.ok) {
-        setTestOriginal('');
-        setTestTranslated('');
-        loadTestEntries(); // Reload entries
-      }
-    } catch (error) {
-      console.error('Error adding test entry:', error);
-    } finally {
-      setAddingTest(false);
-    }
-  };
+  //     if (response.ok) {
+  //       setTestOriginal('');
+  //       setTestTranslated('');
+  //       loadTestEntries(); // Reload entries
+  //     }
+  //   } catch (error) {
+  //     console.error('Error adding test entry:', error);
+  //   } finally {
+  //     setAddingTest(false);
+  //   }
+  // };
 
-  const loadTestEntries = async () => {
-    setLoadingTest(true);
-    try {
-      // Get the user's ID token for GET requests too
-      const idToken = authUser ? await authUser.getIdToken() : null;
+  // const loadTestEntries = async () => {
+  //   setLoadingTest(true);
+  //   try {
+  //     // Get the user's ID token for GET requests too
+  //     const idToken = authUser ? await authUser.getIdToken() : null;
       
-      const response = await fetch('/api/translation-memory', {
-        headers: idToken ? { 'Authorization': `Bearer ${idToken}` } : {}
-      });
-      const data = await response.json();
-      if (data.success) {
-        setTestEntries(data.data);
-      }
-    } catch (error) {
-      console.error('Error loading test entries:', error);
-    } finally {
-      setLoadingTest(false);
-    }
-  };
+  //     const response = await fetch('/api/translation-memory', {
+  //       headers: idToken ? { 'Authorization': `Bearer ${idToken}` } : {}
+  //     });
+  //     const data = await response.json();
+  //     if (data.success) {
+  //       setTestEntries(data.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error loading test entries:', error);
+  //   } finally {
+  //     setLoadingTest(false);
+  //   }
+  // };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -661,7 +661,7 @@ function DashboardPageContent() {
           </Card>
         </div>
 
-        {/* Firestore Test Section */}
+        {/* Firestore Test Section
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>Translation Memory (Firestore Test)</CardTitle>
@@ -707,7 +707,7 @@ function DashboardPageContent() {
               )}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
