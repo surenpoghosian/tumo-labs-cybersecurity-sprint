@@ -43,11 +43,11 @@ export default function Home() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/projects">
+            {/* <Link href="/projects">
               <Button size="lg" variant="outline">
                 Browse Projects
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
