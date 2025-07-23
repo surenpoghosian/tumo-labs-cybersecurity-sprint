@@ -2,6 +2,17 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BookOpen, ArrowLeft, Github } from "lucide-react";
 import Link from "next/link";
+import { fetchPublicTranslationById, PublicTranslation } from '@/lib/publicTranslations';
+
+// Extend the base type with optional SEO fields that may or may not be present
+type ExtendedTranslation = PublicTranslation & {
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  project: PublicTranslation['project'] & { source?: string };
+};
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{
@@ -12,26 +23,16 @@ interface Props {
 
 async function getPublicTranslation(fileId: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/translations/${fileId}/public`, {
-      next: { revalidate: 300 } // Revalidate every 5 minutes
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    const data = await response.json();
-    return data.success ? data.data : null;
-  } catch (error) {
-    console.error('Error fetching translation:', error);
+    return await fetchPublicTranslationById(fileId);
+  } catch (err) {
+    console.error('Error fetching translation:', err);
     return null;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { file: fileId } = await params;
-  const translation = await getPublicTranslation(fileId);
+  const translation = await getPublicTranslation(fileId) as ExtendedTranslation;
   
   if (!translation) {
     return {
@@ -40,15 +41,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = translation.seoTitle || `${translation.fileName} - ${translation.project.title} | Armenian Translation`;
-  const description = translation.seoDescription || 
+  const title = (translation.seoTitle as string | undefined) || `${translation.fileName} - ${translation.project.title} | Armenian Translation`;
+  const description = (translation.seoDescription as string | undefined) || 
     `Armenian translation of ${translation.fileName} from ${translation.project.title}. ${translation.project.description.substring(0, 100)}...`;
   
   return {
     title,
     description,
     keywords: [
-      ...(translation.seoKeywords || []),
+      ...((translation.seoKeywords as string[] | undefined) || []),
       'armenian cybersecurity',
       'տեխնիկական թարգմանություն',
       translation.category,
@@ -85,7 +86,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DocumentPage({ params }: Props) {
   const { file: fileId } = await params;
-  const translation = await getPublicTranslation(fileId);
+  const translation = await getPublicTranslation(fileId) as ExtendedTranslation;
 
   if (!translation) {
     notFound();
@@ -229,7 +230,7 @@ export default async function DocumentPage({ params }: Props) {
               
               {translation.project.source && (
                 <a 
-                  href={translation.project.source}
+                  href={translation.project.source as string}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1 text-sm text-orange-600 hover:text-orange-700 transition-colors"

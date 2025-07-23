@@ -2,70 +2,16 @@ import React from 'react';
 import { Metadata } from 'next';
 import { BookOpen, Shield, FileText, Users } from "lucide-react";
 import Link from "next/link";
+import { fetchPublicTranslations } from '@/lib/publicTranslations';
+import type { PublicTranslation } from '@/lib/publicTranslations';
 
-// Define types for our data
-type Project = {
-  title: string;
-  description: string;
-  difficulty: number;
-  categories?: string[];
-};
+// Always render at request time so we serve fresh data and preserve SEO
+export const dynamic = 'force-dynamic';
 
-type Translation = {
-  id: string;
-  fileName: string;
-  category?: string;
-  project: Project;
-  wordCount: number;
-  completedAt: string;
-  translatedText: string;
-  translator?: {
-    name: string;
-  };
-};
+type Translation = PublicTranslation;
 
-type TranslationsResponse = {
-  translations: Translation[];
-  projects: Project[];
-  categories: string[];
-  stats: {
-    totalTranslations: number;
-    totalWords: number;
-  };
-};
-
-// This will be generated dynamically based on available translations
-async function getPublicTranslations(): Promise<TranslationsResponse> {
-  try {
-    // Use relative URL for API calls since we're calling our own API
-    const apiUrl = '/api/translations/public?limit=100';
-    
-    // In server-side rendering, we need to use absolute URL. Build it safely to
-    // avoid "https://undefined" mistakes.
-    let baseUrl = '';
-    if (typeof window === 'undefined') {
-      const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
-      const vercelUrl = process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`;
-      baseUrl = publicUrl || vercelUrl || 'http://localhost:3000';
-    }
-    
-    const fullUrl = baseUrl + apiUrl;
-    const response = await fetch(fullUrl, {
-      next: { revalidate: 300 } // Revalidate every 5 minutes
-    });
-    
-    if (!response.ok) {
-      console.error('Failed to fetch public translations:', response.status, response.statusText);
-      console.error('Attempted URL:', fullUrl);
-      return { translations: [], projects: [], categories: [], stats: { totalTranslations: 0, totalWords: 0 } };
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching public translations:', error);
-    return { translations: [], projects: [], categories: [], stats: { totalTranslations: 0, totalWords: 0 } };
-  }
+async function getPublicTranslations() {
+  return fetchPublicTranslations({ limit: 100 });
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -134,26 +80,8 @@ export default async function DocsPage() {
     );
   };
 
-  // Define translation type to avoid any type
-  type Translation = {
-    id: string;
-    fileName: string;
-    category?: string;
-    project: {
-      title: string;
-      description: string;
-      difficulty: number;
-    };
-    wordCount: number;
-    completedAt: string;
-    translatedText: string;
-    translator?: {
-      name: string;
-    };
-  };
-
   // Group by project for comprehensive project-based directory view
-  const groupedByProject = (translations || []).reduce((acc: Record<string, Translation[]>, translation: Translation) => {
+  const groupedByProject = (translations || []).reduce<Record<string, Translation[]>>((acc, translation) => {
     const projectTitle = translation.project.title;
     if (!acc[projectTitle]) {
       acc[projectTitle] = [];
@@ -163,7 +91,7 @@ export default async function DocsPage() {
   }, {});
   
   // Sort translations by date (newest first) for recents section
-  const recentTranslations = [...(translations || [])].sort((a: Translation, b: Translation) => 
+  const recentTranslations = [...(translations || [])].sort((a, b) => 
     new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
   ).slice(0, 5);
 
