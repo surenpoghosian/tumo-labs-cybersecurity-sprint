@@ -337,7 +337,7 @@ Source: ${translation.project.source}
           </CardHeader>
           <CardContent>
             <div className="prose max-w-none">
-              <div className="bg-gray-50 p-6 rounded-lg">
+              <div className="bg-gray-50 p-6 rounded-lg max-h-96 overflow-y-auto">
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                   {showOriginal ? translation.originalText : translation.translatedText}
                 </pre>

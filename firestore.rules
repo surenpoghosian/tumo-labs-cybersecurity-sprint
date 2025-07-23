@@ -40,7 +40,8 @@ service cloud.firestore {
 
     // Enhanced Projects Collection (file-based)
     match /projects/{projectId} {
-      allow read: if isAuthenticated();
+      // Allow public read access for projects (needed for public documentation)
+      allow read: if true;
       allow create: if canCreate();
       allow update: if hasAccess() || isAdminOrModerator();
       allow delete: if hasAccess() || isAdminOrModerator();
@@ -48,11 +49,16 @@ service cloud.firestore {
 
     // Files Collection (core of file-based model)
     match /files/{fileId} {
-      allow read: if isAuthenticated() && (
-        hasAccess() || 
-        resource.data.assignedTranslatorId == request.auth.uid ||
-        resource.data.reviewerId == request.auth.uid ||
-        isAdminOrModerator()
+      // Allow public read access for approved translations marked as public or unlisted
+      allow read: if (
+        (resource.data.status == 'accepted' && 
+         resource.data.visibility in ['public', 'unlisted']) ||
+        (isAuthenticated() && (
+          hasAccess() || 
+          resource.data.assignedTranslatorId == request.auth.uid ||
+          resource.data.reviewerId == request.auth.uid ||
+          isAdminOrModerator()
+        ))
       );
       allow create: if canCreate();
       allow update: if isAuthenticated() && (

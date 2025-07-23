@@ -46,6 +46,31 @@ export function FolderBrowser({
   const { user } = useAuth();
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['root']));
 
+  // Auto-expand folders to show selected file
+  React.useEffect(() => {
+    if (selectedFileId && files?.length > 0) {
+      const selectedFile = files.find(f => f.id === selectedFileId);
+      if (selectedFile) {
+        const pathParts = selectedFile.filePath.split('/');
+        const newExpanded = new Set(expandedFolders);
+        
+        // Add root
+        newExpanded.add('root');
+        
+        // Add all parent folders
+        let currentPath = 'root';
+        for (let i = 0; i < pathParts?.length - 1; i++) {
+          const folderName = pathParts[i];
+          currentPath = currentPath === 'root' ? folderName : `${currentPath}/${folderName}`;
+          newExpanded.add(currentPath);
+        }
+        
+        setExpandedFolders(newExpanded);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFileId, files]);
+
   // Build folder tree structure
   const folderTree = useMemo(() => {
     const root: FolderNode = {

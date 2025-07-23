@@ -36,18 +36,38 @@ export default function Home() {
             Bridge the language gap in Armenian cybersecurity education. Help translate open-source security documentation, 
             submit GitHub PRs, earn certificates, and build a stronger security community in Armenia.
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-4 mb-8">
             <Link href="/dashboard">
               <Button size="lg" className="bg-orange-600 hover:bg-orange-700">
                 Start Translating
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            {/* <Link href="/projects">
-              <Button size="lg" variant="outline">
-                Browse Projects
+            <Link href="/docs">
+              <Button size="lg" variant="outline" className="border-orange-200 hover:bg-orange-50 text-gray-700 hover:text-orange-700">
+                <BookOpen className="mr-2 h-5 w-5 text-orange-600" />
+                Browse Translations
               </Button>
-            </Link> */}
+            </Link>
+          </div>
+          
+          {/* Quick Access to Translations */}
+          <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-xl p-4 max-w-2xl mx-auto shadow-sm border border-orange-100">
+            <div className="flex items-center mb-3">
+              <BookOpen className="h-5 w-5 text-orange-600 mr-2" />
+              <h3 className="font-medium text-gray-800">Already Translated Documents</h3>
+              <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200">
+                New
+              </Badge>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts. 
+              All translations are available for free.
+            </p>
+            <Link href="/docs" className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium">
+              View documentation library
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>

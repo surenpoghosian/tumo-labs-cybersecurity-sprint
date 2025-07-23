@@ -115,6 +115,7 @@ Security teams can use this document to:
         fileSize: 1420,
         githubSha: 'abc123def456',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'private' as const,
       },
       {
         uId: 'example-admin',
@@ -211,6 +212,7 @@ Process p = Runtime.getRuntime().exec("sh -c 'some_cmd " + input + "'");
         fileSize: 4250,
         githubSha: 'def456ghi789',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'private' as const,
       },
       {
         uId: 'example-admin',
@@ -275,7 +277,42 @@ An application encrypts credit card numbers in a database using automatic databa
 
 ### Scenario 2: Weak Encryption
 A site doesn't use or enforce TLS for all pages or supports weak encryption. An attacker monitors network traffic, downgrades connections from HTTPS to HTTP, intercepts requests, and steals the user's session cookie.`,
-        translatedText: '',
+        translatedText: `# A02:2021 – Կրիպտոգրաֆիական Անձախողություններ
+
+## Ծանոթություն
+
+Նախկինում հայտնի էր որպես Զգայուն Տվյալների Բացահայտում, կրիպտոգրաֆիական անձախողությունները հանգեցնում են զգայուն տվյալների բացահայտման կամ համակարգի խաթարման: Կենտրոնանում է կրիպտոգրաֆիայի հետ կապված անձախողությունների վրա, որոնք հաճախ հանգեցնում են զգայուն տվյալների բացահայտման:
+
+## Նկարագրություն
+
+Առաջին քայլը տվյալների պաշտպանության պահանջների որոշումն է փոխադրման և պահպանման ժամանակ: Օրինակ՝ գաղտնաբառերը, վարկային քարտերի համարները, առողջական գրառումները, անձնական տեղեկությունները և բիզնես գաղտնիքները պահանջում են լրացուցիչ պաշտպանություն:
+
+## Հիմնական Թուլությունները
+
+### Թույլ կամ Հնացած Ալգորիթմներ
+- Հնացած կրիպտոգրաֆիական ալգորիթմների օգտագործում
+- Անբավարար բանալիների երկարություն
+- Թույլ պատահական թվերի գեներացիա
+
+### Վատ Բանալիների Կառավարում
+- Կոդում ամրագրված գաղտնագրման բանալիներ
+- Թույլ բանալիների ստացում
+- Բանալիների անտառանձ պահպանում
+- Բանալիների կրկնակի օգտագործում
+
+## Կանխարգելում
+
+1. **Տվյալների Դասակարգում**
+   - Որոշել, թե որ տվյալներն են զգայուն
+   - Կիրառել վերահսկողություն ըստ դասակարգման
+
+2. **Չպահպանել Անարժեք Զգայուն Տվյալներ**
+   - Հեռացնել զգայուն տվյալները հնարավորինս շուտ
+   - Օգտագործել տոկենացում կամ կրճատում
+
+3. **Գաղտնագրել Բոլոր Զգայուն Տվյալները**
+   - Օգտագործել ամուր գաղտնագրման ալգորիթմներ
+   - Ճիշտ բանալիների կառավարում`,
         status: 'accepted',
         assignedTranslatorId: 'translator-2',
         reviewerId: 'reviewer-1',
@@ -291,6 +328,11 @@ A site doesn't use or enforce TLS for all pages or supports weak encryption. An 
         fileSize: 3200,
         githubSha: 'ghi789jkl012',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'public' as const, // Make this public for testing
+        publishedAt: new Date().toISOString(),
+        seoTitle: 'Cryptographic Failures - OWASP Top 10 Armenian Translation',
+        seoDescription: 'Learn about cryptographic failures and how to prevent them. Armenian translation of OWASP Top 10 A02:2021.',
+        seoKeywords: ['armenian cybersecurity', 'cryptographic failures', 'OWASP', 'security']
       },
       {
         uId: 'example-admin',
@@ -369,6 +411,7 @@ Common issues and solutions:
         fileSize: 1800,
         githubSha: 'jkl012mno345',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'private' as const,
       }
     ],
     // Cybersecurity Fundamentals files
@@ -426,6 +469,7 @@ A comprehensive security framework includes:
         fileSize: 2100,
         githubSha: 'mno345pqr678',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'private' as const,
       }
     ],
     // Network Security files
@@ -483,13 +527,32 @@ Internet Protocol Security suite of protocols for securing Internet Protocol com
 DNS Security
 ~~~~~~~~~~~~
 Protecting Domain Name System infrastructure from attacks and ensuring reliable name resolution.`,
-        translatedText: '',
-        status: 'in progress',
+        translatedText: `# Ցանցային Անվտանգության Հիմունքներ
+
+## Ցանցային Ենթակառուցվածքի Անվտանգություն
+
+Ցանցային անվտանգությունը ներառում է տվյալների և ռեսուրսների ամբողջականության, գաղտնիության և մատչելիության պաշտպանությունը, երբ դրանք փոխանցվում են ցանցով կամ օգտագործվում ցանցի միջոցով:
+
+## Հիմնական Բաղադրիչներ
+
+### Firewall-ներ
+Ցանցային անվտանգության սարքեր, որոնք վերահսկում և կառավարում են մուտքային և ելքային ցանցային երթևեկությունը՝ հիմնվելով նախապես որոշված անվտանգության կանոնների վրա:
+
+Firewall-ների տեսակները.
+- Փաթեթների զտման firewall-ներ
+- Վիճակային ստուգման firewall-ներ
+- Կիրառական շերտի firewall-ներ
+- Նոր սերնդի firewall-ներ (NGFW)
+
+### Ներխուժման Հայտնաբերման Համակարգեր (IDS)
+Վերահսկում են ցանցային երթևեկությունը կասկածելի գործունեության և հայտնի սպառնալիքների համար:`,
+        status: 'accepted',
         assignedTranslatorId: 'translator-1',
+        reviewerId: 'reviewer-1',
         translations: [],
         wordCount: 185,
         estimatedHours: 1,
-        actualHours: 0,
+        actualHours: 1.2,
         createdBy: 'example-admin',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -498,6 +561,11 @@ Protecting Domain Name System infrastructure from attacks and ensuring reliable 
         fileSize: 1850,
         githubSha: 'pqr678stu901',
         lastSyncedAt: new Date().toISOString(),
+        visibility: 'public' as const, // Make this public for testing
+        publishedAt: new Date().toISOString(),
+        seoTitle: 'Network Security Fundamentals - Armenian Translation',
+        seoDescription: 'Network security fundamentals translated into Armenian covering firewalls, IDS, and security protocols.',
+        seoKeywords: ['armenian cybersecurity', 'network security', 'firewall', 'ցանցային անվտանգություն']
       }
     ]
   ];
@@ -526,6 +594,7 @@ Protecting Domain Name System infrastructure from attacks and ensuring reliable 
       fileSize: 500,
       githubSha: '',
       lastSyncedAt: new Date().toISOString(),
+      visibility: 'private' as const, // Default to private until approved
     });
   }
 
