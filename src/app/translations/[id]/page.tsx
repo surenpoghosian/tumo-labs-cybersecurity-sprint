@@ -23,6 +23,7 @@ import {
   Shield
 } from 'lucide-react';
 import Link from 'next/link';
+import Markdown from '@/components/Markdown';
 
 interface TranslationDetail {
   id: string;
@@ -336,12 +337,12 @@ Source: ${translation.project.source}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose max-w-none">
-              <div className="bg-gray-50 p-6 rounded-lg max-h-96 overflow-y-auto">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                  {showOriginal ? translation.originalText : translation.translatedText}
-                </pre>
-              </div>
+            <div className="bg-gray-50 p-6 rounded-lg max-h-96 overflow-y-auto prose">
+              {showOriginal ? (
+                <Markdown content={translation.originalText} />
+              ) : (
+                <Markdown content={translation.translatedText} />
+              )}
             </div>
           </CardContent>
         </Card>
