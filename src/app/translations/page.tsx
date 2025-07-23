@@ -89,13 +89,13 @@ export default function PublicTranslationsPage() {
   });
 
   const categories = [
-    { id: 'all', name: 'All Categories', icon: Globe },
-    { id: 'web-security', name: 'Web Security', icon: Shield },
-    { id: 'network-security', name: 'Network Security', icon: Shield },
-    { id: 'pen-testing', name: 'Penetration Testing', icon: Shield },
-    { id: 'forensics', name: 'Digital Forensics', icon: Search },
-    { id: 'fundamentals', name: 'Fundamentals', icon: BookOpen },
-    { id: 'application-security', name: 'App Security', icon: Shield },
+    { id: 'all', name: 'Բոլոր կատեգորիաները', icon: Globe },
+    { id: 'web-security', name: 'Վեբ անվտանգություն', icon: Shield },
+    { id: 'network-security', name: 'Ցանցային անվտանգություն', icon: Shield },
+    { id: 'pen-testing', name: 'Թափանցման փորձարկում', icon: Shield },
+    { id: 'forensics', name: 'Թվային կրիմինալիստիկա', icon: Search },
+    { id: 'fundamentals', name: 'Հիմունքներ', icon: BookOpen },
+    { id: 'application-security', name: 'Ծրագրային ապահովման անվտանգություն', icon: Shield },
   ];
 
   const getDifficultyBadge = (difficulty: number) => {
@@ -115,12 +115,12 @@ export default function PublicTranslationsPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <span className="text-xl font-bold text-gray-900">Հայկական Կիբեռանվտանգության Փաստաթղթեր</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-            <Link href="/translations" className="text-orange-600 font-medium">Translations</Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
+            <Link href="/" className="text-gray-600 hover:text-orange-600">Գլխավոր</Link>
+            <Link href="/translations" className="text-orange-600 font-medium">Թարգմանություններ</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Վահանակ</Link>
           </nav>
         </div>
       </header>
@@ -128,10 +128,9 @@ export default function PublicTranslationsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Armenian Cybersecurity Translations</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Հայկական Կիբեռանվտանգության Թարգմանություններ</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Access professionally translated cybersecurity documentation in Armenian. 
-            All translations have been reviewed and approved by security experts.
+            Մուտք գործեք հայերեն թարգմանված կիբեռանվտանգության փաստաթղթերին։ Բոլոր թարգմանությունները վերանայված և հաստատված են անվտանգության փորձագետների կողմից։
           </p>
         </div>
 
@@ -145,7 +144,7 @@ export default function PublicTranslationsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search translations..."
+                    placeholder="Փնտրել թարգմանություններ..."
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -176,9 +175,9 @@ export default function PublicTranslationsPage() {
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'date' | 'words' | 'title')}
                 >
-                  <option value="date">Latest First</option>
-                  <option value="words">Word Count</option>
-                  <option value="title">Title A-Z</option>
+                  <option value="date">Վերջինները առաջին</option>
+                  <option value="words">Բառերի քանակ</option>
+                  <option value="title">Վերնագիր Ա-Ֆ</option>
                 </select>
               </div>
             </div>
@@ -189,7 +188,7 @@ export default function PublicTranslationsPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading translations...</p>
+            <p className="text-gray-600">Բեռնվում են թարգմանությունները...</p>
           </div>
         )}
 
@@ -199,9 +198,9 @@ export default function PublicTranslationsPage() {
             {filteredTranslations?.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Translations Found</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Թարգմանություններ չեն գտնվել</h3>
                 <p className="text-gray-600">
-                  {searchQuery ? 'Try adjusting your search terms or filters.' : 'No approved translations are available yet.'}
+                  {searchQuery ? 'Փորձեք փոխել որոնման բառերը կամ զտիչները' : 'Հաստատված թարգմանություններ դեռ չկան'}
                 </p>
               </div>
             ) : (
@@ -220,7 +219,7 @@ export default function PublicTranslationsPage() {
                           {getDifficultyBadge(translation.project.difficulty)}
                           <Badge className="bg-green-100 text-green-800">
                             <CheckCircle className="h-3 w-3 mr-1" />
-                            Approved
+                            Հաստատված
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600 line-clamp-2">
@@ -234,7 +233,7 @@ export default function PublicTranslationsPage() {
                     <div className="space-y-3">
                       {/* Translation Preview */}
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-1">Translation Preview</h4>
+                        <h4 className="text-sm font-medium text-gray-900 mb-1">Թարգմանության նախադիտում</h4>
                         <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded line-clamp-3">
                           {translation.translatedText.substring(0, 200)}
                           {translation.translatedText?.length > 200 && '...'}
@@ -246,7 +245,7 @@ export default function PublicTranslationsPage() {
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">
                             <BookOpen className="h-4 w-4" />
-                            {translation.wordCount} words
+                            {translation.wordCount} բառեր
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -285,19 +284,19 @@ export default function PublicTranslationsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <div className="text-2xl font-bold text-blue-600">{filteredTranslations?.length}</div>
-                  <div className="text-sm text-gray-600">Approved Translations</div>
+                  <div className="text-sm text-gray-600">Հաստատված թարգմանություններ</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600">
                     {filteredTranslations.reduce((total, t) => total + t.wordCount, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600">Total Words Translated</div>
+                  <div className="text-sm text-gray-600">Թարգմանված բառերի ընդհանուր քանակ</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-600">
                     {new Set(filteredTranslations.map(t => t.category)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Categories Covered</div>
+                  <div className="text-sm text-gray-600">Կատեգորիաներ ընդգրկված են</div>
                 </div>
               </div>
             </CardContent>

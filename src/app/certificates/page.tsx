@@ -101,12 +101,12 @@ export default function CertificatesPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <span className="text-xl font-bold text-gray-900">Հայկական Կիբեռանվտանգության Փաստաթղթեր</span>
           </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-orange-600 font-medium">Certificates</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Վահանակ</Link>
+            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Նախագծեր</Link>
+            <Link href="/certificates" className="text-orange-600 font-medium">Վկայագրեր</Link>
           </nav>
         </div>
       </header>
@@ -114,14 +114,14 @@ export default function CertificatesPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Certificates</h1>
-          <p className="text-gray-600">View and verify your cybersecurity translation certificates</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Ձեր վկայագրերը</h1>
+          <p className="text-gray-600">Դիտեք և ստուգեք ձեր կիբեռանվտանգության թարգմանության վկայագրերը</p>
         </div>
 
         {/* Certificate Verification */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Verify Certificate</CardTitle>
+            <CardTitle>Ստուգել վկայագիրը</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
@@ -130,7 +130,7 @@ export default function CertificatesPage() {
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter verification code (e.g., CYBS-CERT-2025-001)"
+                  placeholder="Մուտքագրեք վավերացման կոդը (օր.՝ CYBS-CERT-2025-001)"
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
@@ -140,7 +140,7 @@ export default function CertificatesPage() {
                 className="bg-orange-600 hover:bg-orange-700"
               >
                 <Search className="h-4 w-4 mr-2" />
-                {verifying ? 'Verifying...' : 'Verify'}
+                {verifying ? 'Ստուգվում է...' : 'Ստուգել'}
               </Button>
             </div>
             
@@ -150,20 +150,20 @@ export default function CertificatesPage() {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <Award className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">Certificate Verified!</span>
+                      <span className="font-medium text-green-900">Վկայագիրը ստուգված է</span>
                     </div>
                     <div className="space-y-1 text-sm text-green-800">
-                      <p><strong>Project:</strong> {verificationResult.data?.projectName}</p>
-                      <p><strong>Category:</strong> {verificationResult.data?.category}</p>
-                      <p><strong>Contributor:</strong> {verificationResult.data?.user?.name}</p>
-                      <p><strong>Issued:</strong> {verificationResult.data?.mergedAt ? new Date(verificationResult.data.mergedAt).toLocaleDateString() : 'N/A'}</p>
+                      <p><strong>Նախագիծ:</strong> {verificationResult.data?.projectName}</p>
+                      <p><strong>Կատեգորիա:</strong> {verificationResult.data?.category}</p>
+                      <p><strong>Ներդրող:</strong> {verificationResult.data?.user?.name}</p>
+                      <p><strong>Տրված է:</strong> {verificationResult.data?.mergedAt ? new Date(verificationResult.data.mergedAt).toLocaleDateString() : 'N/A'}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div className="flex items-center">
                       <ExternalLink className="h-5 w-5 text-red-600 mr-2" />
-                      <span className="font-medium text-red-900">Certificate not found or invalid</span>
+                      <span className="font-medium text-red-900">Վկայագիրը չի գտնվել կամ անվավեր է</span>
                     </div>
                   </div>
                 )}
@@ -176,7 +176,7 @@ export default function CertificatesPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading certificates...</p>
+            <p className="text-gray-600">Վկայագրերը բեռնվում են...</p>
           </div>
         )}
 
@@ -206,18 +206,18 @@ export default function CertificatesPage() {
                       <div className="text-sm text-gray-600 mb-2">
                         <div className="flex items-center space-x-1 mb-1">
                           <Calendar className="h-4 w-4" />
-                          <span>Issued: {new Date(certificate.mergedAt).toLocaleDateString()}</span>
+                          <span>Տրված է: {new Date(certificate.mergedAt).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Shield className="h-4 w-4" />
-                          <span>Category: {certificate.category}</span>
+                          <span>Կատեգորիա: {certificate.category}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Verification Code */}
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 mb-1">Verification Code</div>
+                      <div className="text-xs text-gray-500 mb-1">Վավերացման կոդ</div>
                       <div className="font-mono text-sm font-medium">{certificate.verificationCode}</div>
                     </div>
 
@@ -230,7 +230,7 @@ export default function CertificatesPage() {
                         className="flex items-center text-gray-600 hover:text-orange-600 text-sm"
                       >
                         <Github className="h-4 w-4 mr-1" />
-                        View PR
+                        Տեսնել PR
                       </a>
                       
                       <button 
@@ -239,7 +239,7 @@ export default function CertificatesPage() {
                         title="Download certificate PDF"
                       >
                         <Download className="h-4 w-4 mr-1" />
-                        Download PDF
+                        Ներբեռնել PDF
                       </button>
                     </div>
                   </div>
@@ -253,9 +253,9 @@ export default function CertificatesPage() {
         {!loading && certificates?.length === 0 && (
           <div className="text-center py-12">
             <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Վկայագրեր դեռ չեն վաստակվել</h3>
             <p className="text-gray-600 mb-6">
-              Start translating cybersecurity documentation to earn your first certificate!
+              Ավարտեք թարգմանության նախագծեր վկայագրեր վաստակելու համար
             </p>
             <Link href="/projects">
               <Button className="bg-orange-600 hover:bg-orange-700">
@@ -269,31 +269,31 @@ export default function CertificatesPage() {
         {!loading && certificates?.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Certificate Statistics</CardTitle>
+              <CardTitle>Վկայագրի վարկածներ</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
                   <div className="text-2xl font-bold text-orange-600 mb-1">{certificates?.length}</div>
-                  <div className="text-sm text-gray-600">Total Certificates</div>
+                  <div className="text-sm text-gray-600">Ընդհանուր վկայագրեր</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600 mb-1">
                     {new Set(certificates.map(c => c.category)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Categories</div>
+                  <div className="text-sm text-gray-600">Կատեգորիաներ</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {new Set(certificates.map(c => c.githubRepo)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Projects</div>
+                  <div className="text-sm text-gray-600">Նախագծեր</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {certificates.filter(c => c.certificateType === 'translation')?.length}
                   </div>
-                  <div className="text-sm text-gray-600">Translation Certs</div>
+                  <div className="text-sm text-gray-600">թարգմանության վկայագրեր</div>
                 </div>
               </div>
             </CardContent>
@@ -303,43 +303,43 @@ export default function CertificatesPage() {
         {/* Certificate Info */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>About Certificates</CardTitle>
+            <CardTitle>Վկայագրերի մասին</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">🏆 How to Earn</h4>
+                <h4 className="font-medium text-gray-900 mb-2">🏆 Համարեք վկայագրեր</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Complete a translation project</li>
-                  <li>• Pass cybersecurity expert review</li>
-                  <li>• Submit successful GitHub PR</li>
-                  <li>• Get your PR merged by maintainers</li>
+                  <li>• Մատուցեք թարգմանության նախագծեր</li>
+                  <li>• Կանխավարկեք կիբեռանվտանգության մասնագիտականների վերլուծություն</li>
+                  <li>• Ներկառուցեք համագործակցություն</li>
+                  <li>• Մասնագիտական զարգացում</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">✅ Verification</h4>
+                <h4 className="font-medium text-gray-900 mb-2">✅ Վավերացում</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Each certificate has a unique code</li>
-                  <li>• Verifiable through our platform</li>
-                  <li>• Linked to GitHub contributions</li>
-                  <li>• Permanent record of achievement</li>
+                  <li>• Լրացուցիչ վկայագրերը ունեն հատուկ կոդ</li>
+                  <li>• Վավերացվում է մեր համակարգով</li>
+                  <li>• Հղված է գիտելիքների հետ</li>
+                  <li>• Հաստատված հասկացություն</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">📄 Certificate Types</h4>
+                <h4 className="font-medium text-gray-900 mb-2">📄 Վկայագրերի տեսակներ</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• <strong>Translation:</strong> For completed translations</li>
-                  <li>• <strong>Review:</strong> For expert reviews</li>
-                  <li>• <strong>Contribution:</strong> For community help</li>
+                  <li>• <strong>թարգմանություն:</strong> Մատուցված թարգմանությունների համար</li>
+                  <li>• <strong>վերլուծություն:</strong> Մասնագիտական վերլուծությունների համար</li>
+                  <li>• <strong>համագործակցություն:</strong> համագործակցությունների համար</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">🎯 Benefits</h4>
+                <h4 className="font-medium text-gray-900 mb-2">🎯 Օգտակարություն</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Professional recognition</li>
-                  <li>• Portfolio enhancement</li>
-                  <li>• Community building</li>
-                  <li>• Career advancement</li>
+                  <li>• Մասնագիտական հայտարարություն</li>
+                  <li>• Պորտֆոլիով զարգացում</li>
+                  <li>• Համագործակցություն</li>
+                  <li>• Մասնագիտական զարգացում</li>
                 </ul>
               </div>
             </div>

@@ -87,14 +87,14 @@ export default function ProjectsPage() {
   };
 
   const categories = [
-    { id: 'all', name: 'All Projects', icon: Shield },
-    { id: 'web-security', name: 'Web Security', icon: Shield },
-    { id: 'network-security', name: 'Network Security', icon: Shield },
-    { id: 'pen-testing', name: 'Penetration Testing', icon: Shield },
-    { id: 'forensics', name: 'Digital Forensics', icon: Search },
-    { id: 'fundamentals', name: 'Fundamentals', icon: BookOpen },
-    { id: 'application-security', name: 'App Security', icon: Shield },
-    { id: 'protocols', name: 'Protocols', icon: Shield }
+    { id: 'all', name: 'Բոլոր կատեգորիաները', icon: Shield },
+    { id: 'web-security', name: 'Վեբ անվտանգություն', icon: Shield },
+    { id: 'network-security', name: 'Ցանցային անվտանգություն', icon: Shield },
+    { id: 'pen-testing', name: 'Թափանցման փորձարկում', icon: Shield },
+    { id: 'forensics', name: 'Թվային կրիմինալիստիկա', icon: Search },
+    { id: 'fundamentals', name: 'Հիմունքներ', icon: BookOpen },
+    { id: 'application-security', name: 'Ծրագրային ապահովման անվտանգություն', icon: Shield },
+    { id: 'protocols', name: 'Պրոտոկոլներ', icon: Shield }
   ];
 
   const filteredProjects = selectedCategory === 'all' 
@@ -103,11 +103,11 @@ export default function ProjectsPage() {
 
   const getDifficultyBadge = (difficulty: number) => {
     const configs = {
-      1: { label: 'Beginner', className: 'bg-green-100 text-green-800' },
-      2: { label: 'Beginner+', className: 'bg-green-100 text-green-800' },
-      3: { label: 'Intermediate', className: 'bg-yellow-100 text-yellow-800' },
-      4: { label: 'Advanced', className: 'bg-red-100 text-red-800' },
-      5: { label: 'Expert', className: 'bg-red-100 text-red-800' },
+      1: { label: 'Սկսնակ', className: 'bg-green-100 text-green-800' },
+      2: { label: 'Սկսնակ+', className: 'bg-green-100 text-green-800' },
+      3: { label: 'Միջին', className: 'bg-yellow-100 text-yellow-800' },
+      4: { label: 'Առաջադեմ', className: 'bg-red-100 text-red-800' },
+      5: { label: 'Փորձագետ', className: 'bg-red-100 text-red-800' },
     };
     
     const config = configs[difficulty as keyof typeof configs] || configs[3];
@@ -148,12 +148,12 @@ export default function ProjectsPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <span className="text-xl font-bold text-gray-900">Հայկական Կիբեռանվտանգության Փաստաթղթեր</span>
           </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-orange-600 font-medium">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Վահանակ</Link>
+            <Link href="/projects" className="text-orange-600 font-medium">Նախագծեր</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Վկայագրեր</Link>
           </nav>
         </div>
       </header>
@@ -161,8 +161,8 @@ export default function ProjectsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Cybersecurity Projects</h1>
-          <p className="text-gray-600">Choose a project to start translating cybersecurity documentation into Armenian</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Կիբեռանվտանգության նախագծեր</h1>
+          <p className="text-gray-600">Ընտրեք նախագիծ՝ կիբեռանվտանգության փաստաթղթերի թարգմանությունը սկսելու համար</p>
         </div>
 
         {/* Category Filter */}
@@ -188,7 +188,7 @@ export default function ProjectsPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading projects...</p>
+            <p className="text-gray-600">Բեռնվում է նախագծերը...</p>
           </div>
         )}
 
@@ -197,9 +197,9 @@ export default function ProjectsPage() {
           <div className="text-center py-12">
             <div className="bg-white rounded-lg p-8 max-w-md mx-auto shadow-sm border">
               <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Projects Available</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Նախագծեր դեռ չկան</h3>
               <p className="text-gray-600 mb-6">
-                Get started by creating some example projects to test the translation system.
+                Սկսեք ձեր առաջին թարգմանության նախագիծը!
               </p>
               
               {user && (
@@ -214,10 +214,10 @@ export default function ProjectsPage() {
                     ) : (
                       <Zap className="h-4 w-4 mr-2" />
                     )}
-                    Create Example Projects
+                    Ստեղծել օրինակ նախագծեր
                   </Button>
                   <p className="text-sm text-gray-500">
-                    This will create sample cybersecurity projects with documentation files for translation.
+                    Սա կստեղծի օրինակային կիբեռանվտանգության նախագծեր թարգմանության համար փաստաթղթերով
                   </p>
                 </div>
               )}
@@ -225,7 +225,7 @@ export default function ProjectsPage() {
               {!user && (
                 <div className="text-sm text-gray-500">
                   <AlertCircle className="h-4 w-4 inline mr-1" />
-                  Please log in to create example projects.
+                  Խնդրում ենք մուտք գործել՝ օրինակ նախագծեր ստեղծելու համար
                 </div>
               )}
             </div>
@@ -243,7 +243,7 @@ export default function ProjectsPage() {
                       {getCategoryIcon(project.categories)}
                       <div>
                         <CardTitle className="text-lg">{project.title}</CardTitle>
-                        <p className="text-sm text-gray-500">by {project.developedBy}</p>
+                        <p className="text-sm text-gray-500">հեղինակ՝ {project.developedBy}</p>
                       </div>
                     </div>
                     {getDifficultyBadge(project.difficulty)}
