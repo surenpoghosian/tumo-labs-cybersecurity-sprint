@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  * Shared helper to collect public translations.
  *
@@ -221,11 +222,17 @@ async function queryViaRest(opts: Required<FetchOptions>): Promise<PublicTransla
       }));
 
     // Helper to convert Firestore REST field value to JS value
-    const v = (f: any) =>
-      f?.stringValue ??
-      f?.integerValue && Number(f.integerValue) ??
-      f?.doubleValue ??
-      (f?.arrayValue ? (f.arrayValue.values || []).map(v) : undefined);
+    const v = (f: any): any => {
+      if (!f) return undefined;
+      if (f.stringValue !== undefined) return f.stringValue;
+      if (f.integerValue !== undefined) return Number(f.integerValue);
+      if (f.doubleValue !== undefined) return f.doubleValue;
+      if (f.arrayValue !== undefined) {
+        const vals = f.arrayValue.values || [];
+        return vals.map(v);
+      }
+      return undefined;
+    };
 
     const translations: PublicTranslation[] = [];
 
