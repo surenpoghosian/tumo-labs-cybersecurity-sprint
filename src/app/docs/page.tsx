@@ -37,13 +37,26 @@ type TranslationsResponse = {
 // This will be generated dynamically based on available translations
 async function getPublicTranslations(): Promise<TranslationsResponse> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/translations/public?limit=100`, {
+    // Use relative URL for API calls since we're calling our own API
+    const apiUrl = '/api/translations/public?limit=100';
+    
+    // In server-side rendering, we need to use absolute URL
+    let baseUrl = '';
+    if (typeof window === 'undefined') {
+      // Server-side: check for various environment variables
+      baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+               process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+               'http://localhost:3000';
+    }
+    
+    const fullUrl = baseUrl + apiUrl;
+    const response = await fetch(fullUrl, {
       next: { revalidate: 300 } // Revalidate every 5 minutes
     });
     
     if (!response.ok) {
       console.error('Failed to fetch public translations:', response.status, response.statusText);
+      console.error('Attempted URL:', fullUrl);
       return { translations: [], projects: [], categories: [], stats: { totalTranslations: 0, totalWords: 0 } };
     }
     
