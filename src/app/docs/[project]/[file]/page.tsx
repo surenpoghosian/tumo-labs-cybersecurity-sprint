@@ -36,7 +36,7 @@ async function getPublicTranslation(fileId: string) {
     }
 
     const response = await fetch(`${baseUrl}/api/translations/${fileId}/public`, {
-      next: { revalidate: 300 } // Revalidate every 5 minutes
+      cache: 'no-store'
     });
     
     if (!response.ok) {

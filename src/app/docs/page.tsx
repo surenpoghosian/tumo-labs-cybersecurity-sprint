@@ -79,7 +79,7 @@ async function getPublicTranslations(): Promise<TranslationsResponse> {
     
     const fullUrl = `${baseUrl}${apiUrl}`;
     const response = await fetch(fullUrl, {
-      next: { revalidate: 300 } // Revalidate every 5 minutes
+      cache: 'no-store'
     });
     
     if (!response.ok) {
