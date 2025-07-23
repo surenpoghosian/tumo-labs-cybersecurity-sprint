@@ -125,7 +125,9 @@ export default async function DocsPage() {
                   <div className="text-xs text-gray-600">Categories</div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-orange-600">{Math.floor((stats.totalWords || 0) / 1000)}K+</div>
+                  <div className="text-lg font-semibold text-orange-600">
+                    {stats.totalWords >= 1000 ? `${Math.floor(stats.totalWords / 1000)}K+` : stats.totalWords.toLocaleString()}
+                  </div>
                   <div className="text-xs text-gray-600">Words</div>
                 </div>
               </div>
