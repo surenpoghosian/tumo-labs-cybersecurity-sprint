@@ -16,6 +16,8 @@ export async function POST() {
         data: {
           projectsCreated: result.data?.projects?.length || 0,
           filesCreated: result.data?.files?.length || 0,
+          
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           publicDocuments: result.data?.files?.filter((f: any) => f.visibility === 'public')?.length || 0
         }
       });
