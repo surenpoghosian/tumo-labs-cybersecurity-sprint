@@ -62,7 +62,12 @@ export async function PUT(
       assignedTranslatorId,
       reviewerId,
       actualHours,
-      translations 
+      translations,
+      visibility,
+      publishedAt,
+      seoTitle,
+      seoDescription,
+      seoKeywords
     } = body;
 
     // Get current file
@@ -95,6 +100,11 @@ export async function PUT(
     if (reviewerId !== undefined) updateData.reviewerId = reviewerId;
     if (actualHours !== undefined) updateData.actualHours = actualHours;
     if (translations !== undefined) updateData.translations = translations;
+    if (visibility !== undefined) updateData.visibility = visibility;
+    if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
+    if (seoTitle !== undefined) updateData.seoTitle = seoTitle;
+    if (seoDescription !== undefined) updateData.seoDescription = seoDescription;
+    if (seoKeywords !== undefined) updateData.seoKeywords = seoKeywords;
 
     // If taking a file, assign it to the user
     if (status === 'in progress' && !currentData?.assignedTranslatorId) {

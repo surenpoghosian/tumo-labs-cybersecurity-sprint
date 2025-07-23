@@ -80,6 +80,12 @@ export interface FirestoreFile {
   fileSize?: number; // File size in bytes
   githubSha?: string; // For version tracking
   lastSyncedAt?: string; // Last sync from GitHub
+  // Public documentation visibility controls
+  visibility: 'public' | 'private' | 'unlisted'; // Default: public for accepted translations
+  publishedAt?: string; // When made public
+  seoTitle?: string; // Custom SEO title
+  seoDescription?: string; // Custom SEO description
+  seoKeywords?: string[]; // Custom SEO keywords
 }
 
 // Translation (embedded in File or separate collection)

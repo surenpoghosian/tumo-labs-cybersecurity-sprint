@@ -18,10 +18,15 @@ import {
   UserCheck,
   BarChart3,
   Filter,
-  RefreshCw
+  RefreshCw,
+  Globe,
+  Lock,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { DocumentVisibilityControl } from '@/components/moderation/DocumentVisibilityControl';
+import { FirestoreFile } from '@/lib/firestore';
 
 interface Review {
   id: string;
@@ -66,15 +71,21 @@ export default function ModerationPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats>({ total: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'assigned'>('pending');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'assigned' | 'approved-docs'>('pending');
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDecision, setReviewDecision] = useState<{ [key: string]: { decision: string; comments: string } }>({});
   const [processing, setProcessing] = useState<{ [key: string]: boolean }>({});
   const [userRole, setUserRole] = useState<string>('contributor');
+  const [approvedDocuments, setApprovedDocuments] = useState<FirestoreFile[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
 
   useEffect(() => {
     if (user) {
-      fetchReviews();
+      if (filter === 'approved-docs') {
+        fetchApprovedDocuments();
+      } else {
+        fetchReviews();
+      }
     }
   }, [user, filter]);
 
@@ -116,6 +127,41 @@ export default function ModerationPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchApprovedDocuments = async () => {
+    try {
+      setLoadingDocs(true);
+      
+      const response = await fetch('/api/files?status=accepted', {
+        headers: {
+          'Authorization': `Bearer ${await user?.getIdToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch approved documents');
+      }
+
+      const result = await response.json();
+      setApprovedDocuments(result.data || []);
+
+    } catch (error) {
+      console.error('Error fetching approved documents:', error);
+      setApprovedDocuments([]);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  const handleDocumentUpdate = (fileId: string, updates: Partial<FirestoreFile>) => {
+    setApprovedDocuments(prev => 
+      prev.map(doc => 
+        doc.id === fileId 
+          ? { ...doc, ...updates }
+          : doc
+      )
+    );
   };
 
   const handleTakeReview = async (reviewId: string) => {
@@ -294,7 +340,7 @@ export default function ModerationPage() {
             <div className="flex items-center gap-4">
               <Filter className="h-5 w-5 text-gray-500" />
               <div className="flex gap-2">
-                {['all', 'pending', 'in-progress', 'assigned'].map((status) => (
+                {['all', 'pending', 'in-progress', 'assigned', 'approved-docs'].map((status) => (
                   <Button
                     key={status}
                     variant={filter === status ? 'default' : 'outline'}
@@ -302,7 +348,9 @@ export default function ModerationPage() {
                     onClick={() => setFilter(status as any)}
                     className={filter === status ? 'bg-blue-600 hover:bg-blue-700' : ''}
                   >
-                    {status === 'assigned' ? 'Assigned to Me' : status.replace('-', ' ')}
+                    {status === 'assigned' ? 'Assigned to Me' : 
+                     status === 'approved-docs' ? 'Approved Docs' : 
+                     status.replace('-', ' ')}
                   </Button>
                 ))}
               </div>
@@ -319,21 +367,101 @@ export default function ModerationPage() {
           </CardContent>
         </Card>
 
-        {/* Reviews List */}
-        <div className="space-y-6">
-          {reviews?.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Found</h3>
-                <p className="text-gray-600">
-                  {filter === 'pending' ? 'No pending reviews at the moment.' : 
-                   filter === 'assigned' ? 'No reviews assigned to you.' : 
-                   'No reviews match your current filter.'}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
+        {/* Content based on filter */}
+        {filter === 'approved-docs' ? (
+          /* Approved Documents View */
+          <div className="space-y-6">
+            {loadingDocs ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading approved documents...</p>
+                </CardContent>
+              </Card>
+            ) : approvedDocuments?.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Approved Documents</h3>
+                  <p className="text-gray-600">
+                    No approved translations found. Documents will appear here once translations are approved.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              approvedDocuments.map((doc) => (
+                <Card key={doc.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{doc.fileName}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{doc.filePath}</p>
+                        <div className="flex items-center gap-3 mb-3">
+                          <Badge variant="outline">{doc.wordCount} words</Badge>
+                          <Badge variant="secondary">{doc.status}</Badge>
+                          <Badge variant="outline">
+                            {new Date(doc.updatedAt).toLocaleDateString()}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DocumentVisibilityControl 
+                          file={doc}
+                          onUpdate={handleDocumentUpdate}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(`/docs/project/${doc.id}`, '_blank')}
+                        >
+                          <Globe className="h-4 w-4 mr-2" />
+                          View Public
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Document Preview */}
+                    <div className="border-t pt-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">Original Content</h4>
+                          <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 max-h-48 overflow-y-auto">
+                            <pre className="whitespace-pre-wrap font-mono leading-relaxed">
+                              {doc.originalText}
+                            </pre>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">Translation</h4>
+                          <div className="bg-orange-50 p-3 rounded text-sm text-gray-700 max-h-48 overflow-y-auto">
+                            <pre className="whitespace-pre-wrap font-mono leading-relaxed">
+                              {doc.translatedText}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        ) : (
+          /* Reviews List */
+          <div className="space-y-6">
+            {reviews?.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Found</h3>
+                  <p className="text-gray-600">
+                    {filter === 'pending' ? 'No pending reviews at the moment.' : 
+                     filter === 'assigned' ? 'No reviews assigned to you.' : 
+                     'No reviews match your current filter.'}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
             reviews.map((review) => (
               <Card key={review.id}>
                 <CardHeader>
@@ -386,22 +514,19 @@ export default function ModerationPage() {
 
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Original Text</h4>
-                      <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
-                        {review.file?.originalText ?
-                          review.file.originalText.substring(0, 200) +
-                          (review.file.originalText?.length > 200 ? '...' : '') :
-                          'No original text available'}
+                      <div className="text-sm bg-gray-50 p-3 rounded max-h-48 overflow-y-auto">
+                        <pre className="whitespace-pre-wrap font-mono leading-relaxed">
+                          {review.file?.originalText || 'No original text available'}
+                        </pre>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Translation Preview</h4>
-                      <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
-                        {review.file?.translatedText ? 
-                          review.file.translatedText.substring(0, 200) + 
-                          (review.file.translatedText?.length > 200 ? '...' : '') : 
-                          'No translation text available'
-                        }
+                      <h4 className="font-medium text-gray-900 mb-2">Translation</h4>
+                      <div className="text-sm bg-gray-50 p-3 rounded max-h-48 overflow-y-auto">
+                        <pre className="whitespace-pre-wrap font-mono leading-relaxed">
+                          {review.file?.translatedText || 'No translation text available'}
+                        </pre>
                       </div>
                     </div>
                   </div>
@@ -472,7 +597,8 @@ export default function ModerationPage() {
               </Card>
             ))
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

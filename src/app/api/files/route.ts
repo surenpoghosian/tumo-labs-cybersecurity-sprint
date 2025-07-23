@@ -8,15 +8,29 @@ export async function GET(request: Request) {
     const authHeader = request.headers.get('authorization') || '';
     const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
+    
+    const url = new URL(request.url);
+    const statusFilter = url.searchParams.get('status');
 
     let files: FirestoreFile[] = [];
 
     try {
-      // Get all files accessible to the user (assigned or available)
-      const snapshot = await firestore
-        .collection('files')
-        .where('uId', '==', userId)
-        .get();
+      // Get files based on filter
+      let snapshot;
+      
+      if (statusFilter === 'accepted') {
+        // For approved documents view, get all accepted files
+        snapshot = await firestore
+          .collection('files')
+          .where('status', '==', 'accepted')
+          .get();
+      } else {
+        // Get all files accessible to the user (assigned or available)
+        snapshot = await firestore
+          .collection('files')
+          .where('uId', '==', userId)
+          .get();
+      }
 
       snapshot.forEach((doc) => {
         const data = doc.data();
@@ -151,7 +165,8 @@ export async function POST(request: Request) {
       createdBy: userId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
+      visibility: 'private' // Default to private until approved
     };
 
     const docRef = await firestore.collection('files').add(fileData);

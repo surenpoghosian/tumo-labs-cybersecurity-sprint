@@ -17,12 +17,15 @@ import {
   RefreshCw,
   Play,
   CheckCircle,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  Info
 } from "lucide-react";
 import Link from "next/link";
 import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
 import { FolderBrowser } from '@/components/projects/FolderBrowser';
 import { ProjectSync } from '@/components/projects/ProjectSync';
+import { FilePreviewDialog } from '@/components/projects/FilePreviewDialog';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProjectDetailData extends FirestoreProject {
@@ -38,6 +41,7 @@ export default function ProjectDetailPage() {
   const [selectedFile, setSelectedFile] = useState<FirestoreFile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (user && params.id) {
@@ -227,7 +231,7 @@ export default function ProjectDetailPage() {
     // Available files can be taken
     if (selectedFile.status === 'not taken') {
       return (
-        <Button onClick={handleTakeFile} className="bg-orange-600 hover:bg-orange-700">
+        <Button onClick={handleTakeFile} className="flex-1 bg-orange-600 hover:bg-orange-700">
           <Users className="h-4 w-4 mr-2" />
           Take This File
         </Button>
@@ -238,7 +242,7 @@ export default function ProjectDetailPage() {
     if (selectedFile.assignedTranslatorId === user.uid) {
       if (selectedFile.status === 'in progress') {
         return (
-          <Button onClick={handleStartTranslation} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={handleStartTranslation} className="flex-1 bg-green-600 hover:bg-green-700">
             <Play className="h-4 w-4 mr-2" />
             Continue Translation
           </Button>
@@ -248,7 +252,7 @@ export default function ProjectDetailPage() {
       if (selectedFile.status === 'pending') {
         return (
           <div className="space-y-2">
-            <Button disabled variant="outline" className="w-full">
+            <Button disabled variant="outline" className="flex-1">
               <Clock className="h-4 w-4 mr-2" />
               Under Review
             </Button>
@@ -263,7 +267,7 @@ export default function ProjectDetailPage() {
       if (selectedFile.status === 'rejected') {
         return (
           <div className="space-y-2">
-            <Button onClick={handleStartTranslation} className="bg-red-600 hover:bg-red-700">
+            <Button onClick={handleStartTranslation} className="flex-1 bg-red-600 hover:bg-red-700">
               <AlertCircle className="h-4 w-4 mr-2" />
               Make Revisions
             </Button>
@@ -278,7 +282,7 @@ export default function ProjectDetailPage() {
       if (selectedFile.status === 'accepted') {
         return (
           <div className="space-y-2">
-            <Button disabled variant="outline" className="w-full">
+            <Button disabled variant="outline" className="flex-1">
               <CheckCircle className="h-4 w-4 mr-2" />
               Translation Completed
             </Button>
@@ -293,7 +297,7 @@ export default function ProjectDetailPage() {
     // Files assigned to someone else or other statuses
     return (
       <div className="space-y-2">
-        <Button disabled variant="outline" className="w-full">
+        <Button disabled variant="outline" className="flex-1">
           <Users className="h-4 w-4 mr-2" />
           {selectedFile.status === 'in progress' ? 'In Progress by Another User' : 
            selectedFile.status === 'pending' ? 'Under Review by Another User' :
@@ -588,7 +592,42 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
 
-                  {getFileActionButton()}
+                  {/* File Action Buttons */}
+                  <div className="space-y-2">
+                    {/* Preview and Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowPreview(true)}
+                        disabled={!selectedFile}
+                        className="flex-1"
+                        title={!selectedFile ? "Please select a file to preview" : "Preview file content before starting translation"}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview File
+                      </Button>
+                      
+                      {selectedFile ? (
+                        getFileActionButton()
+                      ) : (
+                        <Button 
+                          disabled 
+                          className="flex-1"
+                          title="Please select a file to take it for translation"
+                        >
+                          <Info className="h-4 w-4 mr-2" />
+                          Select a File
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* File Selection Hint */}
+                    {!selectedFile && (
+                      <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                        <strong>Tip:</strong> Click on a file in the browser above to select it for preview or translation.
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -620,6 +659,13 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* File Preview Dialog */}
+      <FilePreviewDialog 
+        file={selectedFile}
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+      />
     </div>
   );
 } 

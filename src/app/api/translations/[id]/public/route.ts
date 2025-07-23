@@ -22,11 +22,20 @@ export async function GET(
 
     const fileData = { id: fileDoc.id, ...fileDoc.data() } as FirestoreFile & { id: string };
 
-    // Only return if the translation is approved/accepted
+    // Only return if the translation is approved/accepted and publicly visible
     if (fileData.status !== 'accepted') {
       return NextResponse.json({
         success: false,
         error: 'Translation not yet approved for public viewing'
+      }, { status: 404 });
+    }
+
+    // Check visibility (default to public for existing approved documents)
+    const visibility = fileData.visibility || 'public';
+    if (visibility === 'private') {
+      return NextResponse.json({
+        success: false,
+        error: 'This document is not available for public viewing'
       }, { status: 404 });
     }
 

@@ -1,149 +1,214 @@
 import { NextResponse } from 'next/server';
-import { getFirestore } from '@/lib/firebaseAdmin';
-import { FirestoreFile, FirestoreProject, FirestoreUserProfile } from '@/lib/firestore';
+import { getFirestore, isFirebaseAdminAvailable } from '@/lib/firebaseAdmin';
+
+interface PublicTranslation {
+  id: string;
+  fileName: string;
+  filePath: string;
+  originalText: string;
+  translatedText: string;
+  wordCount: number;
+  completedAt: string;
+  category: string;
+  project: {
+    title: string;
+    description: string;
+    categories: string[];
+    difficulty: number;
+  };
+  translator?: {
+    name: string;
+    username: string;
+  } | null;
+}
+
+function createEmptyResponse() {
+  return NextResponse.json({
+    translations: [],
+    projects: [],
+    categories: [],
+    stats: {
+      totalTranslations: 0,
+      totalWords: 0
+    }
+  });
+}
 
 export async function GET(request: Request) {
   try {
-    const firestore = await getFirestore();
-    const url = new URL(request.url);
+    // Check if Firebase Admin is properly configured
+    const firebaseAvailable = await isFirebaseAdminAvailable();
     
+    if (!firebaseAvailable) {
+      console.warn('Firebase Admin not available - returning empty data');
+      return createEmptyResponse();
+    }
+
+    // Get Firestore instance with error handling
+    let firestore;
+    try {
+      firestore = await getFirestore();
+    } catch (error) {
+      console.warn('Failed to get Firestore instance:', error);
+      return createEmptyResponse();
+    }
+    
+    const url = new URL(request.url);
     const category = url.searchParams.get('category');
     const sortBy = url.searchParams.get('sortBy') || 'date';
     const limit = parseInt(url.searchParams.get('limit') || '50');
 
-    // Build query for approved translations only
-    let query = firestore.collection('files')
-      .where('status', '==', 'accepted')
-      .limit(limit);
+    // Build and execute query with error handling
+    let snapshot;
+    try {
+      // Simplified query to avoid composite index requirements
+      const query = firestore.collection('files')
+        .where('status', '==', 'accepted')
+        .where('visibility', 'in', ['public', 'unlisted'])
+        .limit(limit);
 
-    // Add category filter if specified
-    if (category && category !== 'all') {
-      // We'll need to filter by project category, so we'll fetch all and filter client-side
-      // For better performance, consider adding a category field to files collection
+      snapshot = await query.get();
+    } catch (error) {
+      console.warn('Failed to execute Firestore query:', error);
+      return NextResponse.json({
+        translations: [],
+        projects: [],
+        categories: [],
+        stats: {
+          totalTranslations: 0,
+          totalWords: 0
+        }
+      });
     }
-
-    // Add sorting
-    switch (sortBy) {
-      case 'words':
-        query = query.orderBy('wordCount', 'desc');
-        break;
-      case 'title':
-        query = query.orderBy('fileName', 'asc');
-        break;
-      default: // 'date'
-        query = query.orderBy('updatedAt', 'desc');
-        break;
-    }
-
-    const snapshot = await query.get();
-    const publicTranslations = [];
+    
+    const publicTranslations: PublicTranslation[] = [];
 
     // Fetch additional data for each translation
     for (const doc of snapshot.docs) {
-      const fileData = { id: doc.id, ...doc.data() } as FirestoreFile & { id: string };
-      
-      // Get project information
-      let projectData = null;
       try {
-        const projectDoc = await firestore.collection('projects').doc(fileData.projectId).get();
-        if (projectDoc.exists) {
-          projectData = { id: projectDoc.id, ...projectDoc.data() } as FirestoreProject & { id: string };
-        }
-      } catch (error) {
-        console.log('Could not fetch project data:', error);
-        continue; // Skip this translation if we can't get project data
-      }
-
-      // Skip if category filter doesn't match
-      if (category && category !== 'all' && projectData) {
-        if (!projectData.categories?.includes(category)) {
-          continue;
-        }
-      }
-
-      // Get translator information (anonymized for public view)
-      let translatorData = null;
-      if (fileData.assignedTranslatorId) {
-        try {
-          const translatorDoc = await firestore.collection('userProfiles').doc(fileData.assignedTranslatorId).get();
-          if (translatorDoc.exists) {
-            const data = translatorDoc.data() as FirestoreUserProfile;
-            translatorData = {
-              name: data.name || 'Anonymous',
-              username: data.username || 'anonymous'
-            };
+        console.log('Processing document:', doc.id);
+        const data = doc.data();
+        console.log('Document data keys:', Object.keys(data));
+        
+        // Fetch project data with fallback
+        let projectData = null;
+        if (data.projectId) {
+          try {
+            console.log('Fetching project:', data.projectId);
+            const projectDoc = await firestore.collection('projects').doc(data.projectId).get();
+            if (projectDoc.exists) {
+              projectData = projectDoc.data();
+              console.log('Project found:', projectData?.title);
+            } else {
+              console.log('Project not found:', data.projectId);
+            }
+          } catch (error) {
+            console.warn('Failed to fetch project data for:', data.projectId, error);
           }
-        } catch (error) {
-          console.log('Could not fetch translator data:', error);
-          // Continue without translator info
+        } else {
+          console.log('No projectId found in document');
         }
+
+        // Fetch translator data with fallback
+        let translatorData = null;
+        if (data.assignedTranslatorId) {
+          try {
+            const userDoc = await firestore.collection('users').doc(data.assignedTranslatorId).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              if (userData) {
+                translatorData = {
+                  name: userData.name || userData.displayName || 'Anonymous Translator',
+                  username: userData.username || userData.email || 'anonymous'
+                };
+              }
+            }
+          } catch (error) {
+            console.warn('Failed to fetch translator data for:', data.assignedTranslatorId, error);
+          }
+        }
+
+        // Create translation object with fallbacks
+        const translation: PublicTranslation = {
+          id: doc.id,
+          fileName: data.fileName || 'Unknown Document',
+          filePath: data.filePath || '',
+          originalText: data.originalText || '',
+          translatedText: data.translatedText || '',
+          wordCount: data.wordCount || 0,
+          completedAt: data.publishedAt || data.updatedAt || data.createdAt || new Date().toISOString(),
+          category: data.category || projectData?.categories?.[0] || 'cybersecurity',
+          project: {
+            title: projectData?.title || 'Unknown Project',
+            description: projectData?.description || 'Cybersecurity documentation project',
+            categories: projectData?.categories || ['cybersecurity'],
+            difficulty: projectData?.difficulty || 2
+          },
+          translator: translatorData
+        };
+
+        // Skip if category filter doesn't match
+        if (category && category !== 'all') {
+          if (translation.category !== category && !translation.project.categories.includes(category)) {
+            continue;
+          }
+        }
+
+        publicTranslations.push(translation);
+      } catch (error) {
+        console.warn('Failed to process document:', doc.id, error);
+        // Continue processing other documents
       }
-
-      // Build public translation object
-      const publicTranslation = {
-        id: fileData.id,
-        fileName: fileData.fileName,
-        filePath: fileData.filePath,
-        originalText: fileData.originalText,
-        translatedText: fileData.translatedText,
-        wordCount: fileData.wordCount,
-        completedAt: fileData.updatedAt,
-        category: projectData?.categories?.[0] || 'general',
-        project: {
-          title: projectData?.title || 'Unknown Project',
-          description: projectData?.description || '',
-          categories: projectData?.categories || [],
-          difficulty: projectData?.difficulty || 1,
-        },
-        translator: translatorData
-      };
-
-      publicTranslations.push(publicTranslation);
     }
 
-    // Client-side sorting if needed (since Firestore has limitations on compound queries)
-    if (sortBy === 'title') {
-      publicTranslations.sort((a, b) => 
-        `${a.project.title} - ${a.fileName}`.localeCompare(`${b.project.title} - ${b.fileName}`)
-      );
+    // Sort results in memory (since we removed orderBy from query)
+    switch (sortBy) {
+      case 'words':
+        publicTranslations.sort((a, b) => b.wordCount - a.wordCount);
+        break;
+      case 'title':
+        publicTranslations.sort((a, b) => a.fileName.localeCompare(b.fileName));
+        break;
+      default: // 'date'
+        publicTranslations.sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
+        break;
     }
 
-    // Generate SEO metadata
-    const totalWords = publicTranslations.reduce((sum, t) => sum + t.wordCount, 0);
-    const categories = [...new Set(publicTranslations.map(t => t.category))];
+    // Generate metadata
+    const totalWords = publicTranslations.reduce((sum, t) => sum + (t.wordCount || 0), 0);
+    const categories = [...new Set(publicTranslations.map(t => t.category).filter(Boolean))];
+    
+    // Extract unique projects from translations
+    const projects = [...new Set(publicTranslations.map(t => t.project.title).filter(Boolean))]
+      .map(title => {
+        const translation = publicTranslations.find(t => t.project.title === title);
+        return translation?.project;
+      })
+      .filter(Boolean);
 
+    // Return format expected by the client
     return NextResponse.json({
-      success: true,
-      data: publicTranslations,
-      meta: {
-        total: publicTranslations?.length,
-        totalWords,
-        categories: categories?.length,
-        availableCategories: categories,
-        lastUpdated: new Date().toISOString(),
-        // SEO metadata
-        seo: {
-          title: `Armenian Cybersecurity Translations - ${totalWords.toLocaleString()} Words Translated`,
-          description: `Access ${publicTranslations?.length} professionally translated cybersecurity documents in Armenian covering ${categories.join(', ')}.`,
-          keywords: [
-            'armenian cybersecurity',
-            'security documentation',
-            'armenian translations',
-            'cyber security armenian',
-            ...categories.map(cat => `${cat} armenian`),
-          ].join(', ')
-        }
+      translations: publicTranslations,
+      projects: projects,
+      categories: categories,
+      stats: {
+        totalTranslations: publicTranslations.length,
+        totalWords: totalWords
       }
     });
 
   } catch (error) {
-    console.error('Error fetching public translations:', error);
+    console.error('ERROR in public translations API:', error);
     return NextResponse.json(
       { 
-        success: false,
-        error: 'Failed to fetch public translations',
-        data: []
-      }, 
+        translations: [],
+        projects: [],
+        categories: [],
+        stats: {
+          totalTranslations: 0,
+          totalWords: 0
+        }
+      },
       { status: 500 }
     );
   }

@@ -264,12 +264,20 @@ export async function POST(request: Request) {
     });
 
     // Update file status
-    batch.update(fileRef, {
+    const fileUpdateData: any = {
       status: decision === 'approve' ? 'accepted' : 'rejected',
       reviewerId: userId,
       updatedAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),
-    });
+    };
+    
+    // Set default visibility for approved documents
+    if (decision === 'approve') {
+      fileUpdateData.visibility = 'public'; // Default to public
+      fileUpdateData.publishedAt = new Date().toISOString();
+    }
+    
+    batch.update(fileRef, fileUpdateData);
 
     await batch.commit();
 
