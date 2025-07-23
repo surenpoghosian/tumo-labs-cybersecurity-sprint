@@ -2,6 +2,12 @@ import React from 'react';
 import { Metadata } from 'next';
 import { BookOpen, Shield, FileText, Users } from "lucide-react";
 import Link from "next/link";
+import { headers } from 'next/headers';
+// This page must always be generated at request time so that we can call the
+// internal API using the live host. Otherwise a build-time fetch would fail
+// when environment variables are missing and the resulting HTML would contain
+// no documents.
+export const dynamic = 'force-dynamic';
 
 // Define types for our data
 type Project = {
@@ -46,10 +52,32 @@ async function getPublicTranslations(): Promise<TranslationsResponse> {
     if (typeof window === 'undefined') {
       const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
       const vercelUrl = process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`;
-      baseUrl = publicUrl || vercelUrl || 'http://localhost:3000';
+
+      if (publicUrl || vercelUrl) {
+        baseUrl = publicUrl || vercelUrl!;
+      } else {
+        // As a final fallback use the incoming request host via next/headers.
+        // This works in production because the function runs during the HTTP
+        // request lifecycle and the Host header reflects the live domain.
+        try {
+          const hdrs = await headers();
+          const host = hdrs.get('host');
+          if (host) {
+            const proto = host.startsWith('localhost') ? 'http' : 'https';
+            baseUrl = `${proto}://${host}`;
+          }
+        } catch {
+          // headers() may throw during build; leave baseUrl empty in that case
+        }
+      }
+    }
+
+    // If baseUrl is still empty on the server, fall back to a relative path.
+    if (!baseUrl && typeof window === 'undefined') {
+      baseUrl = '';
     }
     
-    const fullUrl = baseUrl + apiUrl;
+    const fullUrl = `${baseUrl}${apiUrl}`;
     const response = await fetch(fullUrl, {
       next: { revalidate: 300 } // Revalidate every 5 minutes
     });

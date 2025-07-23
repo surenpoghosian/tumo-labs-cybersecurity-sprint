@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BookOpen, ArrowLeft, Github } from "lucide-react";
 import Link from "next/link";
+import { headers } from 'next/headers';
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{
@@ -12,7 +14,27 @@ interface Props {
 
 async function getPublicTranslation(fileId: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    let baseUrl = '';
+    if (typeof window === 'undefined') {
+      const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
+      const vercelUrl = process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`;
+
+      if (publicUrl || vercelUrl) {
+        baseUrl = publicUrl || vercelUrl!;
+      } else {
+        try {
+          const hdrs = await headers();
+          const host = hdrs.get('host');
+          if (host) {
+            const proto = host.startsWith('localhost') ? 'http' : 'https';
+            baseUrl = `${proto}://${host}`;
+          }
+        } catch {
+          // build-time; leave empty
+        }
+      }
+    }
+
     const response = await fetch(`${baseUrl}/api/translations/${fileId}/public`, {
       next: { revalidate: 300 } // Revalidate every 5 minutes
     });
