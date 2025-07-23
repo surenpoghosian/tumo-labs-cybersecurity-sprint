@@ -40,13 +40,13 @@ async function getPublicTranslations(): Promise<TranslationsResponse> {
     // Use relative URL for API calls since we're calling our own API
     const apiUrl = '/api/translations/public?limit=100';
     
-    // In server-side rendering, we need to use absolute URL
+    // In server-side rendering, we need to use absolute URL. Build it safely to
+    // avoid "https://undefined" mistakes.
     let baseUrl = '';
     if (typeof window === 'undefined') {
-      // Server-side: check for various environment variables
-      baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-               process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-               'http://localhost:3000';
+      const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
+      const vercelUrl = process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`;
+      baseUrl = publicUrl || vercelUrl || 'http://localhost:3000';
     }
     
     const fullUrl = baseUrl + apiUrl;
