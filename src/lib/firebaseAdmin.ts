@@ -38,6 +38,32 @@ async function initializeFirebaseAdmin() {
 
     // Check if all required environment variables are present
     if (!projectId || !clientEmail || !privateKey) {
+      // In local development we may be using the Firebase emulator and therefore
+      // not have a full service-account key in environment variables. In that
+      // scenario we still want to initialise the Admin SDK so that server-side
+      // code (e.g. API routes) can talk to the emulator. The Admin SDK accepts
+      // an initialisation _without_ credentials when the emulator host env
+      // variables are present (or when we only need access to the local
+      // Firestore emulator).
+      // If we detect we are in development **and** either the Firestore
+      // emulator is configured or a public projectId exists, fall back to a
+      // minimal initialisation instead of aborting.
+      if (
+        process.env.NODE_ENV === 'development' &&
+        (process.env.FIRESTORE_EMULATOR_HOST || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)
+      ) {
+        try {
+          const fallbackProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'demo-project';
+          firebaseAdmin.initializeApp({ projectId: fallbackProjectId });
+          isFirebaseAdminInitialized = true;
+          console.log('[firebaseAdmin] Initialised Admin SDK with emulator fallback');
+          return true;
+        } catch (err) {
+          console.error('[firebaseAdmin] Failed to initialise with emulator fallback:', err);
+          // continue to original warning / return false path below
+        }
+      }
+
       console.warn('Firebase Admin SDK not initialized: Missing environment variables');
       console.warn('Required variables: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY');
       return false;
