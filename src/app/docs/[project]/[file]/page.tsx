@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { BookOpen, ArrowLeft, Github } from "lucide-react";
 import Link from "next/link";
 import { fetchPublicTranslationById, PublicTranslation } from '@/lib/publicTranslations';
+import Markdown from '@/components/Markdown';
 
 // Extend the base type with optional SEO fields that may or may not be present
 type ExtendedTranslation = PublicTranslation & {
@@ -246,9 +247,7 @@ export default async function DocumentPage({ params }: Props) {
         {/* Translation Content */}
         <div className="max-w-4xl mx-auto px-4 py-8">
           <article className="mb-12">
-            <div className="whitespace-pre-wrap text-gray-900 leading-relaxed">
-              {translation.translatedText}
-            </div>
+            <Markdown content={translation.translatedText} />
           </article>
 
           {/* Call to Action */}
