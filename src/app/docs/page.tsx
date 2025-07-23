@@ -40,23 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function DocsPage({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
-  const params = searchParams ? await searchParams : {};
-  const activeCategory = params.category || 'all';
+export default async function DocsPage() {
+  const { translations, projects, categories, stats } = await fetchPublicTranslations({ limit: 100 });
 
-  const { translations, projects, categories, stats } = await fetchPublicTranslations({ limit: 100, category: activeCategory === 'all' ? null : activeCategory });
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'web-security':
-      case 'application-security':
-        return Shield;
-      case 'fundamentals':
-        return BookOpen;
-      default:
-        return Shield;
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -146,26 +133,7 @@ export default async function DocsPage({ searchParams }: { searchParams?: Promis
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="mb-8 flex items-center gap-2 overflow-x-auto py-2">
-          <span className="text-sm font-medium text-gray-700">Filter by:</span>
-          <Link href="/docs">
-            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-              All
-            </span>
-          </Link>
-          {categories?.map((category: string) => {
-            const Icon = getCategoryIcon(category);
-            return (
-              <Link key={category} href={`/docs?category=${category}`}>
-                <span className={`flex items-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === category ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-800'}`}>
-                  <Icon className="h-3 w-3 mr-1" />
-                  {category.replace('-', ' ')}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+        {/* Filters removed */}
 
         {/* Recent Translations Section */}
         {recentTranslations.length > 0 && (
