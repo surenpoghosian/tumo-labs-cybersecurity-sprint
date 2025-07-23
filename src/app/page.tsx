@@ -79,7 +79,7 @@ export default function Home() {
       <section id="features" className="py-20 px-4">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Ինչու՞ ընտրել Հայաստանը
+            Ինչու՞ ընտրել մեր հարթակը
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card>
@@ -155,14 +155,17 @@ export default function Home() {
       <section id="community" className="py-20 px-4">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            /*title*/
             Միացեք մեր համայնքին
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl font-semibold mb-4">
+                /*subtitle*/
                 Կառուցելով Հայաստանի տեխնոլոգիական ապագան
               </h3>
               <p className="text-gray-600 mb-6">
+                /*description*/
                 Ամեն թարգմանություն, որ դուք ներդնում եք, օգնում է տեխնոլոգիան ավելի հասանելի դարձնել հայերեն խոսողների համար: Միացեք աճող համայնքին՝ ծրագրավորողների, թարգմանիչների և տեխնոլոգիական էնտուզիաստների, որոնք միասին կամուրջ են կառուցում տեխնոլոգիական կրթության լեզվական բացի վրա:
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
@@ -187,15 +190,15 @@ export default function Home() {
                 </div>
                 <div className="ml-4">
                   <h4 className="font-semibold">Լավագույն ներդրող</h4>
-                  <p className="text-sm text-gray-600">Arman Petrosyan</p>
+                  <p className="text-sm text-gray-600">Arman Petrosyan</p> /*🐞 these should be variables*/
                 </div>
               </div>
               <p className="text-gray-600 italic mb-4">
                 «Հայկական փաստաթղթերին մասնակցելը շատ օգտակար էր: Ես օգնել եմ թարգմանել React-ի փաստաթղթերը և վաստակել վկայագրեր, որոնք ցույց են տալիս իմ հմտությունները ապագա գործատուներին»
-              </p>
+              </p> /*🐞 these should be variables*/
               <div className="flex items-center text-sm text-gray-500">
                 <Award className="h-4 w-4 mr-1" />
-                <span>12 վաստակած վկայագիր</span>
+                <span>12 վաստակած վկայագիր</span> /*🐞 (12) these should be variables*/
               </div>
             </div>
           </div>
