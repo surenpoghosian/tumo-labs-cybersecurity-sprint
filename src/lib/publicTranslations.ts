@@ -310,4 +310,107 @@ export async function fetchPublicTranslations({ limit = 50, category = null, sor
 
   // Fall back to REST (public-READ only)
   return await queryViaRest(opts);
+}
+
+export async function fetchPublicTranslationById(id: string): Promise<PublicTranslation | null> {
+  // Try Admin path first
+  const adminOK = await isFirebaseAdminAvailable();
+  if (adminOK) {
+    try {
+      const db = await getFirestore();
+      const doc = await db.collection('files').doc(id).get();
+      if (!doc.exists) return null;
+      const data = doc.data() || {};
+      if (data.status !== 'accepted' || !['public', 'unlisted'].includes(data.visibility || 'public')) {
+        return null;
+      }
+      // Fetch related project
+      let project: any = null;
+      if (data.projectId) {
+        const pDoc = await db.collection('projects').doc(data.projectId).get();
+        if (pDoc.exists) project = pDoc.data();
+      }
+
+      // Translator profile (optional)
+      let translator: PublicTranslation['translator'] = null;
+      if (data.assignedTranslatorId) {
+        const uDoc = await db.collection('userProfiles').doc(data.assignedTranslatorId).get();
+        if (uDoc.exists) {
+          const u = uDoc.data() as any;
+          translator = {
+            name: u.name || u.displayName || 'Anonymous Translator',
+            username: u.username || u.email || 'anonymous',
+          };
+        }
+      }
+
+      const translation: PublicTranslation = {
+        id,
+        fileName: data.fileName || 'Unknown Document',
+        filePath: data.filePath || '',
+        originalText: data.originalText || '',
+        translatedText: data.translatedText || '',
+        wordCount: data.wordCount || 0,
+        completedAt: data.publishedAt || data.updatedAt || data.createdAt || new Date().toISOString(),
+        category: data.category || project?.categories?.[0] || 'general',
+        project: {
+          title: project?.title || 'Unknown Project',
+          description: project?.description || '',
+          categories: project?.categories || [],
+          difficulty: project?.difficulty || 1,
+        },
+        translator,
+      };
+      return translation;
+    } catch (err) {
+      console.error('[publicTranslations] fetch by id admin error:', err);
+    }
+  }
+  // REST fallback
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!projectId || !apiKey) return null;
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/files/${id}?key=${apiKey}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json.fields) return null;
+    const v = (f: any): any => {
+      if (!f) return undefined;
+      if (f.stringValue !== undefined) return f.stringValue;
+      if (f.integerValue !== undefined) return Number(f.integerValue);
+      if (f.doubleValue !== undefined) return f.doubleValue;
+      if (f.arrayValue !== undefined) {
+        const vals = f.arrayValue.values || [];
+        return vals.map(v);
+      }
+      return undefined;
+    };
+    const fields = json.fields;
+    if (v(fields.status) !== 'accepted') return null;
+    const visibility = v(fields.visibility) || 'public';
+    if (!['public', 'unlisted'].includes(visibility)) return null;
+    const translation: PublicTranslation = {
+      id,
+      fileName: v(fields.fileName) || 'Unknown',
+      filePath: v(fields.filePath) || '',
+      originalText: v(fields.originalText) || '',
+      translatedText: v(fields.translatedText) || '',
+      wordCount: Number(v(fields.wordCount) || 0),
+      completedAt: v(fields.publishedAt) || v(fields.updatedAt) || v(fields.createdAt) || new Date().toISOString(),
+      category: v(fields.category) || 'general',
+      project: {
+        title: v(fields.projectTitle) || 'Unknown Project',
+        description: v(fields.projectDescription) || '',
+        categories: v(fields.projectCategories) || [],
+        difficulty: Number(v(fields.projectDifficulty) || 1),
+      },
+      translator: null,
+    };
+    return translation;
+  } catch (err) {
+    console.error('[publicTranslations] fetch by id rest error:', err);
+    return null;
+  }
 } 
