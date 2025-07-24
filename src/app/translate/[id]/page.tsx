@@ -24,6 +24,7 @@ import {
 import { FirestoreFile, FirestoreProject } from '@/lib/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 export default function TranslationPage() {
   const params = useParams();
@@ -288,12 +289,11 @@ export default function TranslationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading translation editor...</p>
-        </div>
-      </div>
+      <UnifiedLoader 
+        message="Loading translation editor..."
+        showHeader={false}
+        theme="orange"
+      />
     );
   }
 

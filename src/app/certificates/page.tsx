@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Certificate } from "@/data/mockData";
 import { BookOpen, Award, Download, ExternalLink, Github, Search, Calendar, Shield } from "lucide-react";
 import Link from "next/link";
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 interface VerificationResult {
   success: boolean;
@@ -174,10 +175,11 @@ export default function CertificatesPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading certificates...</p>
-          </div>
+          <UnifiedLoader 
+            message="Loading certificates..."
+            showHeader={false}
+            theme="orange"
+          />
         )}
 
         {/* Certificates Grid */}

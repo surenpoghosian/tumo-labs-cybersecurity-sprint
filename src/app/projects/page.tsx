@@ -9,6 +9,7 @@ import { FirestoreProject } from '@/lib/firestore';
 import { BookOpen, Clock, Github, ArrowRight, Shield, Search, Zap, RefreshCw, AlertCircle } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -186,10 +187,11 @@ export default function ProjectsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading projects...</p>
-          </div>
+          <UnifiedLoader 
+            message="Loading projects..."
+            showHeader={false}
+            theme="orange"
+          />
         )}
 
         {/* Empty State with Seed Data Option */}

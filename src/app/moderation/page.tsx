@@ -26,6 +26,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { DocumentVisibilityControl } from '@/components/moderation/DocumentVisibilityControl';
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import { FirestoreFile } from '@/lib/firestore';
 
 interface Review {
@@ -273,12 +274,11 @@ export default function ModerationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading moderation dashboard...</p>
-        </div>
-      </div>
+      <UnifiedLoader 
+        message="Loading moderation dashboard..."
+        showHeader={false}
+        theme="blue"
+      />
     );
   }
 
@@ -372,12 +372,11 @@ export default function ModerationPage() {
           /* Approved Documents View */
           <div className="space-y-6">
             {loadingDocs ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading approved documents...</p>
-                </CardContent>
-              </Card>
+              <UnifiedLoader 
+                message="Loading approved documents..."
+                showHeader={false}
+                theme="blue"
+              />
             ) : approvedDocuments?.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
