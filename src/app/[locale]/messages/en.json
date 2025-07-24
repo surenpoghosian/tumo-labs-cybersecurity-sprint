@@ -1,0 +1,368 @@
+{
+    "Common": {
+        "loading": "Loading...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "download": "Download",
+        "upload": "Upload",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import",
+        "refresh": "Refresh"
+    },
+    "Navigation": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "translations": "Translations",
+        "certificates": "Certificates",
+        "profile": "Profile",
+        "settings": "Settings",
+        "logout": "Logout",
+        "login": "Login",
+        "register": "Register"
+    },
+    "HomePage": {
+        "title": "Armenian CyberSec Docs",
+        "hero": {
+            "title": "Transform Cybersecurity Documentation into Armenian",
+            "subtitle": "Bridge the language gap in Armenian cybersecurity education. Help translate open-source security documentation, submit GitHub PRs, earn certificates, and build a stronger security community in Armenia.",
+            "startTranslating": "Start Translating",
+            "browseProjects": "Browse Projects"
+        },
+        "stats": {
+            "docsTranslated": "Security Docs Translated",
+            "translators": "Active Security Translators",
+            "projects": "CyberSec GitHub Projects",
+            "pullRequests": "Merged Pull Requests"
+        },
+        "features": {
+            "title": "Why Choose Armenia",
+            "github": {
+                "title": "GitHub PR Integration",
+                "description": "Direct integration with cybersecurity projects. Submit translations as pull requests and get them merged"
+            },
+            "review": {
+                "title": "Security Expert Review",
+                "description": "Community-driven security validation with cybersecurity expert reviews and feedback"
+            },
+            "certificates": {
+                "title": "Earn Security Certificates",
+                "description": "Get verified certificates for cybersecurity translation contributions after GitHub PR merges"
+            }
+        },
+        "process": {
+            "title": "How It Works",
+            "step1": {
+                "title": "Choose a CyberSec Project",
+                "description": "Browse available cybersecurity projects and select documentation that needs translation"
+            },
+            "step2": {
+                "title": "Translate & Submit PR",
+                "description": "Use our editor to translate content and submit pull requests to GitHub repositories"
+            },
+            "step3": {
+                "title": "Earn Security Certificates",
+                "description": "Receive certificates after your PRs are merged and build your cybersecurity reputation"
+            }
+        },
+        "community": {
+            "title": "Join Our Community",
+            "description": "Making technology accessible to Armenian speakers through community-driven translation."
+        }
+    },
+    "Auth": {
+        "login": {
+            "title": "Welcome Back",
+            "subtitle": "Sign in to continue your cybersecurity translation journey",
+            "email": "Email",
+            "password": "Password",
+            "forgotPassword": "Forgot Password?",
+            "signIn": "Sign In",
+            "signInWithGoogle": "Continue with Google",
+            "signInWithGitHub": "Continue with GitHub",
+            "noAccount": "Don't have an account?",
+            "signUp": "Sign Up",
+            "showPassword": "Show password",
+            "hidePassword": "Hide password"
+        },
+        "register": {
+            "title": "Create Account",
+            "subtitle": "Join the Armenian cybersecurity translation community",
+            "fullName": "Full Name",
+            "email": "Email",
+            "password": "Password",
+            "confirmPassword": "Confirm Password",
+            "signUp": "Sign Up",
+            "signUpWithGoogle": "Continue with Google",
+            "signUpWithGitHub": "Continue with GitHub",
+            "hasAccount": "Already have an account?",
+            "signIn": "Sign In"
+        },
+        "forgotPassword": {
+            "title": "Reset Password",
+            "subtitle": "Enter your email to receive a password reset link",
+            "email": "Email",
+            "sendReset": "Send Reset Link",
+            "backToLogin": "Back to Login",
+            "success": "Password reset link sent to your email",
+            "error": "Failed to send reset link"
+        },
+        "errors": {
+            "invalidEmail": "Please enter a valid email address",
+            "passwordTooShort": "Password must be at least 6 characters",
+            "passwordsNotMatch": "Passwords do not match",
+            "fillAllFields": "Please fill in all fields",
+            "invalidCredentials": "Invalid email or password",
+            "userNotFound": "No account found with this email",
+            "emailAlreadyExists": "An account with this email already exists",
+            "weakPassword": "Password is too weak",
+            "networkError": "Network error. Please try again."
+        }
+    },
+    "Dashboard": {
+        "title": "Dashboard",
+        "welcome": "Welcome back, {name}!",
+        "stats": {
+            "totalProjects": "Total Projects",
+            "completedProjects": "Completed",
+            "inProgressProjects": "In Progress",
+            "underReviewProjects": "Under Review",
+            "totalCertificates": "Certificates"
+        },
+        "recentProjects": {
+            "title": "Recent Projects",
+            "noProjects": "No projects yet",
+            "startFirst": "Start your first translation project!",
+            "viewDetails": "View Details"
+        },
+        "recentCertificates": {
+            "title": "Recent Certificates",
+            "noCertificates": "No certificates earned yet",
+            "completeProjects": "Complete translation projects to earn certificates",
+            "downloadPDF": "Download PDF"
+        },
+        "quickActions": {
+            "title": "Quick Actions",
+            "browseProjects": "Browse Projects",
+            "viewCertificates": "View Certificates",
+            "translationMemory": "Translation Memory"
+        },
+        "translationMemoryTest": {
+            "title": "Translation Memory (Firestore Test)",
+            "originalText": "Original text (e.g., 'security')",
+            "armenianTranslation": "Armenian translation",
+            "addToFirestore": "Add to Firestore",
+            "loadFromFirestore": "Load from Firestore",
+            "adding": "Adding...",
+            "loading": "Loading...",
+            "entries": "Entries from Firestore:"
+        }
+    },
+    "Projects": {
+        "title": "Cybersecurity Projects",
+        "subtitle": "Choose a project to start translating cybersecurity documentation",
+        "search": "Search projects...",
+        "categories": {
+            "all": "All Categories",
+            "webSecurity": "Web Security",
+            "networkSecurity": "Network Security",
+            "penetrationTesting": "Penetration Testing",
+            "digitalForensics": "Digital Forensics",
+            "malwareAnalysis": "Malware Analysis"
+        },
+        "difficulty": {
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced",
+            "expert": "Expert"
+        },
+        "status": {
+            "available": "Available for Translation",
+            "inProgress": "Translation in Progress",
+            "completed": "Translation Complete"
+        },
+        "projectCard": {
+            "by": "by",
+            "startTranslation": "Start Translation",
+            "translationComplete": "Translation Complete",
+            "viewDetails": "View Details"
+        }
+    },
+    "ProjectDetail": {
+        "startTranslation": "Start Translation",
+        "translationComplete": "Translation Complete",
+        "progressBar": "Translation Progress",
+        "projectInfo": {
+            "title": "Project Information",
+            "description": "Description",
+            "category": "Category",
+            "difficulty": "Difficulty",
+            "estimatedTime": "Estimated Time",
+            "originalRepo": "Original Repository",
+            "documentation": "Documentation"
+        },
+        "documentSelection": {
+            "title": "Select Document to Translate",
+            "description": "Choose which documentation file you'd like to translate to Armenian"
+        },
+        "documentPreview": {
+            "title": "Documentation Preview",
+            "description": "This is the original documentation that needs to be translated into Armenian.",
+            "securityNote": "Cybersecurity terminology requires precise translation to maintain accuracy."
+        },
+        "translationGuidelines": {
+            "title": "Translation Guidelines",
+            "maintainAccuracy": "Maintain technical accuracy",
+            "consistentTerminology": "Use consistent terminology",
+            "preserveCode": "Preserve code examples",
+            "keepFormatting": "Keep formatting intact",
+            "clarityForReaders": "Ensure clarity for Armenian readers"
+        }
+    },
+    "TranslationEditor": {
+        "title": "Translation Editor",
+        "segmentNavigation": "Segment {current} of {total}",
+        "progress": {
+            "title": "Progress",
+            "total": "Total Segments",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "pending": "Pending",
+            "words": "Words",
+            "completion": "Completion"
+        },
+        "originalText": {
+            "title": "Original Text",
+            "words": "words"
+        },
+        "armenianTranslation": {
+            "title": "Armenian Translation",
+            "placeholder": "Enter Armenian translation here...",
+            "words": "words"
+        },
+        "translationSuggestions": {
+            "title": "Translation Suggestions",
+            "fromMemory": "From Translation Memory",
+            "confidence": "Confidence",
+            "useSuggestion": "Use Suggestion"
+        },
+        "sessionTracking": {
+            "title": "Session Tracking",
+            "timeElapsed": "Time Elapsed",
+            "wordsTranslated": "Words Translated",
+            "autoSaves": "Auto-saves"
+        },
+        "actions": {
+            "previous": "Previous",
+            "next": "Next",
+            "saveSegment": "Save Segment",
+            "submitForReview": "Submit for Review",
+            "submitting": "Submitting..."
+        },
+        "autoSave": {
+            "idle": "All changes saved",
+            "saving": "Saving...",
+            "saved": "Saved"
+        },
+        "submitModal": {
+            "title": "Submit for Review",
+            "completionCheck": "Complete all segments before submitting",
+            "reviewProcess": "Your translation will be reviewed by cybersecurity experts",
+            "estimatedTime": "Review typically takes 3-7 business days"
+        }
+    },
+    "Certificates": {
+        "title": "Your Certificates",
+        "subtitle": "View and verify your cybersecurity translation certificates",
+        "verify": {
+            "title": "Verify Certificate",
+            "placeholder": "Enter verification code (e.g., CYBS-CERT-2024-001)",
+            "button": "Verify",
+            "verifying": "Verifying...",
+            "success": "Certificate Verified!",
+            "notFound": "Certificate not found or invalid",
+            "project": "Project",
+            "category": "Category",
+            "contributor": "Contributor",
+            "issued": "Issued"
+        },
+        "noCertificates": {
+            "title": "No certificates yet",
+            "description": "Start translating cybersecurity documentation to earn your first certificate!",
+            "browseProjects": "Browse Projects"
+        },
+        "certificateCard": {
+            "issued": "Issued",
+            "category": "Category",
+            "verificationCode": "Verification Code",
+            "viewPR": "View PR",
+            "downloadPDF": "Download PDF"
+        },
+        "about": {
+            "title": "About Certificates",
+            "howToEarn": {
+                "title": "🏆 How to Earn",
+                "steps": [
+                    "• Complete a translation project",
+                    "• Pass cybersecurity expert review",
+                    "• Submit successful GitHub PR",
+                    "• Get your PR merged by maintainers"
+                ]
+            },
+            "verification": {
+                "title": "✅ Verification",
+                "features": [
+                    "• Each certificate has a unique code",
+                    "• Verifiable through our platform",
+                    "• Linked to GitHub contributions",
+                    "• Permanent record of achievement"
+                ]
+            },
+            "types": {
+                "title": "📄 Certificate Types",
+                "list": [
+                    "• Translation: For completed translations",
+                    "• Review: For expert reviews",
+                    "• Contribution: For community help"
+                ]
+            }
+        },
+        "statistics": {
+            "title": "Your Statistics",
+            "totalEarned": "Total Certificates Earned",
+            "byCategory": "Certificates by Category",
+            "recentActivity": "Recent Activity"
+        }
+    },
+    "LanguageSwitcher": {
+        "title": "Language",
+        "english": "English",
+        "armenian": "Armenian (Հայերեն)"
+    },
+    "Errors": {
+        "pageNotFound": "Page Not Found",
+        "somethingWentWrong": "Something went wrong",
+        "tryAgain": "Try again",
+        "goHome": "Go Home",
+        "networkError": "Network error. Please check your connection.",
+        "serverError": "Server error. Please try again later.",
+        "unauthorized": "You are not authorized to view this page.",
+        "forbidden": "Access forbidden."
+    },
+    "Success": {
+        "projectCreated": "Translation project created successfully!",
+        "segmentSaved": "Segment saved successfully!",
+        "translationSubmitted": "Translation submitted for review!",
+        "certificateGenerated": "Certificate generated successfully!",
+        "profileUpdated": "Profile updated successfully!"
+    }
+}

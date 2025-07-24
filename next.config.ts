@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   env: {
@@ -17,10 +18,11 @@ const nextConfig: NextConfig = {
     // App Configuration
     NEXT_PUBLIC_APP_NAME: "Armenian CyberSec Docs",
     NEXT_PUBLIC_APP_VERSION: "1.0.0",
-    NEXT_PUBLIC_APP_URL: process.env.NODE_ENV === "production" 
+    NEXT_PUBLIC_APP_URL: process.env.NODE_ENV === "production"
       ? "https://translate.surenpoghosyan.dev"
       : "http://localhost:3000",
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

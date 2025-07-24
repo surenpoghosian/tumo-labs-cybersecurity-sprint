@@ -37,26 +37,26 @@ function DashboardPageContent() {
   const [loading, setLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
-  
+
   // Firestore test states
   // const [testOriginal, setTestOriginal] = useState('');
   // const [testTranslated, setTestTranslated] = useState('');
   // const [testEntries, setTestEntries] = useState<{id: string, originalText: string, translatedText: string, category: string}[]>([]);
   // const [addingTest, setAddingTest] = useState(false);
   // const [loadingTest, setLoadingTest] = useState(false);
-  
+
   const { user: authUser, logout } = useAuth();
   const router = useRouter();
 
   // Firestore test functions
   // const addTestEntry = async () => {
   //   if (!testOriginal || !testTranslated || !authUser) return;
-    
+
   //   setAddingTest(true);
   //   try {
   //     // Get the user's ID token
   //     const idToken = await authUser.getIdToken();
-      
+
   //     const response = await fetch('/api/translation-memory', {
   //       method: 'POST',
   //       headers: { 
@@ -72,7 +72,7 @@ function DashboardPageContent() {
   //         confidence: 0.9
   //       })
   //     });
-      
+
   //     if (response.ok) {
   //       setTestOriginal('');
   //       setTestTranslated('');
@@ -90,7 +90,7 @@ function DashboardPageContent() {
   //   try {
   //     // Get the user's ID token for GET requests too
   //     const idToken = authUser ? await authUser.getIdToken() : null;
-      
+
   //     const response = await fetch('/api/translation-memory', {
   //       headers: idToken ? { 'Authorization': `Bearer ${idToken}` } : {}
   //     });
@@ -142,7 +142,7 @@ function DashboardPageContent() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!authUser) return;
-      
+
       try {
         const idToken = await authUser.getIdToken();
         const response = await fetch('/api/user', {
@@ -150,7 +150,7 @@ function DashboardPageContent() {
             'Authorization': `Bearer ${idToken}`
           }
         });
-        
+
         if (response.ok) {
           const profile = await response.json();
           setUserProfile(profile);
@@ -206,11 +206,11 @@ function DashboardPageContent() {
     try {
       const filename = `${certificate.id}.pdf`;
       const response = await fetch(`/api/certificates/download/${filename}`);
-      
+
       if (!response.ok) {
         throw new Error('Download failed');
       }
-      
+
       // Create blob and download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -221,7 +221,7 @@ function DashboardPageContent() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
     } catch (err) {
       console.error('Error downloading certificate:', err);
       // Could add error handling here if needed
@@ -266,7 +266,7 @@ function DashboardPageContent() {
             {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
               <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Moderation</Link>
             )}
-            
+
             {/* User Menu */}
             <div className="relative">
               <button
@@ -281,7 +281,7 @@ function DashboardPageContent() {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-500" />
               </button>
-              
+
               {/* Dropdown Menu */}
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
@@ -330,7 +330,7 @@ function DashboardPageContent() {
               <div className="text-sm text-gray-600">Total Files</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
@@ -338,7 +338,7 @@ function DashboardPageContent() {
               <div className="text-sm text-gray-600">In Progress</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <Eye className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
@@ -346,7 +346,7 @@ function DashboardPageContent() {
               <div className="text-sm text-gray-600">Pending Review</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
@@ -354,7 +354,7 @@ function DashboardPageContent() {
               <div className="text-sm text-gray-600">Approved</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
               <Award className="h-8 w-8 text-purple-600 mx-auto mb-2" />
@@ -364,8 +364,8 @@ function DashboardPageContent() {
           </Card>
         </div>
 
-         {/* Quick Actions */}
-         <Card className="mt-8 mb-8">
+        {/* Quick Actions */}
+        <Card className="mt-8 mb-8">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
@@ -373,7 +373,7 @@ function DashboardPageContent() {
             <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
               {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
                 <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
-                  <Button 
+                  <Button
                     className="w-full bg-green-600 hover:bg-green-700"
                     title="Continue working on your assigned files"
                   >
@@ -383,7 +383,7 @@ function DashboardPageContent() {
                 </Link>
               )}
               <Link href="/projects">
-                <Button 
+                <Button
                   className="w-full bg-orange-600 hover:bg-orange-700"
                   title="Browse available cybersecurity projects to translate"
                 >
@@ -392,8 +392,8 @@ function DashboardPageContent() {
                 </Button>
               </Link>
               <Link href="/translate">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   title="Continue working on your current translation project"
                 >
@@ -402,8 +402,8 @@ function DashboardPageContent() {
                 </Button>
               </Link>
               <Link href="/certificates">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   title="View and manage your earned certificates"
                 >
@@ -432,50 +432,50 @@ function DashboardPageContent() {
                   const getStatusInfo = () => {
                     switch (file.status) {
                       case 'in progress':
-                        return { 
-                          color: 'orange', 
-                          bgColor: 'orange-50', 
-                          borderColor: 'orange-200', 
+                        return {
+                          color: 'orange',
+                          bgColor: 'orange-50',
+                          borderColor: 'orange-200',
                           label: 'In Progress',
                           canEdit: true,
                           buttonText: 'Continue Translation',
                           buttonColor: 'bg-green-600 hover:bg-green-700'
                         };
                       case 'pending':
-                        return { 
-                          color: 'yellow', 
-                          bgColor: 'yellow-50', 
-                          borderColor: 'yellow-200', 
+                        return {
+                          color: 'yellow',
+                          bgColor: 'yellow-50',
+                          borderColor: 'yellow-200',
                           label: 'Under Review',
                           canEdit: false,
                           buttonText: 'View Status',
                           buttonColor: 'bg-gray-400 cursor-not-allowed'
                         };
                       case 'rejected':
-                        return { 
-                          color: 'red', 
-                          bgColor: 'red-50', 
-                          borderColor: 'red-200', 
+                        return {
+                          color: 'red',
+                          bgColor: 'red-50',
+                          borderColor: 'red-200',
                           label: 'Needs Revision',
                           canEdit: true,
                           buttonText: 'Make Revisions',
                           buttonColor: 'bg-red-600 hover:bg-red-700'
                         };
                       case 'accepted':
-                        return { 
-                          color: 'green', 
-                          bgColor: 'green-50', 
-                          borderColor: 'green-200', 
+                        return {
+                          color: 'green',
+                          bgColor: 'green-50',
+                          borderColor: 'green-200',
                           label: 'Completed',
                           canEdit: false,
                           buttonText: 'View Translation',
                           buttonColor: 'bg-gray-400'
                         };
                       default:
-                        return { 
-                          color: 'blue', 
-                          bgColor: 'blue-50', 
-                          borderColor: 'blue-200', 
+                        return {
+                          color: 'blue',
+                          bgColor: 'blue-50',
+                          borderColor: 'blue-200',
                           label: 'Available',
                           canEdit: true,
                           buttonText: 'Start Translation',
@@ -496,14 +496,14 @@ function DashboardPageContent() {
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600 mb-3">{file.filePath}</p>
-                      
+
                       {/* Status-specific messages */}
                       {file.status === 'pending' && (
                         <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
                           <strong>Under Review:</strong> Your translation is being reviewed by moderators. You cannot edit until review is complete.
                         </div>
                       )}
-                      
+
                       {file.status === 'rejected' && (
                         <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
                           <strong>Needs Revision:</strong> Your translation was reviewed and needs changes. Please make revisions and resubmit.
@@ -521,7 +521,7 @@ function DashboardPageContent() {
                           <span>{file.wordCount} words</span>
                           <span>{file.estimatedHours}h estimated</span>
                         </div>
-                        
+
                         {statusInfo.canEdit ? (
                           <Link href={`/translate/${file.id}`}>
                             <Button size="sm" className={statusInfo.buttonColor}>
@@ -566,11 +566,11 @@ function DashboardPageContent() {
                     <div key={project.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium">{project.title}</h4>
-                        <Badge 
+                        <Badge
                           variant={
                             project.status === 'completed' ? 'default' :
-                            project.status === 'in progress' ? 'secondary' :
-                            'outline'
+                              project.status === 'in progress' ? 'secondary' :
+                                'outline'
                           }
                         >
                           {project.status}
@@ -582,9 +582,9 @@ function DashboardPageContent() {
                           {new Date(project.createdAt).toLocaleDateString()}
                         </span>
                         {project.source && (
-                          <a 
-                            href={project.source} 
-                            target="_blank" 
+                          <a
+                            href={project.source}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-orange-600 hover:underline flex items-center"
                           >

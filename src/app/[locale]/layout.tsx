@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GlobalToaster from "@/components/ui/GlobalToaster";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
-import notFound from "./not-found";
+import notFound from "../not-found";
 
 
 
@@ -36,15 +36,9 @@ export default async function RootLayout({
     notFound();
   }
   return (
-    <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthProvider>
-          <GlobalToaster />
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <GlobalToaster />
+      <NextIntlClientProvider>{children}</NextIntlClientProvider>
+    </AuthProvider>
   );
 }

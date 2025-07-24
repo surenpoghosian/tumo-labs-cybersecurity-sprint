@@ -74,8 +74,8 @@ export default function NotFound() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              asChild 
+            <Button
+              asChild
               className="bg-orange-600 hover:bg-orange-700"
               title="Go back to the homepage"
             >
@@ -84,9 +84,9 @@ export default function NotFound() {
                 Back to Home
               </Link>
             </Button>
-            
-            <Button 
-              asChild 
+
+            <Button
+              asChild
               variant="outline"
               title="Browse available cybersecurity projects"
             >
@@ -95,9 +95,9 @@ export default function NotFound() {
                 Browse Projects
               </Link>
             </Button>
-            
-            <Button 
-              asChild 
+
+            <Button
+              asChild
               variant="outline"
               title="Go to your dashboard"
             >
