@@ -5,10 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Certificate } from "@/data/mockData";
-import { BookOpen, Award, Download, ExternalLink, Github, Search, Calendar, Shield } from "lucide-react";
+import { BookOpen, Award, Download, ExternalLink, Github, Search, Calendar, Shield, Trophy, CheckCircle, FileBadge, Target } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
-import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 interface VerificationResult {
   success: boolean;
@@ -28,18 +27,37 @@ export default function CertificatesPage() {
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
-        const response = await fetch('/api/certificates?userId=user-1');
+        // Prepare headers - include auth token if user is logged in
+        const headers: Record<string, string> = {};
+        if (user) {
+          const token = await user.getIdToken();
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('/api/certificates', {
+          headers
+        });
+        
         const result = await response.json();
-        setCertificates(result.data);
-      } catch (error) {
-        console.error('Failed to fetch certificates:', error);
+        
+        if (!response.ok) {
+          console.error('Certificates API error:', result);
+          // Don't set error state - just log and continue with empty certificates
+          setCertificates([]);
+        } else {
+          setCertificates(result.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch certificates:', err);
+        // Don't set error state for network issues - just continue with empty certificates
+        setCertificates([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCertificates();
-  }, []);
+  }, [user]);
 
   const handleVerifyCertificate = async () => {
     if (!verificationCode.trim()) return;
@@ -118,9 +136,9 @@ export default function CertificatesPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Certificates</h1>
-          <p className="text-gray-600">View and verify your cybersecurity translation certificates</p>
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">Certificates</h1>
+          <p className="text-gray-600 text-lg">Earn recognition for your work and track your achievements</p>
         </div>
 
         {/* Certificate Verification */}
@@ -179,11 +197,10 @@ export default function CertificatesPage() {
 
         {/* Loading State */}
         {loading && (
-          <UnifiedLoader 
-            message="Loading certificates..."
-            showHeader={false}
-            theme="orange"
-          />
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading certificates...</p>
+          </div>
         )}
 
         {/* Certificates Grid */}
@@ -255,19 +272,27 @@ export default function CertificatesPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty States */}
         {!loading && certificates?.length === 0 && (
-          <div className="text-center py-12">
-            <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
-            <p className="text-gray-600 mb-6">
-              Start translating cybersecurity documentation to earn your first certificate!
-            </p>
-            <Link href="/projects">
-              <Button className="bg-orange-600 hover:bg-orange-700">
-                Browse Projects
-              </Button>
-            </Link>
+          <div className="text-center py-16">
+            <Award className="h-14 w-14 text-orange-300 mx-auto mb-4" />
+            {user ? (
+              <>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">No certificates yet</h4>
+                <p className="text-gray-600 mb-4">Start contributing to translation projects to earn your first badge of honor.</p>
+                <Link href="/projects" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
+                  <BookOpen className="h-4 w-4"/> Explore Projects
+                </Link>
+              </>
+            ) : (
+              <>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Earn certificates by contributing!</h4>
+                <p className="text-gray-600 mb-4">Create an account and start translating to collect achievements.</p>
+                <Link href="/auth/register" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
+                  <BookOpen className="h-4 w-4"/> Join & Contribute
+                </Link>
+              </>
+            )}
           </div>
         )}
 
@@ -306,7 +331,7 @@ export default function CertificatesPage() {
           </Card>
         )}
 
-        {/* Certificate Info */}
+        {/* Certificate Info
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>About Certificates</CardTitle>
@@ -346,6 +371,56 @@ export default function CertificatesPage() {
                   <li>• Portfolio enhancement</li>
                   <li>• Community building</li>
                   <li>• Career advancement</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card> */}
+
+        {/* About Certificates */}
+        <Card className="mb-12 bg-white/60 backdrop-blur-sm border border-orange-100">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6"/>About Certificates</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base text-gray-700">
+              {/* How to earn */}
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Trophy className="h-4 w-4 text-orange-600"/> How to Earn</h3>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Complete a translation project</li>
+                  <li>Pass cybersecurity expert review</li>
+                  <li>Submit successful GitHub PR</li>
+                  <li>Get your PR merged by maintainers</li>
+                </ul>
+              </div>
+              {/* Verification */}
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><CheckCircle className="h-4 w-4 text-green-600"/> Verification</h3>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Unique code for every certificate</li>
+                  <li>Verifiable directly on our platform</li>
+                  <li>Linked to your GitHub contributions</li>
+                  <li>Permanent publicly-viewable record</li>
+                </ul>
+              </div>
+              {/* Types */}
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><FileBadge className="h-4 w-4 text-blue-600"/> Certificate Types</h3>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Translation – completed translations</li>
+                  <li>Review – expert reviews</li>
+                  <li>Contribution – community help</li>
+                </ul>
+              </div>
+              {/* Benefits */}
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Target className="h-4 w-4 text-purple-600"/> Benefits</h3>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Professional recognition</li>
+                  <li>Portfolio enhancement</li>
+                  <li>Community building</li>
+                  <li>Career advancement</li>
                 </ul>
               </div>
             </div>
