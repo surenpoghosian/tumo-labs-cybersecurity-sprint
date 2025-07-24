@@ -291,7 +291,7 @@ export default function TranslationPage() {
     return (
       <UnifiedLoader 
         message="Loading translation editor..."
-        showHeader={false}
+        showHeader={true}
         theme="orange"
       />
     );
