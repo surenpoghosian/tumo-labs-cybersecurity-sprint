@@ -9,7 +9,6 @@ import { FirestoreProject } from '@/lib/firestore';
 import { BookOpen, Clock, Github, ArrowRight, Shield, Search, Zap, RefreshCw, AlertCircle } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -148,8 +147,10 @@ export default function ProjectsPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <Link href={user ? '/dashboard' : '/'} className="flex items-center space-x-2 group" title="Go home">
+              <BookOpen className="h-8 w-8 text-orange-600 group-hover:text-orange-700 transition-colors" />
+              <span className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">Armenian CyberSec Docs</span>
+            </Link>
           </div>
           <nav className="flex items-center space-x-6">
             <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
@@ -187,11 +188,10 @@ export default function ProjectsPage() {
 
         {/* Loading State */}
         {loading && (
-          <UnifiedLoader 
-            message="Loading projects..."
-            showHeader={false}
-            theme="orange"
-          />
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading projects...</p>
+          </div>
         )}
 
         {/* Empty State with Seed Data Option */}

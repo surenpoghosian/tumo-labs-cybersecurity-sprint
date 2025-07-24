@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Certificate } from "@/data/mockData";
 import { BookOpen, Award, Download, ExternalLink, Github, Search, Calendar, Shield } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from '@/contexts/AuthContext';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 interface VerificationResult {
@@ -17,6 +18,7 @@ interface VerificationResult {
 }
 
 export default function CertificatesPage() {
+  const { user } = useAuth();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [verificationCode, setVerificationCode] = useState('');
@@ -101,8 +103,10 @@ export default function CertificatesPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <Link href={user ? '/dashboard' : '/'} className="flex items-center space-x-2 group" title="Go home">
+              <BookOpen className="h-8 w-8 text-orange-600 group-hover:text-orange-700 transition-colors" />
+              <span className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">Armenian CyberSec Docs</span>
+            </Link>
           </div>
           <nav className="flex items-center space-x-6">
             <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
