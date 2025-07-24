@@ -154,7 +154,7 @@ export default function CertificatesPage() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Verify Certificate</CardTitle>
-            <p className="text-sm text-gray-600">Enter a verification code to confirm a certificate's authenticity. Only public information is shown for privacy protection.</p>
+            <p className="text-sm text-gray-600">Enter a verification code to confirm a certificate&apos;s authenticity. Only public information is shown for privacy protection.</p>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
