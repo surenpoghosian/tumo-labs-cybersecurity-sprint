@@ -12,7 +12,16 @@ import { useAuth } from '@/contexts/AuthContext';
 interface VerificationResult {
   success: boolean;
   certificate?: Certificate;
-  data?: Certificate & { user?: { name: string } };
+  data?: {
+    projectName: string;
+    category: string;
+    certificateType: string;
+    verificationCode: string;
+    issuedDate: string;
+    holderName: string;
+    isValid: boolean;
+    verifiedAt: string;
+  };
   error?: string;
 }
 
@@ -145,6 +154,7 @@ export default function CertificatesPage() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Verify Certificate</CardTitle>
+            <p className="text-sm text-gray-600">Enter a verification code to confirm a certificate's authenticity. Only public information is shown for privacy protection.</p>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
@@ -178,8 +188,10 @@ export default function CertificatesPage() {
                     <div className="space-y-1 text-sm text-green-800">
                       <p><strong>Project:</strong> {verificationResult.data?.projectName}</p>
                       <p><strong>Category:</strong> {verificationResult.data?.category}</p>
-                      <p><strong>Contributor:</strong> {verificationResult.data?.user?.name}</p>
-                      <p><strong>Issued:</strong> {verificationResult.data?.mergedAt ? new Date(verificationResult.data.mergedAt).toLocaleDateString() : 'N/A'}</p>
+                      <p><strong>Certificate Type:</strong> {verificationResult.data?.certificateType}</p>
+                      <p><strong>Holder:</strong> {verificationResult.data?.holderName}</p>
+                      <p><strong>Issued:</strong> {verificationResult.data?.issuedDate ? new Date(verificationResult.data.issuedDate).toLocaleDateString() : 'N/A'}</p>
+                      <p><strong>Verification Code:</strong> {verificationResult.data?.verificationCode}</p>
                     </div>
                   </div>
                 ) : (

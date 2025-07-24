@@ -7,7 +7,20 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const userId = await verifyAuthToken();
+    // PRIVACY PROTECTION: Require authentication for certificate downloads
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Authentication required to download certificates',
+          code: 'AUTH_REQUIRED'
+        },
+        { status: 401 }
+      );
+    }
+
+    const userId = await verifyAuthToken(authHeader);
     const { filename } = await params;
     
     // Extract certificate ID from filename (format: cert-{id}.pdf)

@@ -27,20 +27,35 @@ export async function GET(request: Request) {
       }
     }
     
-    // Return empty certificates regardless of authentication status
-    // This allows the page to work and show "contribute" message
+    // PRIVACY PROTECTION: Only return certificates if user is properly authenticated
+    if (!authenticated || !userId) {
+      return NextResponse.json({
+        success: true,
+        data: [],
+        meta: {
+          authenticated: false,
+          total: 0,
+          byCategory: {},
+          note: 'Sign in to view your certificates. Start contributing to earn your first certificate!',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // TODO: When implementing full certificate system, fetch certificates only for the authenticated user
+    // const userCertificates = await getUserCertificates(userId);
+    
     return NextResponse.json({
       success: true,
-      data: [],
+      data: [], // Will be replaced with actual user certificates
       meta: {
-        userId: userId || 'anonymous',
-        authenticated,
+        userId,
+        authenticated: true,
         total: 0,
         byCategory: {},
-        note: authenticated 
-          ? 'Certificate functionality will be implemented with full authentication system'
-          : 'Sign in to view your certificates. Start contributing to earn your first certificate!',
-        timestamp: new Date().toISOString()
+        note: 'Certificate functionality will be implemented with full authentication system',
+        timestamp: new Date().toISOString(),
+        privacy: 'Only your certificates are returned. Others cannot access your certificate list.'
       }
     });
     

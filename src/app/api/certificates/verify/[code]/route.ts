@@ -30,33 +30,37 @@ export async function GET(
       ...certificateDoc.data()
     } as FirestoreCertificate;
     
-    // Get user information for the certificate
-    let user = null;
+    // Get only public user information for the certificate (name only - no sensitive data)
+    let certificateHolderName = 'Unknown';
     try {
       const userDoc = await firestore.collection('userProfiles').doc(certificate.userId).get();
       if (userDoc.exists) {
         const userData = userDoc.data() as FirestoreUserProfile;
-        user = {
-          name: userData.name,
-          githubUsername: userData.githubUsername
-        };
+        certificateHolderName = userData.name || 'Certificate Holder';
       }
     } catch (userError) {
       console.warn('Could not fetch user data for certificate:', userError);
-      // Continue without user data - certificate verification should still work
+      // Continue with default name
     }
 
+    // Return only public certificate information for verification
+    // DO NOT expose sensitive user data like GitHub username, email, etc.
     return NextResponse.json({
       success: true,
       data: {
-        ...certificate,
-        user,
+        projectName: certificate.projectName,
+        category: certificate.category,
+        certificateType: certificate.certificateType,
+        verificationCode: certificate.verificationCode,
+        issuedDate: certificate.mergedAt || certificate.createdAt,
+        holderName: certificateHolderName,
         isValid: true,
         verifiedAt: new Date().toISOString()
       },
       meta: {
         verificationMethod: 'firestore',
-        verifiedAt: new Date().toISOString()
+        verifiedAt: new Date().toISOString(),
+        note: 'This verification shows only public certificate information for privacy protection'
       }
     });
   } catch (error) {
