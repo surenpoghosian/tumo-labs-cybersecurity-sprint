@@ -89,7 +89,10 @@ export default function CertificatesPage() {
   const handleDownloadCertificate = async (certificate: Certificate) => {
     try {
       const filename = `${certificate.id}.pdf`;
-      const response = await fetch(`/api/certificates/download/${filename}`);
+      const token = user ? await user.getIdToken() : null;
+      const response = await fetch(`/api/certificates/download/${filename}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       
       if (!response.ok) {
         throw new Error('Download failed');
@@ -390,7 +393,7 @@ export default function CertificatesPage() {
         </Card> */}
 
         {/* About Certificates */}
-        <Card className="mb-12 bg-white/60 backdrop-blur-sm border border-orange-100">
+        <Card className="mb-12 bg-white/60 backdrop-blur-sm border border-orange-100 mt-8">
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6"/>About Certificates</CardTitle>
           </CardHeader>

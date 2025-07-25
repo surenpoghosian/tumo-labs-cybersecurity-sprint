@@ -122,9 +122,30 @@ export async function POST(request: Request) {
           }
 
           // Calculate word count for estimations
-          const wordCount = fileContent 
-            ? fileContent.trim().split(/\s+/).filter(word => word?.length > 0)?.length
-            : 0;
+          let wordCount = 0;
+          if (storageType === 'github_raw') {
+            // For large files, calculate word count from the actual content at download_url
+            try {
+              console.log(`Calculating word count from external URL: ${file.download_url}`);
+              const response = await fetch(file.download_url);
+              if (response.ok) {
+                const content = await response.text();
+                wordCount = content.trim().split(/\s+/).filter(word => word?.length > 0)?.length;
+                console.log(`Calculated word count for large file: ${wordCount}`);
+              } else {
+                console.error('Failed to fetch content for word count:', response.status);
+                wordCount = 0;
+              }
+            } catch (error) {
+              console.error('Error fetching content for word count calculation:', error);
+              wordCount = 0;
+            }
+          } else {
+            // For small files, calculate from stored content
+            wordCount = fileContent 
+              ? fileContent.trim().split(/\s+/).filter(word => word?.length > 0)?.length
+              : 0;
+          }
           
           const estimatedHours = Math.max(0.5, Math.ceil(wordCount / 250));
 

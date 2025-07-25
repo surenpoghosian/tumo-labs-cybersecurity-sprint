@@ -1,68 +1,68 @@
 import { NextResponse } from 'next/server';
-import { verifyAuthToken, isFirebaseAdminAvailable } from '@/lib/firebaseAdmin';
+import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreCertificate } from '@/lib/firestore';
 
-// Certificate endpoint - graceful handling for development
+// Certificates API - returns the authenticated user's certificates and summary metadata
 export async function GET(request: Request) {
   try {
-    // Extract the authorization header
-    const authHeader = request.headers.get('Authorization');
-    let userId: string | null = null;
-    let authenticated = false;
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
 
-    // Try to authenticate if auth header is provided
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        // Check if Firebase Admin is available first
-        const adminAvailable = await isFirebaseAdminAvailable();
-        
-        if (adminAvailable) {
-          userId = await verifyAuthToken(authHeader);
-          authenticated = true;
-        } else {
-          console.warn('Firebase Admin not available - serving certificates without authentication');
-        }
-      } catch (authError) {
-        console.warn('Authentication failed, serving certificates without auth:', authError);
-        // Continue without authentication - don't throw error
-      }
-    }
-    
-    // PRIVACY PROTECTION: Only return certificates if user is properly authenticated
-    if (!authenticated || !userId) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-        meta: {
-          authenticated: false,
-          total: 0,
-          byCategory: {},
-          note: 'Sign in to view your certificates. Start contributing to earn your first certificate!',
-          timestamp: new Date().toISOString()
-        }
+    // Fetch user's certificates from Firestore
+    let certificates: FirestoreCertificate[] = [];
+    try {
+      // Note: Using orderBy together with a where filter can require a composite
+      // index in Firestore. In several deployments the index for
+      // (userId == X) + orderBy(createdAt) was missing which caused the entire
+      // query to fail and resulted in an empty certificate list on the
+      // frontend. To make the endpoint more robust we first fetch the
+      // certificates that belong to the user **without** additional ordering
+      // and then sort them in-memory by the `createdAt` field.
+
+      const snapshot = await firestore
+        .collection('certificates')
+        .where('userId', '==', userId)
+        .get();
+
+      snapshot.forEach((doc) => {
+        certificates.push({
+          id: doc.id,
+          ...doc.data()
+        } as FirestoreCertificate);
       });
+
+      // Sort newest first (fallback if createdAt is undefined)
+      certificates.sort((a, b) => {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bDate - aDate;
+      });
+    } catch {
+      console.error('Error fetching certificates');
+      certificates = [];
     }
 
-    // TODO: When implementing full certificate system, fetch certificates only for the authenticated user
-    // const userCertificates = await getUserCertificates(userId);
-    
+    // Build category statistics
+    const byCategory = certificates.reduce((acc, cert) => {
+      const category = cert.category || 'Other';
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
     return NextResponse.json({
       success: true,
-      data: [], // Will be replaced with actual user certificates
+      data: certificates,
       meta: {
         userId,
-        authenticated: true,
-        total: 0,
-        byCategory: {},
-        note: 'Certificate functionality will be implemented with full authentication system',
-        timestamp: new Date().toISOString(),
-        privacy: 'Only your certificates are returned. Others cannot access your certificate list.'
+        total: certificates.length,
+        byCategory,
+        timestamp: new Date().toISOString()
       }
     });
-    
   } catch (error) {
     console.error('Certificates API error:', error);
-    
-    // Even on error, return empty certificates to prevent UI breaking
+    // Return safe empty response to avoid breaking UI
     return NextResponse.json({
       success: true,
       data: [],

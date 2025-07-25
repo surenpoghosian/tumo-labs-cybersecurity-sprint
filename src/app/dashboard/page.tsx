@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile, TranslationMemoryEntry } from "@/lib/firestore";
+import { CertificationProgress } from "@/lib/certificationSystem";
 import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Github, Eye, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +31,7 @@ interface DashboardData {
   recentProjects: FirestoreProject[];
   certificates: FirestoreCertificate[];
   translationMemory: TranslationMemoryEntry[];
+  certificationProgress: CertificationProgress;
   isEmpty: boolean;
 }
 
@@ -205,8 +207,10 @@ function DashboardPageContent() {
 
   const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
     try {
-      const filename = `${certificate.id}.pdf`;
-      const response = await fetch(`/api/certificates/download/${filename}`);
+      const token = await authUser?.getIdToken();
+      const response = await fetch(`/api/certificates/download/${certificate.id}.pdf`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       
       if (!response.ok) {
         throw new Error('Download failed');
@@ -249,7 +253,7 @@ function DashboardPageContent() {
     );
   }
 
-  const { stats, recentProjects, certificates } = dashboardData;
+  const { stats, recentProjects, certificates, certificationProgress } = dashboardData;
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
@@ -365,6 +369,156 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Certification Progress */}
+        <Card className="mt-8 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-purple-600" />
+              Certification Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Current Achievement */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    {certificationProgress.currentTier ? (
+                      <>
+                        <span className="text-2xl">{certificationProgress.currentTier.icon}</span>
+                        <div>
+                          <h3 className="font-semibold text-lg">{certificationProgress.currentTier.name}</h3>
+                          <p className="text-sm text-gray-600">{certificationProgress.currentTier.description}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl">🌟</span>
+                        <div>
+                          <h3 className="font-semibold text-lg">Getting Started</h3>
+                          <p className="text-sm text-gray-600">Begin your translation journey</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-purple-600">{certificationProgress.totalWords.toLocaleString()}</div>
+                  <div className="text-sm text-gray-500">words translated</div>
+                </div>
+              </div>
+
+              {/* Progress to Next Tier */}
+              {certificationProgress.nextTier && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{certificationProgress.nextTier.icon}</span>
+                      <div>
+                        <h4 className="font-medium">{certificationProgress.nextTier.name}</h4>
+                        <p className="text-xs text-gray-500">{certificationProgress.nextTier.description}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-orange-600">
+                        {certificationProgress.wordsToNext.toLocaleString()} words to go
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {Math.round(certificationProgress.progressPercentage)}% complete
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-purple-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${certificationProgress.progressPercentage}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>
+                      {certificationProgress.currentTier ? 
+                        certificationProgress.currentTier.wordsRequired.toLocaleString() : 
+                        '0'
+                      } words
+                    </span>
+                    <span>{certificationProgress.nextTier.wordsRequired.toLocaleString()} words</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Available Certificates to Claim */}
+              {certificationProgress.availableCertificates.length > 0 && (
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-green-600">🎉 Certificates Ready to Claim!</h4>
+                    <Badge className="bg-green-100 text-green-800">
+                      {certificationProgress.availableCertificates.length} available
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {certificationProgress.availableCertificates.map((tier) => (
+                      <div key={tier.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{tier.icon}</span>
+                            <div>
+                              <h5 className="font-medium text-sm">{tier.name}</h5>
+                              <p className="text-xs text-gray-600">{tier.wordsRequired.toLocaleString()} words</p>
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                            onClick={async () => {
+                              try {
+                                const token = await authUser?.getIdToken();
+                                const response = await fetch('/api/certificates/claim', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                  },
+                                  body: JSON.stringify({ tierId: tier.id })
+                                });
+                                
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  alert(`🎉 ${result.message}`);
+                                  // Refresh dashboard to show updated certificates
+                                  window.location.reload();
+                                } else {
+                                  throw new Error('Failed to claim certificate');
+                                }
+                              } catch (error) {
+                                console.error('Error claiming certificate:', error);
+                                alert('Failed to claim certificate. Please try again.');
+                              }
+                            }}
+                          >
+                            Claim
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Achievement unlocked message */}
+              {certificationProgress.totalWords >= 200000 && (
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-lg p-4 text-center">
+                  <h4 className="font-bold text-purple-800 mb-2">🏆 Ultimate Achievement Unlocked! 🏆</h4>
+                  <p className="text-sm text-purple-700">
+                    You&apos;ve reached the highest level of contribution. You are a true pioneer of Armenian cybersecurity education!
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
          {/* Quick Actions */}
          <Card className="mt-8 mb-8">

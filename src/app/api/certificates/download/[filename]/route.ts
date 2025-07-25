@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server';
-import { verifyAuthToken } from '@/lib/firebaseAdmin';
-import { mockCertificates, getUserById, Certificate, User } from '@/data/mockData';
+import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreCertificate, FirestoreUserProfile } from '@/lib/firestore';
+import { getCertificateTierById } from '@/lib/certificationSystem';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    // PRIVACY PROTECTION: Require authentication for certificate downloads
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Require Bearer authentication header
+    const authHeader = request.headers.get('authorization') || '';
+    if (!authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Authentication required to download certificates',
           code: 'AUTH_REQUIRED'
         },
@@ -21,18 +22,19 @@ export async function GET(
     }
 
     const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
     const { filename } = await params;
-    
-    // Extract certificate ID from filename (format: cert-{id}.pdf)
+
+    // Extract certificate ID from filename (format: {id}.pdf)
     const certificateId = filename.replace('.pdf', '');
-    
-    // Find the certificate
-    const certificate = mockCertificates.find(cert => cert.id === certificateId);
-    
-    if (!certificate) {
+
+    // Find the certificate in Firestore
+    const certDoc = await firestore.collection('certificates').doc(certificateId).get();
+
+    if (!certDoc.exists) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Certificate not found',
           code: 'CERTIFICATE_NOT_FOUND'
         },
@@ -40,11 +42,13 @@ export async function GET(
       );
     }
 
-    // Check if the authenticated user owns this certificate
+    const certificate = { id: certDoc.id, ...certDoc.data() } as FirestoreCertificate;
+
+    // Ensure the authenticated user owns this certificate
     if (certificate.userId !== userId) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Forbidden: You can only download your own certificates',
           code: 'FORBIDDEN'
         },
@@ -53,11 +57,11 @@ export async function GET(
     }
 
     // Get user information
-    const user = getUserById(certificate.userId);
-    if (!user) {
+    const userDoc = await firestore.collection('userProfiles').doc(certificate.userId).get();
+    if (!userDoc.exists) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Certificate owner not found',
           code: 'USER_NOT_FOUND'
         },
@@ -65,26 +69,27 @@ export async function GET(
       );
     }
 
-    // Generate mock PDF content (in a real app, you'd use a PDF library like jsPDF or Puppeteer)
-    const pdfContent = generateMockPDF(certificate, user);
-    
-    // Set appropriate headers for PDF download
+    const user = userDoc.data() as FirestoreUserProfile;
+
+    // Generate PDF content
+    const pdfContent = await generateCertificatePDF(certificate, user);
+
+    // Create response with PDF headers
     const response = new NextResponse(pdfContent);
     response.headers.set('Content-Type', 'application/pdf');
     response.headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-    response.headers.set('Cache-Control', 'private, max-age=3600'); // Cache for 1 hour privately
-    
+    response.headers.set('Cache-Control', 'private, max-age=3600');
+
     return response;
-    
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     console.error('Certificate download error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error during download',
         code: 'INTERNAL_ERROR'
       },
@@ -93,106 +98,70 @@ export async function GET(
   }
 }
 
-function generateMockPDF(certificate: Certificate, user: User): Buffer {
-  // This is a mock PDF content. In a real application, you would use a proper PDF library
-  // like jsPDF, PDFKit, or Puppeteer to generate actual PDF content
-  
-  const pdfHeader = '%PDF-1.4\n';
-  const mockPDFContent = `
-1 0 obj
-<<
-/Type /Catalog
-/Pages 2 0 R
->>
-endobj
+async function generateCertificatePDF(certificate: FirestoreCertificate, user: FirestoreUserProfile): Promise<Buffer> {
+  const tier = getCertificateTierById(certificate.type);
 
-2 0 obj
-<<
-/Type /Pages
-/Kids [3 0 R]
-/Count 1
->>
-endobj
+  // Dynamically import pdfkit to avoid issues during edge runtimes.
+  // pdfkit does not ship with its own type declarations and pulling in
+  // @types/pdfkit would add an additional dependency. For our simple use
+  // case we can safely suppress the TS error and cast to `any`.
+  // @ts-expect-error - No type declarations for pdfkit but runtime import is safe
+  const { default: PDFDocument } = await import('pdfkit');
 
-3 0 obj
-<<
-/Type /Page
-/Parent 2 0 R
-/MediaBox [0 0 612 792]
-/Contents 4 0 R
-/Resources <<
-/Font <<
-/F1 5 0 R
->>
->>
->>
-endobj
+  // Create PDF document
+  const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-4 0 obj
-<<
-/Length 500
->>
-stream
-BT
-/F1 24 Tf
-50 750 Td
-(Armenian CyberSec Docs Certificate) Tj
-0 -50 Td
-/F1 18 Tf
-(Certificate of Achievement) Tj
-0 -100 Td
-/F1 14 Tf
-(This certificate is awarded to:) Tj
-0 -30 Td
-/F1 16 Tf
-(${user.name}) Tj
-0 -50 Td
-/F1 14 Tf
-(For successfully completing the translation of:) Tj
-0 -30 Td
-/F1 16 Tf
-(${certificate.projectName}) Tj
-0 -50 Td
-/F1 12 Tf
-(Category: ${certificate.category}) Tj
-0 -25 Td
-(Verification Code: ${certificate.verificationCode}) Tj
-0 -25 Td
-(Issued: ${new Date(certificate.mergedAt).toLocaleDateString()}) Tj
-0 -50 Td
-(GitHub Repository: ${certificate.githubRepo}) Tj
-0 -25 Td
-(Pull Request: ${certificate.prUrl}) Tj
-ET
-endstream
-endobj
+  const buffers: Buffer[] = [];
+  return new Promise((resolve, reject) => {
+    doc.on('data', (chunk: Buffer) => buffers.push(chunk));
+    doc.on('end', () => {
+      resolve(Buffer.concat(buffers));
+    });
+    doc.on('error', reject);
 
-5 0 obj
-<<
-/Type /Font
-/Subtype /Type1
-/BaseFont /Helvetica
->>
-endobj
+    // Header
+    doc
+      .fontSize(24)
+      .fillColor('#e86c00')
+      .text('Certificate of Achievement', { align: 'center' });
 
-xref
-0 6
-0000000000 65535 f 
-0000000009 00000 n 
-0000000074 00000 n 
-0000000120 00000 n 
-0000000274 00000 n 
-0000000815 00000 n 
-trailer
-<<
-/Size 6
-/Root 1 0 R
->>
-startxref
-887
-%%EOF
-`;
+    doc.moveDown(2);
 
-  const fullPDF = pdfHeader + mockPDFContent;
-  return Buffer.from(fullPDF, 'utf8');
+    // Recipient
+    doc
+      .fontSize(18)
+      .fillColor('#000000')
+      .text(`${user.name || user.username || 'Translator'}`, { align: 'center' });
+
+    doc.moveDown();
+
+    // Achievement description
+    doc.fontSize(12).text(
+      `has achieved the ${tier ? tier.name : certificate.type} milestone ` +
+      `for contributions to Armenian Cybersecurity documentation.`,
+      {
+        align: 'center',
+        width: 400,
+        height: 100,
+        ellipsis: true,
+      }
+    );
+
+    doc.moveDown(2);
+
+    // Project / Details
+    doc.fontSize(12).text(`Project: ${certificate.projectName}`, { align: 'center' });
+    doc.fontSize(12).text(`Category: ${certificate.category}`, { align: 'center' });
+    doc.fontSize(12).text(`Verification Code: ${certificate.verificationCode}`, { align: 'center' });
+    doc.fontSize(12).text(`Issued: ${certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}`, { align: 'center' });
+
+    doc.moveDown(4);
+
+    // Signature placeholder
+    doc.fontSize(12).text('______________________________', { align: 'right' });
+    doc.fontSize(10).text('Armenian CyberSec Docs', { align: 'right' });
+
+    // Finalize
+    doc.end();
+  });
 } 
