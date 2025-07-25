@@ -1,64 +1,51 @@
 import { NextResponse } from 'next/server';
-import { verifyAuthToken } from '@/lib/firebaseAdmin';
-import { seedExampleData } from '@/lib/seed-example-data';
-import { FirestoreProject, FirestoreFile } from '@/lib/firestore';
+import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreUserProfile } from '@/lib/firestore';
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
     const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
+
+    // Get the current user profile
+    const userDoc = await firestore.collection('userProfiles').doc(userId).get();
     
-    // Seed the data
-    const result = await seedExampleData(userId);
-    
-    if (result.success) {
+    if (!userDoc.exists) {
       return NextResponse.json({
-        success: true,
-        message: 'Test data seeded successfully',
-        data: {
-          projects: result.data?.projects.map((p: FirestoreProject) => ({
-            id: p.id,
-            title: p.title,
-            version: p.version,
-            developedBy: p.developedBy,
-            fileCount: p.files?.length,
-            categories: p.categories
-          })),
-          files: result.data?.files.map((f: FirestoreFile) => ({
-            id: f.id,
-            fileName: f.fileName,
-            filePath: f.filePath,
-            folderPath: f.folderPath,
-            wordCount: f.wordCount,
-            status: f.status,
-            storageType: f.storageType
-          })),
-          totals: {
-            projects: result.data?.projects?.length || 0,
-            files: result.data?.files?.length || 0
-          }
-        }
-      });
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: result.message
-      }, { status: 500 });
+        error: 'User profile not found. Please log in first.'
+      }, { status: 404 });
     }
+
+    const userProfile = userDoc.data() as FirestoreUserProfile;
+    const currentWords = userProfile.totalWordsTranslated || 0;
+
+    // Add 1000 words for testing certificate system
+    const wordsToAdd = 1000;
+    const newTotal = currentWords + wordsToAdd;
+
+    await firestore.collection('userProfiles').doc(userId).update({
+      totalWordsTranslated: newTotal,
+      approvedTranslations: (userProfile.approvedTranslations || 0) + 1,
+      updatedAt: new Date().toISOString()
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Added ${wordsToAdd} words for testing`,
+      data: {
+        previousTotal: currentWords,
+        wordsAdded: wordsToAdd,
+        newTotal: newTotal,
+        note: 'You can now claim certificates based on your word count!'
+      }
+    });
 
   } catch (error) {
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    console.error('Error in test seed API:', error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'Failed to seed test data',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    console.error('Test seed error:', error);
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to add test words',
+      success: false
+    }, { status: 500 });
   }
 } 

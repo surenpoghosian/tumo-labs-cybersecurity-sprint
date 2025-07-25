@@ -1,102 +1,72 @@
 import { NextResponse } from 'next/server';
 import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
-import { calculateCertificationProgress } from '@/lib/certificationSystem';
 import { FirestoreUserProfile } from '@/lib/firestore';
+import { calculateCertificationProgress, CERTIFICATE_TIERS } from '@/lib/certificationSystem';
 
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
     const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
-    
+
     // Get user profile
     const userDoc = await firestore.collection('userProfiles').doc(userId).get();
     if (!userDoc.exists) {
-      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
+      return NextResponse.json({
+        error: 'User profile not found',
+        userId
+      }, { status: 404 });
     }
 
     const userProfile = userDoc.data() as FirestoreUserProfile;
+    const progress = calculateCertificationProgress(userProfile);
 
-    // Get user's files and their status
-    const filesSnapshot = await firestore
-      .collection('files')
-      .where('assignedTranslatorId', '==', userId)
+    // Get user's certificates from Firestore
+    const certificatesSnapshot = await firestore
+      .collection('certificates')
+      .where('userId', '==', userId)
       .get();
-
-    const fileStats = {
-      total: filesSnapshot.size,
-      accepted: 0,
-      pending: 0,
-      inProgress: 0,
-      rejected: 0,
-      totalWordCount: 0,
-      acceptedWordCount: 0
-    };
-
-    const files: { id: string; fileName: string; status: string; wordCount: number }[] = [];
-    filesSnapshot.forEach((doc) => {
-      const fileData = doc.data();
-      files.push({
-        id: doc.id,
-        fileName: fileData.fileName,
-        status: fileData.status,
-        wordCount: fileData.wordCount || 0
-      });
-
-      const wordCount = fileData.wordCount || 0;
-      fileStats.totalWordCount += wordCount;
-
-      if (fileData.status === 'accepted') {
-        fileStats.accepted++;
-        fileStats.acceptedWordCount += wordCount;
-      } else if (fileData.status === 'pending') {
-        fileStats.pending++;
-      } else if (fileData.status === 'in progress') {
-        fileStats.inProgress++;
-      } else if (fileData.status === 'rejected') {
-        fileStats.rejected++;
-      }
-    });
-
-    // Calculate certification progress
-    const certificationProgress = calculateCertificationProgress(userProfile);
+    
+    const existingCertificates = certificatesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
     return NextResponse.json({
       success: true,
       userId,
       userProfile: {
-        name: userProfile.name,
-        email: userProfile.email,
         totalWordsTranslated: userProfile.totalWordsTranslated || 0,
+        certificates: userProfile.certificates || [],
         approvedTranslations: userProfile.approvedTranslations || 0,
-        rejectedTranslations: userProfile.rejectedTranslations || 0,
-        certificates: userProfile.certificates || []
+        name: userProfile.name,
+        username: userProfile.username
       },
-      fileStats,
-      files,
-      certificationProgress: {
-        currentTier: certificationProgress.currentTier?.name || 'None',
-        nextTier: certificationProgress.nextTier?.name || 'Max Level',
-        totalWords: certificationProgress.totalWords,
-        wordsToNext: certificationProgress.wordsToNext,
-        progressPercentage: certificationProgress.progressPercentage,
-        availableCertificates: certificationProgress.availableCertificates.map(c => c.name)
-      },
-      discrepancy: {
-        userProfileWords: userProfile.totalWordsTranslated || 0,
-        calculatedFromFiles: fileStats.acceptedWordCount,
-        difference: (userProfile.totalWordsTranslated || 0) - fileStats.acceptedWordCount
+      certificationProgress: progress,
+      allTiers: CERTIFICATE_TIERS.map(tier => ({
+        id: tier.id,
+        name: tier.name,
+        wordsRequired: tier.wordsRequired,
+        userQualifies: (userProfile.totalWordsTranslated || 0) >= tier.wordsRequired,
+        alreadyEarned: (userProfile.certificates || []).includes(tier.id)
+      })),
+      existingCertificatesInDb: existingCertificates,
+      debug: {
+        totalWords: userProfile.totalWordsTranslated || 0,
+        earnedCertificateIds: userProfile.certificates || [],
+        availableCertificateCount: progress.availableCertificates.length,
+        availableCertificateIds: progress.availableCertificates.map(c => c.id),
+        bronzeRequirement: 500,
+        qualifiesForBronze: (userProfile.totalWordsTranslated || 0) >= 500,
+        hasBronzeCertificate: (userProfile.certificates || []).includes('bronze')
       }
     });
 
   } catch (error) {
     console.error('Debug user stats error:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to get user stats',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }, 
-      { status: 500 }
-    );
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+      success: false
+    }, { status: 500 });
   }
 } 
