@@ -6,8 +6,8 @@ import { FirestoreUserProfile } from '@/lib/firestore';
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    const userId = await verifyAuthToken(authHeader);
+    const rawAuth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
+    const userId = await verifyAuthToken(rawAuth);
     const firestore = await getFirestore();
     
     const body = await request.json();
@@ -78,10 +78,10 @@ export async function POST(request: Request) {
     console.error('Error claiming certificate:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to claim certificate',
+        error: error instanceof Error ? error.message : 'Failed to claim certificate',
         success: false
       }, 
-      { status: 500 }
+      { status: 400 }
     );
   }
 } 

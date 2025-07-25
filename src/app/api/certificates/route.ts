@@ -12,10 +12,17 @@ export async function GET(request: Request) {
     // Fetch user's certificates from Firestore
     let certificates: FirestoreCertificate[] = [];
     try {
+      // Note: Using orderBy together with a where filter can require a composite
+      // index in Firestore. In several deployments the index for
+      // (userId == X) + orderBy(createdAt) was missing which caused the entire
+      // query to fail and resulted in an empty certificate list on the
+      // frontend. To make the endpoint more robust we first fetch the
+      // certificates that belong to the user **without** additional ordering
+      // and then sort them in-memory by the `createdAt` field.
+
       const snapshot = await firestore
         .collection('certificates')
         .where('userId', '==', userId)
-        .orderBy('createdAt', 'desc')
         .get();
 
       snapshot.forEach((doc) => {
@@ -23,6 +30,13 @@ export async function GET(request: Request) {
           id: doc.id,
           ...doc.data()
         } as FirestoreCertificate);
+      });
+
+      // Sort newest first (fallback if createdAt is undefined)
+      certificates.sort((a, b) => {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bDate - aDate;
       });
     } catch {
       console.error('Error fetching certificates');

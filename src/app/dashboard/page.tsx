@@ -207,8 +207,10 @@ function DashboardPageContent() {
 
   const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
     try {
-      const filename = `${certificate.id}.pdf`;
-      const response = await fetch(`/api/certificates/download/${filename}`);
+      const token = await authUser?.getIdToken();
+      const response = await fetch(`/api/certificates/download/${certificate.id}.pdf`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       
       if (!response.ok) {
         throw new Error('Download failed');

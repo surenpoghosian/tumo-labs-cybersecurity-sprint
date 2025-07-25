@@ -72,7 +72,7 @@ export async function GET(
     const user = userDoc.data() as FirestoreUserProfile;
 
     // Generate PDF content
-    const pdfContent = generateCertificatePDF(certificate, user);
+    const pdfContent = await generateCertificatePDF(certificate, user);
 
     // Create response with PDF headers
     const response = new NextResponse(pdfContent);
@@ -98,8 +98,70 @@ export async function GET(
   }
 }
 
-function generateCertificatePDF(certificate: FirestoreCertificate, user: FirestoreUserProfile): Buffer {
+async function generateCertificatePDF(certificate: FirestoreCertificate, user: FirestoreUserProfile): Promise<Buffer> {
   const tier = getCertificateTierById(certificate.type);
-  const content = `Certificate for ${user.name || 'Translator'} - ${tier ? tier.name : certificate.type}`;
-  return Buffer.from(content, 'utf8');
+
+  // Dynamically import pdfkit to avoid issues during edge runtimes.
+  // pdfkit does not ship with its own type declarations and pulling in
+  // @types/pdfkit would add an additional dependency. For our simple use
+  // case we can safely suppress the TS error and cast to `any`.
+  // @ts-expect-error - No type declarations for pdfkit but runtime import is safe
+  const { default: PDFDocument } = await import('pdfkit');
+
+  // Create PDF document
+  const doc = new PDFDocument({ size: 'A4', margin: 50 });
+
+  const buffers: Buffer[] = [];
+  return new Promise((resolve, reject) => {
+    doc.on('data', (chunk: Buffer) => buffers.push(chunk));
+    doc.on('end', () => {
+      resolve(Buffer.concat(buffers));
+    });
+    doc.on('error', reject);
+
+    // Header
+    doc
+      .fontSize(24)
+      .fillColor('#e86c00')
+      .text('Certificate of Achievement', { align: 'center' });
+
+    doc.moveDown(2);
+
+    // Recipient
+    doc
+      .fontSize(18)
+      .fillColor('#000000')
+      .text(`${user.name || user.username || 'Translator'}`, { align: 'center' });
+
+    doc.moveDown();
+
+    // Achievement description
+    doc.fontSize(12).text(
+      `has achieved the ${tier ? tier.name : certificate.type} milestone ` +
+      `for contributions to Armenian Cybersecurity documentation.`,
+      {
+        align: 'center',
+        width: 400,
+        height: 100,
+        ellipsis: true,
+      }
+    );
+
+    doc.moveDown(2);
+
+    // Project / Details
+    doc.fontSize(12).text(`Project: ${certificate.projectName}`, { align: 'center' });
+    doc.fontSize(12).text(`Category: ${certificate.category}`, { align: 'center' });
+    doc.fontSize(12).text(`Verification Code: ${certificate.verificationCode}`, { align: 'center' });
+    doc.fontSize(12).text(`Issued: ${certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}`, { align: 'center' });
+
+    doc.moveDown(4);
+
+    // Signature placeholder
+    doc.fontSize(12).text('______________________________', { align: 'right' });
+    doc.fontSize(10).text('Armenian CyberSec Docs', { align: 'right' });
+
+    // Finalize
+    doc.end();
+  });
 } 

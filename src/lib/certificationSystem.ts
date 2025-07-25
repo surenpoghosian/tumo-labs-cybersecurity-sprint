@@ -223,14 +223,13 @@ export async function awardCertificate(
     const verificationCode = `CYBS-${tier.type.toUpperCase()}-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
     
     // Create certificate document
-    const certificateData: Omit<FirestoreCertificate, 'id'> = {
+    const certificateData: Omit<FirestoreCertificate, 'id'> & { fileId?: string } = {
       uId: userId,
       userId: userId,
       username: userProfile.username || userProfile.name || 'Unknown',
       fullName: userProfile.name || 'Unknown User',
       projectId: projectId || 'milestone-achievement',
       projectName: projectId ? 'Project Translation' : `${tier.name} Milestone`,
-      fileId: fileId,
       githubRepo: 'armenian-docs-translate',
       type: tier.type,
       certificateType: 'translation',
@@ -240,6 +239,9 @@ export async function awardCertificate(
       createdBy: userId,
       createdAt: new Date().toISOString()
     };
+    if (fileId) {
+      certificateData.fileId = fileId;
+    }
     
     // Add certificate to collection
     const certRef = await firestore.collection('certificates').add(certificateData);
