@@ -644,21 +644,21 @@ export default function TranslationPage() {
                     <span className="text-sm text-gray-600">Words translated:</span>
                     <span className="font-medium">{wordCount}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Progress:</span>
                     <span className="font-medium">
                       {file.wordCount > 0 ? Math.round((wordCount / file.wordCount) * 100) : 0}%
                     </span>
-                  </div>
-                  <div className="flex items-center justify-between">
+                  </div> */}
+                  {/* <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Words/hour:</span>
                     <span className="font-medium">
                       {timeElapsed > 0 ? Math.round((wordCount / timeElapsed) * 3600) : 0}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
                 
-                {/* Progress bar */}
+                {/* Progress bar
                 <div className="mt-4">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
@@ -671,7 +671,7 @@ export default function TranslationPage() {
                   <div className="text-xs text-gray-500 text-center mt-1">
                     {wordCount} / {file.wordCount} words
                   </div>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
 
