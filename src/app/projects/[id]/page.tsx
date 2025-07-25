@@ -27,6 +27,7 @@ import { FolderBrowser } from '@/components/projects/FolderBrowser';
 import { ProjectSync } from '@/components/projects/ProjectSync';
 import { FilePreviewDialog } from '@/components/projects/FilePreviewDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 interface ProjectDetailData extends FirestoreProject {
   projectFiles: FirestoreFile[];
@@ -316,12 +317,11 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading project...</p>
-        </div>
-      </div>
+      <UnifiedLoader 
+        message="Loading project..."
+        showHeader={false}
+        theme="orange"
+      />
     );
   }
 

@@ -13,6 +13,7 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 interface DashboardData {
   user: FirestoreUserProfile;
@@ -232,12 +233,11 @@ function DashboardPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
+      <UnifiedLoader 
+        message="Loading dashboard..."
+        showHeader={false}
+        theme="orange"
+      />
     );
   }
 
@@ -258,8 +258,10 @@ function DashboardPageContent() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <Link href={authUser ? '/dashboard' : '/'} className="flex items-center space-x-2 group" title="Go home">
+              <BookOpen className="h-8 w-8 text-orange-600 group-hover:text-orange-700 transition-colors" />
+              <span className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">Armenian CyberSec Docs</span>
+            </Link>
           </div>
           <nav className="flex items-center space-x-6">
             <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
@@ -522,7 +524,7 @@ function DashboardPageContent() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+            <div className={`grid grid-cols-1 gap-4 ${dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
               {dashboardData.currentFiles && dashboardData.currentFiles?.length > 0 && (
                 <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
                   <Button 
@@ -541,16 +543,6 @@ function DashboardPageContent() {
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Browse CyberSec Projects
-                </Button>
-              </Link>
-              <Link href="/translate">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  title="Continue working on your current translation project"
-                >
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                  Continue Translation
                 </Button>
               </Link>
               <Link href="/certificates">

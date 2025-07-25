@@ -24,6 +24,7 @@ import {
 import { FirestoreFile, FirestoreProject } from '@/lib/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import UnifiedLoader from '@/components/ui/UnifiedLoader';
 
 export default function TranslationPage() {
   const params = useParams();
@@ -288,12 +289,11 @@ export default function TranslationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading translation editor...</p>
-        </div>
-      </div>
+      <UnifiedLoader 
+        message="Loading translation editor..."
+        showHeader={true}
+        theme="orange"
+      />
     );
   }
 
@@ -644,21 +644,21 @@ export default function TranslationPage() {
                     <span className="text-sm text-gray-600">Words translated:</span>
                     <span className="font-medium">{wordCount}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Progress:</span>
                     <span className="font-medium">
                       {file.wordCount > 0 ? Math.round((wordCount / file.wordCount) * 100) : 0}%
                     </span>
-                  </div>
-                  <div className="flex items-center justify-between">
+                  </div> */}
+                  {/* <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Words/hour:</span>
                     <span className="font-medium">
                       {timeElapsed > 0 ? Math.round((wordCount / timeElapsed) * 3600) : 0}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
                 
-                {/* Progress bar */}
+                {/* Progress bar
                 <div className="mt-4">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
@@ -671,7 +671,7 @@ export default function TranslationPage() {
                   <div className="text-xs text-gray-500 text-center mt-1">
                     {wordCount} / {file.wordCount} words
                   </div>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
 
