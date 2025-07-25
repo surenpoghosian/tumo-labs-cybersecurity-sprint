@@ -101,6 +101,8 @@ export async function POST(
     // Commit the batch
     await batch.commit();
 
+    // Note: Certificate checks will happen when the translation is approved by moderators
+
     return NextResponse.json({
       success: true,
       data: {

@@ -285,13 +285,66 @@ export async function POST(request: Request) {
     const fileData = fileDoc.data() as FirestoreFile;
     const translatorId = fileData.assignedTranslatorId || fileData.uId;
     if (translatorId) {
-      const statsRef = firestore.collection('userProfiles').doc(translatorId);
-      const incField = decision === 'approve' ? 'approvedTranslations' : 'rejectedTranslations';
       const firebaseAdmin = await import('firebase-admin');
-      await statsRef.update({
-        [incField]: firebaseAdmin.firestore.FieldValue.increment(1),
-        updatedAt: new Date().toISOString()
-      });
+      const statsRef = firestore.collection('userProfiles').doc(translatorId);
+      
+      if (decision === 'approve') {
+        // Calculate word count for approved translations
+        let wordCount = fileData.wordCount || 0;
+        
+        // Handle files with external storage (large files >50KB)
+        if (wordCount === 0 && fileData.storageType === 'github_raw' && fileData.contentUrl) {
+          try {
+            console.log(`Fetching content from URL for word count calculation: ${fileData.contentUrl}`);
+            const response = await fetch(fileData.contentUrl);
+            if (response.ok) {
+              const content = await response.text();
+              wordCount = content.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
+              console.log(`Calculated word count from external content: ${wordCount}`);
+            } else {
+              console.error('Failed to fetch content from URL:', response.status);
+            }
+          } catch (error) {
+            console.error('Error fetching content for word count:', error);
+          }
+        }
+        
+        // Fallback: calculate from originalText if still 0
+        if (wordCount === 0 && fileData.originalText) {
+          wordCount = fileData.originalText.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
+        }
+        
+        console.log(`Incrementing translator ${translatorId} word count by ${wordCount}`);
+        
+        // Update translator's stats atomically including word count
+        await statsRef.update({
+          totalWordsTranslated: firebaseAdmin.firestore.FieldValue.increment(wordCount),
+          approvedTranslations: firebaseAdmin.firestore.FieldValue.increment(1),
+          updatedAt: new Date().toISOString(),
+          [`contributedFiles.${reviewData.fileId}`]: fileData.fileName || 'Unknown File'
+        });
+
+        const translatorAfter = await statsRef.get();
+        console.log('New totalWordsTranslated:', translatorAfter.data()?.totalWordsTranslated);
+        console.log(`Successfully updated translator stats for ${translatorId}`);
+
+        // Check for milestone certificates
+        try {
+          const { checkAndAwardMilestoneCertificates } = await import('@/lib/certificationSystem');
+          const newCertificates = await checkAndAwardMilestoneCertificates(translatorId);
+          if (newCertificates.length > 0) {
+            console.log(`Awarded ${newCertificates.length} milestone certificates to translator ${translatorId}`);
+          }
+        } catch (error) {
+          console.error('Error checking milestone certificates:', error);
+        }
+      } else {
+        // For rejections, only increment rejection counter
+        await statsRef.update({
+          rejectedTranslations: firebaseAdmin.firestore.FieldValue.increment(1),
+          updatedAt: new Date().toISOString()
+        });
+      }
     }
 
     return NextResponse.json({

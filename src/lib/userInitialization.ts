@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { getFirestore } from './firebaseAdmin';
 import { FirestoreUserProfile, FirestoreFile, FirestoreProject, FirestoreCertificate, TranslationMemoryEntry } from './firestore';
+import { calculateCertificationProgress, checkAndAwardMilestoneCertificates, CertificationProgress } from './certificationSystem';
 
 export async function initializeNewUser(userId: string, userEmail?: string, userName?: string): Promise<FirestoreUserProfile> {
   const firestore = await getFirestore();
@@ -176,6 +177,23 @@ export async function getUserDashboardData(userId: string) {
       rejectedTranslations: rejectedCount
     };
 
+    // Calculate certification progress
+    const certificationProgress = calculateCertificationProgress(userProfile);
+    
+    // Check and award any milestone certificates
+    try {
+      const newCertificates = await checkAndAwardMilestoneCertificates(userId);
+      if (newCertificates.length > 0) {
+        console.log(`Awarded ${newCertificates.length} new certificates to user ${userId}`);
+        // Add new certificates to the list
+        certificates.push(...newCertificates);
+        // Update stats
+        stats.totalCertificates = certificates.length;
+      }
+    } catch (error) {
+      console.error('Error checking milestone certificates:', error);
+    }
+
     return {
       user: userProfile,
       stats,
@@ -183,6 +201,7 @@ export async function getUserDashboardData(userId: string) {
       recentProjects,
       certificates,
       translationMemory,
+      certificationProgress,
       isEmpty: currentFiles?.length === 0 && certificates?.length === 0 && translationMemory?.length === 0
     };
 
@@ -191,6 +210,8 @@ export async function getUserDashboardData(userId: string) {
     
     // Return safe empty state if there's any error
     const userProfile = await initializeNewUser(userId);
+    const certificationProgress = calculateCertificationProgress(userProfile);
+    
     return {
       user: userProfile,
       stats: {
@@ -207,6 +228,7 @@ export async function getUserDashboardData(userId: string) {
       recentProjects: [],
       certificates: [],
       translationMemory: [],
+      certificationProgress,
       isEmpty: true
     };
   }

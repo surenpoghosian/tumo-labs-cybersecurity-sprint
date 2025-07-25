@@ -1,20 +1,48 @@
 import { NextResponse } from 'next/server';
-import { verifyAuthToken } from '@/lib/firebaseAdmin';
+import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreCertificate } from '@/lib/firestore';
 
-// Certificate endpoint - simplified for now
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
     
-    // Return empty certificates for now - will be implemented with proper auth later
+    // Get user's certificates from Firestore
+    let certificates: FirestoreCertificate[] = [];
+    
+    try {
+      const snapshot = await firestore
+        .collection('certificates')
+        .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc')
+        .get();
+      
+      snapshot.forEach((doc) => {
+        certificates.push({
+          id: doc.id,
+          ...doc.data()
+        } as FirestoreCertificate);
+      });
+    } catch {
+      console.error('Error fetching certificates');
+      certificates = [];
+    }
+
+    // Group by category for stats
+    const byCategory = certificates.reduce((acc, cert) => {
+      const category = cert.category || 'Other';
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
     return NextResponse.json({
       success: true,
-      data: [],
+      data: certificates,
       meta: {
         userId,
-        total: 0,
-        byCategory: {},
-        note: 'Certificate functionality will be implemented with full authentication system',
+        total: certificates.length,
+        byCategory,
         timestamp: new Date().toISOString()
       }
     });

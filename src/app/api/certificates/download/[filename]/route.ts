@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server';
-import { verifyAuthToken } from '@/lib/firebaseAdmin';
-import { mockCertificates, getUserById, Certificate, User } from '@/data/mockData';
+import { verifyAuthToken, getFirestore } from '@/lib/firebaseAdmin';
+import { FirestoreCertificate, FirestoreUserProfile } from '@/lib/firestore';
+import { getCertificateTierById } from '@/lib/certificationSystem';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const userId = await verifyAuthToken();
+    const authHeader = request.headers.get('authorization') || '';
+    const userId = await verifyAuthToken(authHeader);
+    const firestore = await getFirestore();
     const { filename } = await params;
     
-    // Extract certificate ID from filename (format: cert-{id}.pdf)
+    // Extract certificate ID from filename (format: {id}.pdf)
     const certificateId = filename.replace('.pdf', '');
     
-    // Find the certificate
-    const certificate = mockCertificates.find(cert => cert.id === certificateId);
+    // Find the certificate in Firestore
+    const certDoc = await firestore.collection('certificates').doc(certificateId).get();
     
-    if (!certificate) {
+    if (!certDoc.exists) {
       return NextResponse.json(
         { 
           success: false, 
@@ -26,6 +29,8 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    const certificate = { id: certDoc.id, ...certDoc.data() } as FirestoreCertificate;
 
     // Check if the authenticated user owns this certificate
     if (certificate.userId !== userId) {
@@ -40,8 +45,8 @@ export async function GET(
     }
 
     // Get user information
-    const user = getUserById(certificate.userId);
-    if (!user) {
+    const userDoc = await firestore.collection('userProfiles').doc(certificate.userId).get();
+    if (!userDoc.exists) {
       return NextResponse.json(
         { 
           success: false, 
@@ -52,8 +57,10 @@ export async function GET(
       );
     }
 
-    // Generate mock PDF content (in a real app, you'd use a PDF library like jsPDF or Puppeteer)
-    const pdfContent = generateMockPDF(certificate, user);
+    const user = userDoc.data() as FirestoreUserProfile;
+
+    // Generate PDF content
+    const pdfContent = generateCertificatePDF(certificate, user);
     
     // Set appropriate headers for PDF download
     const response = new NextResponse(pdfContent);
@@ -80,12 +87,12 @@ export async function GET(
   }
 }
 
-function generateMockPDF(certificate: Certificate, user: User): Buffer {
-  // This is a mock PDF content. In a real application, you would use a proper PDF library
-  // like jsPDF, PDFKit, or Puppeteer to generate actual PDF content
+function generateCertificatePDF(certificate: FirestoreCertificate, user: FirestoreUserProfile): Buffer {
+  // Get tier information for enhanced certificate design
+  const tier = getCertificateTierById(certificate.type);
   
   const pdfHeader = '%PDF-1.4\n';
-  const mockPDFContent = `
+  const certificateContent = `
 1 0 obj
 <<
 /Type /Catalog
@@ -110,6 +117,7 @@ endobj
 /Resources <<
 /Font <<
 /F1 5 0 R
+/F2 6 0 R
 >>
 >>
 >>
@@ -117,39 +125,53 @@ endobj
 
 4 0 obj
 <<
-/Length 500
+/Length 800
 >>
 stream
 BT
+/F1 28 Tf
+50 720 Td
+(Armenian Cybersecurity Documentation) Tj
+0 -30 Td
 /F1 24 Tf
-50 750 Td
-(Armenian CyberSec Docs Certificate) Tj
-0 -50 Td
-/F1 18 Tf
 (Certificate of Achievement) Tj
-0 -100 Td
-/F1 14 Tf
-(This certificate is awarded to:) Tj
-0 -30 Td
+0 -60 Td
+/F1 20 Tf
+(${tier ? tier.icon + ' ' + tier.name : certificate.type.toUpperCase() + ' CERTIFICATE'}) Tj
+0 -80 Td
 /F1 16 Tf
-(${user.name}) Tj
-0 -50 Td
+(This certificate is proudly awarded to:) Tj
+0 -40 Td
+/F2 22 Tf
+(${certificate.fullName || user.name}) Tj
+0 -60 Td
 /F1 14 Tf
-(For successfully completing the translation of:) Tj
-0 -30 Td
-/F1 16 Tf
-(${certificate.projectName}) Tj
+(For outstanding contribution to Armenian cybersecurity education) Tj
+0 -25 Td
+(through expert translation services and community engagement.) Tj
 0 -50 Td
-/F1 12 Tf
+(Achievement Level: ${tier ? tier.name : certificate.type}) Tj
+0 -25 Td
 (Category: ${certificate.category}) Tj
 0 -25 Td
+(Project: ${certificate.projectName}) Tj
+0 -40 Td
+/F1 12 Tf
 (Verification Code: ${certificate.verificationCode}) Tj
-0 -25 Td
-(Issued: ${new Date(certificate.mergedAt).toLocaleDateString()}) Tj
+0 -20 Td
+(Certificate ID: ${certificate.id}) Tj
+0 -20 Td
+(Issued: ${certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : 'N/A'}) Tj
+0 -30 Td
+(Repository: ${certificate.githubRepo}) Tj
+${certificate.prUrl ? `0 -20 Td\n(Pull Request: ${certificate.prUrl}) Tj` : ''}
 0 -50 Td
-(GitHub Repository: ${certificate.githubRepo}) Tj
-0 -25 Td
-(Pull Request: ${certificate.prUrl}) Tj
+/F1 10 Tf
+(This certificate validates genuine contribution to open-source) Tj
+0 -15 Td
+(cybersecurity education in the Armenian language.) Tj
+0 -15 Td
+(Verify authenticity at: armenian-cybersec-docs.org/verify) Tj
 ET
 endstream
 endobj
@@ -162,24 +184,33 @@ endobj
 >>
 endobj
 
+6 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
+endobj
+
 xref
-0 6
+0 7
 0000000000 65535 f 
 0000000009 00000 n 
 0000000074 00000 n 
 0000000120 00000 n 
 0000000274 00000 n 
-0000000815 00000 n 
+0000001120 00000 n 
+0000001187 00000 n 
 trailer
 <<
-/Size 6
+/Size 7
 /Root 1 0 R
 >>
 startxref
-887
+1259
 %%EOF
 `;
 
-  const fullPDF = pdfHeader + mockPDFContent;
+  const fullPDF = pdfHeader + certificateContent;
   return Buffer.from(fullPDF, 'utf8');
 } 

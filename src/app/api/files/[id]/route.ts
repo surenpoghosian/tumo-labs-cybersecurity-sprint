@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
-import { FirestoreFile, updateUserStats } from '@/lib/firestore';
+import { FirestoreFile } from '@/lib/firestore';
 
 export async function GET(
   request: Request,
@@ -111,18 +111,16 @@ export async function PUT(
       updateData.assignedTranslatorId = userId;
       
       // Update user's current files
-      await updateUserStats(userId, {
-        currentFiles: { [fileId]: currentData?.fileName || 'Unknown File' }
-      });
+      // await updateUserStats(userId, { // This line was removed as per the edit hint
+      //   currentFiles: { [fileId]: currentData?.fileName || 'Unknown File' }
+      // });
     }
 
-    // If completing a file, update user stats
+    // When submitting for review, just update current files (word count will be added when approved)
     if (status === 'pending' && currentData?.status !== 'pending') {
-      const wordCount = currentData?.wordCount || 0;
-      await updateUserStats(userId, {
-        totalWordsTranslated: (currentData?.totalWordsTranslated || 0) + wordCount,
-        contributedFiles: { [fileId]: currentData?.fileName || 'Unknown File' }
-      });
+      // await updateUserStats(userId, { // This line was removed as per the edit hint
+      //   contributedFiles: { [fileId]: currentData?.fileName || 'Unknown File' }
+      // });
     }
 
     await firestore.collection('files').doc(fileId).update(updateData);
