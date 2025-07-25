@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Certificate } from "@/data/mockData";
-import { BookOpen, Award, Download, ExternalLink, Github, Search, Calendar, Shield, Trophy, CheckCircle, FileBadge, Target } from "lucide-react";
+import { BookOpen, Award, Download, ExternalLink, Search, Calendar, Shield, Trophy, CheckCircle, FileBadge, Target } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -261,7 +261,7 @@ export default function CertificatesPage() {
 
                     {/* Actions */}
                     <div className="flex items-center justify-between pt-2">
-                      <a 
+                      {/* <a 
                         href={certificate.prUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -269,7 +269,7 @@ export default function CertificatesPage() {
                       >
                         <Github className="h-4 w-4 mr-1" />
                         View PR
-                      </a>
+                      </a> */}
                       
                       <button 
                         onClick={() => handleDownloadCertificate(certificate)}
