@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile, TranslationMemoryEntry } from "@/lib/firestore";
 import { CertificationProgress } from "@/lib/certificationSystem";
-import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Github, Eye, LogOut, ChevronDown } from "lucide-react";
+import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Eye, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
@@ -727,7 +727,7 @@ function DashboardPageContent() {
                         <span className="text-xs text-gray-500">
                           {new Date(project.createdAt).toLocaleDateString()}
                         </span>
-                        {project.source && (
+                        {/* {project.source && (
                           <a 
                             href={project.source} 
                             target="_blank" 
@@ -737,7 +737,7 @@ function DashboardPageContent() {
                             <Github className="h-3 w-3 mr-1" />
                             View PR
                           </a>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   ))}
