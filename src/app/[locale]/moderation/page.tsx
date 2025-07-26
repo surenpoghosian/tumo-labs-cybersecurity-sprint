@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation';
 import { DocumentVisibilityControl } from '@/components/moderation/DocumentVisibilityControl';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import { FirestoreFile } from '@/lib/firestore';
+import AppHeader from '@/components/ui/AppHeader';
 
 interface Review {
   id: string;
@@ -284,6 +285,7 @@ export default function ModerationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <AppHeader currentPage="moderation" />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

@@ -6,13 +6,17 @@ export default function LocaleSwitcher() {
   const langSwitcher = useTranslations('LanguageSwitcher');
   const locale = useLocale();
 
+  const localeOptions = routing.locales.map((cur) => ({
+    value: cur,
+    label: cur === 'en' ? 'English' : 'Հայերեն',
+    flag: cur === 'en' ? '🇺🇸' : '🇦🇲'
+  }));
+
   return (
-    <LocaleSwitcherSelect defaultValue={locale} label={langSwitcher('title')}>
-      {routing.locales.map((cur) => (
-        <option key={cur} value={cur}>
-          {cur}
-        </option>
-      ))}
-    </LocaleSwitcherSelect>
+    <LocaleSwitcherSelect 
+      defaultValue={locale} 
+      label={langSwitcher('title')}
+      options={localeOptions}
+    />
   );
 }

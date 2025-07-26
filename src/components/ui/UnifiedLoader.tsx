@@ -8,6 +8,7 @@ interface UnifiedLoaderProps {
   message?: string;
   showHeader?: boolean;
   theme?: 'orange' | 'blue' | 'indigo';
+  rotateQuotes?: boolean; // control quote rotation
 }
 
 const LINGUIST_QUOTES = [
@@ -75,7 +76,8 @@ const LINGUIST_QUOTES = [
 export default function UnifiedLoader({
   message = '',
   showHeader = true,
-  theme = 'orange'
+  theme = 'orange',
+  rotateQuotes = true
 }: UnifiedLoaderProps) {
   const [currentQuote, setCurrentQuote] = useState(LINGUIST_QUOTES[0]);
   const [isVisible, setIsVisible] = useState(true);
@@ -92,6 +94,8 @@ export default function UnifiedLoader({
     const randomQuote = LINGUIST_QUOTES[Math.floor(Math.random() * LINGUIST_QUOTES.length)];
     setCurrentQuote(randomQuote);
 
+    if (!rotateQuotes) return; // skip rotation if disabled
+
     // Rotate quotes every 4 seconds
     const interval = setInterval(() => {
       setIsVisible(false);
@@ -103,7 +107,7 @@ export default function UnifiedLoader({
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [rotateQuotes]);
 
   const themeConfig = {
     orange: {

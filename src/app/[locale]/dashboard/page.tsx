@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile, TranslationMemoryEntry } from "@/lib/firestore";
 import { CertificationProgress } from "@/lib/certificationSystem";
-import { BookOpen, Award, Clock, CheckCircle, ArrowRight, Eye, LogOut, ChevronDown } from "lucide-react";
+import { Award, Clock, CheckCircle, ArrowRight, Eye } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
-import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
+import AppHeader from '@/components/ui/AppHeader';
 
 interface DashboardData {
   user: FirestoreUserProfile;
@@ -38,7 +38,6 @@ interface DashboardData {
 function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
   
   // Firestore test states
@@ -48,8 +47,7 @@ function DashboardPageContent() {
   // const [addingTest, setAddingTest] = useState(false);
   // const [loadingTest, setLoadingTest] = useState(false);
   
-  const { user: authUser, logout } = useAuth();
-  const router = useRouter();
+  const { user: authUser } = useAuth();
 
   // Firestore test functions
   // const addTestEntry = async () => {
@@ -255,70 +253,8 @@ function DashboardPageContent() {
 
   const { stats, recentProjects, certificates, certificationProgress } = dashboardData;
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Link href={authUser ? '/dashboard' : '/'} className="flex items-center space-x-2 group" title="Go home">
-              <BookOpen className="h-8 w-8 text-orange-600 group-hover:text-orange-700 transition-colors" />
-              <span className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">Armenian CyberSec Docs</span>
-            </Link>
-          </div>
-          <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-orange-600 font-medium">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
-            {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
-              <Link href="/moderation" className="text-gray-600 hover:text-orange-600">Moderation</Link>
-            )}
-            
-            {/* User Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-1 hover:bg-gray-200 transition-colors"
-              >
-                <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  {authUser?.displayName?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
-                </div>
-                <span className="text-sm font-medium hidden md:block">
-                  {authUser?.displayName || authUser?.email?.split('@')[0] || 'User'}
-                </span>
-                <ChevronDown className="h-4 w-4 text-gray-500" />
-              </button>
-              
-              {/* Dropdown Menu */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                  <div className="p-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">
-                      {authUser?.displayName || 'User'}
-                    </p>
-                    <p className="text-xs text-gray-500">{authUser?.email}</p>
-                  </div>
-                  <div className="p-1">
-                    <button
-                      onClick={async () => {
-                        try {
-                          await logout();
-                          router.push('/');
-                        } catch (error) {
-                          console.error('Logout error:', error);
-                        }
-                      }}
-                      className="w-full flex items-center space-x-2 px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </nav>
-        </div>
-      </header>
+          <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
+        <AppHeader currentPage="dashboard" userProfile={userProfile} />
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -329,11 +265,11 @@ function DashboardPageContent() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <BookOpen className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats?.totalFiles || 0}</div>
-              <div className="text-sm text-gray-600">Total Files</div>
+                      <Card>
+              <CardContent className="p-6 text-center">
+                <CheckCircle className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-gray-900">{stats?.totalFiles || 0}</div>
+                <div className="text-sm text-gray-600">Total Files</div>
             </CardContent>
           </Card>
           
@@ -541,10 +477,10 @@ function DashboardPageContent() {
               <Link href="/projects">
                 <Button 
                   className="w-full bg-orange-600 hover:bg-orange-700"
-                  title="Browse available cybersecurity projects to translate"
-                >
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Browse CyberSec Projects
+                                      title="Browse available cybersecurity projects to translate"
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Browse CyberSec Projects
                 </Button>
               </Link>
               <Link href="/certificates">
@@ -742,10 +678,10 @@ function DashboardPageContent() {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No translation projects yet</p>
+                              ) : (
+                  <div className="text-center py-8">
+                    <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">No translation projects yet</p>
                   <Link href="/projects">
                     <Button className="mt-4">Start Your First Project</Button>
                   </Link>

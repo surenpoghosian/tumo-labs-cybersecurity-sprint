@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
+import AppHeader from '@/components/ui/AppHeader';
 
 interface PublicTranslation {
   id: string;
@@ -111,20 +112,7 @@ export default function PublicTranslationsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-            <Link href="/translations" className="text-orange-600 font-medium">Translations</Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-          </nav>
-        </div>
-      </header>
+      <AppHeader currentPage="translations" />
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}

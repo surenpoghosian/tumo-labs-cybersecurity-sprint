@@ -4,31 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Users, Award, Github, Star } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
+import StartTranslatingButton from '@/components/ui/StartTranslatingButton';
+import AppHeader from '@/components/ui/AppHeader';
 
 
 export default function Home() {
   const homePage = useTranslations('HomePage');
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
-          </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-600 hover:text-blue-600">Features</a>
-            <a href="#process" className="text-gray-600 hover:text-blue-600">How It Works</a>
-            <a href="#community" className="text-gray-600 hover:text-blue-600">Community</a>
-            <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
-            </Link>
-            <LocaleSwitcher />
-          </nav>
-        </div>
-      </header>
+      <AppHeader currentPage="home" />
 
       {/* Hero Section */}
       <section className="py-20 px-4">
@@ -41,12 +25,7 @@ export default function Home() {
             {homePage("hero.subtitle")}
           </p>
           <div className="flex justify-center space-x-4 mb-8">
-            <Link href="/dashboard">
-              <Button size="lg" className="bg-orange-600 hover:bg-orange-700">
-                Start Translating
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <StartTranslatingButton />
             <Link href="/docs">
               <Button size="lg" variant="outline" className="border-orange-200 hover:bg-orange-50 text-gray-700 hover:text-orange-700">
                 <BookOpen className="mr-2 h-5 w-5 text-orange-600" />

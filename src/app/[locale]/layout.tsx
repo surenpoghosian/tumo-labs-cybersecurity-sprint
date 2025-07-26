@@ -4,6 +4,7 @@ import "../globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GlobalToaster from "@/components/ui/GlobalToaster";
 import { NextIntlClientProvider } from "next-intl";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +37,9 @@ export default async function RootLayout({
       >
         <AuthProvider>
           <GlobalToaster />
-          <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
         </AuthProvider>
       </body>
     </html>

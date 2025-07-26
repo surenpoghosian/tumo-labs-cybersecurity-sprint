@@ -9,6 +9,7 @@ import { FirestoreProject } from '@/lib/firestore';
 import { BookOpen, Clock, Github, ArrowRight, Shield, Search, Zap, RefreshCw, AlertCircle } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import AppHeader from '@/components/ui/AppHeader';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -143,22 +144,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Link href={user ? '/dashboard' : '/'} className="flex items-center space-x-2 group" title="Go home">
-              <BookOpen className="h-8 w-8 text-orange-600 group-hover:text-orange-700 transition-colors" />
-              <span className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">Armenian CyberSec Docs</span>
-            </Link>
-          </div>
-          <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-orange-600 font-medium">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
-          </nav>
-        </div>
-      </header>
+      <AppHeader currentPage="projects" />
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { BookOpen, Shield, FileText, Users } from "lucide-react";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import { fetchPublicTranslations } from '@/lib/publicTranslations';
 import type { PublicTranslation } from '@/lib/publicTranslations';
+import AppHeader from '@/components/ui/AppHeader';
 
 // Always render at request time so we serve fresh data and preserve SEO
 export const dynamic = 'force-dynamic';
@@ -87,20 +88,7 @@ export default async function DocsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600 transition-colors">Home</Link>
-            <Link href="/docs" className="text-orange-600 font-medium">Documentation</Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600 transition-colors">Dashboard</Link>
-          </nav>
-        </div>
-      </header>
+      <AppHeader currentPage="docs" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Compact Header */}
