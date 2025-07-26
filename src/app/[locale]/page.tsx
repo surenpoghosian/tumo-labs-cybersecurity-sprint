@@ -2,9 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Users, Award, Github, Star } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import LocaleSwitcher from "@/components/ui/LocaleSwitcher";
+
 
 export default function Home() {
+  const homePage = useTranslations('HomePage');
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
@@ -21,6 +25,7 @@ export default function Home() {
             <Link href="/dashboard">
               <Button variant="outline">Dashboard</Button>
             </Link>
+            <LocaleSwitcher />
           </nav>
         </div>
       </header>
@@ -33,8 +38,7 @@ export default function Home() {
             <span className="block text-orange-600">Armenian</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Bridge the language gap in Armenian cybersecurity education. Help translate open-source security documentation, 
-            submit GitHub PRs, earn certificates, and build a stronger security community in Armenia.
+            {homePage("hero.subtitle")}
           </p>
           <div className="flex justify-center space-x-4 mb-8">
             <Link href="/dashboard">
@@ -50,7 +54,7 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-          
+
           {/* Quick Access to Translations */}
           <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-xl p-4 max-w-2xl mx-auto shadow-sm border border-orange-100">
             <div className="flex items-center mb-3">
@@ -61,7 +65,7 @@ export default function Home() {
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mb-3">
-              Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts. 
+              Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts.
               All translations are available for free.
             </p>
             <Link href="/docs" className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium">
@@ -184,8 +188,8 @@ export default function Home() {
                 Building Armenia&apos;s Tech Future
               </h3>
               <p className="text-gray-600 mb-6">
-                Every translation you contribute helps make technology more accessible to Armenian speakers. 
-                Join a growing community of developers, translators, and tech enthusiasts working together 
+                Every translation you contribute helps make technology more accessible to Armenian speakers.
+                Join a growing community of developers, translators, and tech enthusiasts working together
                 to bridge the language gap in technology education.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
@@ -214,7 +218,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-gray-600 italic mb-4">
-                &quot;Contributing to Armenian Docs has been incredibly rewarding. I&apos;ve helped translate 
+                &quot;Contributing to Armenian Docs has been incredibly rewarding. I&apos;ve helped translate
                 React documentation and earned certificates that showcase my skills to potential employers.&quot;
               </p>
               <div className="flex items-center text-sm text-gray-500">

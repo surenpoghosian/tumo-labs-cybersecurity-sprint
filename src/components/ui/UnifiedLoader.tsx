@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BookOpen, Quote } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface UnifiedLoaderProps {
   message?: string;
@@ -71,14 +72,20 @@ const LINGUIST_QUOTES = [
     author: "John Dryden"
   }
 ];
-
-export default function UnifiedLoader({ 
-  message = "Loading...", 
+export default function UnifiedLoader({
+  message = '',
   showHeader = true,
-  theme = 'orange' 
+  theme = 'orange'
 }: UnifiedLoaderProps) {
   const [currentQuote, setCurrentQuote] = useState(LINGUIST_QUOTES[0]);
   const [isVisible, setIsVisible] = useState(true);
+
+  const common = useTranslations('Common');
+
+  if (message === '') {
+    message = common('loading');
+  }
+
 
   useEffect(() => {
     // Show initial quote immediately

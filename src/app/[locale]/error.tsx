@@ -116,7 +116,7 @@ export default function Error({
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
+            <Button
               onClick={reset}
               className="bg-orange-600 hover:bg-orange-700"
               title="Try to recover from the error"
@@ -124,9 +124,9 @@ export default function Error({
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            
-            <Button 
-              asChild 
+
+            <Button
+              asChild
               variant="outline"
               title="Go back to the homepage"
             >
@@ -135,9 +135,9 @@ export default function Error({
                 Back to Home
               </Link>
             </Button>
-            
-            <Button 
-              asChild 
+
+            <Button
+              asChild
               variant="outline"
               title="Visit your dashboard"
             >
@@ -158,7 +158,7 @@ export default function Error({
               <Link href="/certificates" className="text-orange-600 hover:text-orange-700">
                 View Certificates
               </Link>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="text-orange-600 hover:text-orange-700"
               >

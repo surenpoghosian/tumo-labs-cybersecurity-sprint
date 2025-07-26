@@ -8,6 +8,7 @@ import { Certificate } from "@/data/mockData";
 import { BookOpen, Award, Download, ExternalLink, Search, Calendar, Shield, Trophy, CheckCircle, FileBadge, Target } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface VerificationResult {
   success: boolean;
@@ -32,6 +33,8 @@ export default function CertificatesPage() {
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const certificate_ = useTranslations("Certificates");
+  const navigation = useTranslations("Navigation");
 
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -46,9 +49,9 @@ export default function CertificatesPage() {
         const response = await fetch('/api/certificates', {
           headers
         });
-        
+
         const result = await response.json();
-        
+
         if (!response.ok) {
           console.error('Certificates API error:', result);
           // Don't set error state - just log and continue with empty certificates
@@ -73,7 +76,7 @@ export default function CertificatesPage() {
 
     setVerifying(true);
     setVerificationResult(null);
-    
+
     try {
       const response = await fetch(`/api/certificates/verify/${verificationCode}`);
       const result = await response.json();
@@ -93,11 +96,11 @@ export default function CertificatesPage() {
       const response = await fetch(`/api/certificates/download/${filename}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
-      
+
       if (!response.ok) {
         throw new Error('Download failed');
       }
-      
+
       // Create blob and download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -108,7 +111,7 @@ export default function CertificatesPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
     } catch (err) {
       console.error('Error downloading certificate:', err);
       alert('Failed to download certificate. Please try again.');
@@ -139,9 +142,9 @@ export default function CertificatesPage() {
             </Link>
           </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-orange-600 font-medium">Certificates</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">{navigation("dashboard")}</Link>
+            <Link href="/projects" className="text-gray-600 hover:text-orange-600">{navigation("projects")}</Link>
+            <Link href="/certificates" className="text-orange-600 font-medium">{navigation("certificates")}</Link>
           </nav>
         </div>
       </header>
@@ -149,14 +152,14 @@ export default function CertificatesPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Certificates</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">{navigation("certificates")}</h1>
           <p className="text-gray-600 text-lg">Earn recognition for your work and track your achievements</p>
         </div>
 
         {/* Certificate Verification */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Verify Certificate</CardTitle>
+            <CardTitle>{certificate_("verify.title")}</CardTitle>
             <p className="text-sm text-gray-600">Enter a verification code to confirm a certificate&apos;s authenticity. Only public information is shown for privacy protection.</p>
           </CardHeader>
           <CardContent>
@@ -166,42 +169,42 @@ export default function CertificatesPage() {
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter verification code (e.g., CYBS-CERT-2025-001)"
+                  placeholder={certificate_("verify.placeholder")}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
-              <Button 
+              <Button
                 onClick={handleVerifyCertificate}
                 disabled={!verificationCode.trim() || verifying}
                 className="bg-orange-600 hover:bg-orange-700"
               >
                 <Search className="h-4 w-4 mr-2" />
-                {verifying ? 'Verifying...' : 'Verify'}
+                {verifying ? certificate_("verify.verifying") : certificate_("verify.button")}
               </Button>
             </div>
-            
+
             {verificationResult && (
               <div className="mt-4">
                 {verificationResult.success ? (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <Award className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">Certificate Verified!</span>
+                      <span className="font-medium text-green-900">{certificate_("verify.success")}</span>
                     </div>
                     <div className="space-y-1 text-sm text-green-800">
-                      <p><strong>Project:</strong> {verificationResult.data?.projectName}</p>
-                      <p><strong>Category:</strong> {verificationResult.data?.category}</p>
+                      <p><strong>{certificate_("verify.project")}:</strong> {verificationResult.data?.projectName}</p>
+                      <p><strong>{certificate_("verify.category")}:</strong> {verificationResult.data?.category}</p>
                       <p><strong>Certificate Type:</strong> {verificationResult.data?.certificateType}</p>
                       <p><strong>Holder:</strong> {verificationResult.data?.holderName}</p>
-                      <p><strong>Issued:</strong> {verificationResult.data?.issuedDate ? new Date(verificationResult.data.issuedDate).toLocaleDateString() : 'N/A'}</p>
-                      <p><strong>Verification Code:</strong> {verificationResult.data?.verificationCode}</p>
+                      <p><strong>{certificate_("verify.issued")}:</strong> {verificationResult.data?.issuedDate ? new Date(verificationResult.data.issuedDate).toLocaleDateString() : 'N/A'}</p>
+                      <p><strong>{certificate_("certificateCard.verificationCode")}:</strong> {verificationResult.data?.verificationCode}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div className="flex items-center">
                       <ExternalLink className="h-5 w-5 text-red-600 mr-2" />
-                      <span className="font-medium text-red-900">Certificate not found or invalid</span>
+                      <span className="font-medium text-red-900">{certificate_("notFound")}</span>
                     </div>
                   </div>
                 )}
@@ -244,18 +247,18 @@ export default function CertificatesPage() {
                       <div className="text-sm text-gray-600 mb-2">
                         <div className="flex items-center space-x-1 mb-1">
                           <Calendar className="h-4 w-4" />
-                          <span>Issued: {new Date(certificate.mergedAt).toLocaleDateString()}</span>
+                          <span>{certificate_("verify.issued")}: {new Date(certificate.mergedAt).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Shield className="h-4 w-4" />
-                          <span>Category: {certificate.category}</span>
+                          <span>{certificate_("verify.category")}: {certificate.category}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Verification Code */}
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 mb-1">Verification Code</div>
+                      <div className="text-xs text-gray-500 mb-1">{certificate_("certificateCard.verificationCode")}</div>
                       <div className="font-mono text-sm font-medium">{certificate.verificationCode}</div>
                     </div>
 
@@ -270,14 +273,14 @@ export default function CertificatesPage() {
                         <Github className="h-4 w-4 mr-1" />
                         View PR
                       </a> */}
-                      
-                      <button 
+
+                      <button
                         onClick={() => handleDownloadCertificate(certificate)}
                         className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium"
                         title="Download certificate PDF"
                       >
                         <Download className="h-4 w-4 mr-1" />
-                        Download PDF
+                        {certificate_("recentCertificates.downloadPDF")}
                       </button>
                     </div>
                   </div>
@@ -293,10 +296,10 @@ export default function CertificatesPage() {
             <Award className="h-14 w-14 text-orange-300 mx-auto mb-4" />
             {user ? (
               <>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">No certificates yet</h4>
-                <p className="text-gray-600 mb-4">Start contributing to translation projects to earn your first badge of honor.</p>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{certificate_("noCertificates.title")}</h4>
+                <p className="text-gray-600 mb-4">{certificate_("noCertificates.description")}</p>
                 <Link href="/projects" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
-                  <BookOpen className="h-4 w-4"/> Explore Projects
+                  <BookOpen className="h-4 w-4" /> Explore Projects
                 </Link>
               </>
             ) : (
@@ -304,7 +307,7 @@ export default function CertificatesPage() {
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Earn certificates by contributing!</h4>
                 <p className="text-gray-600 mb-4">Create an account and start translating to collect achievements.</p>
                 <Link href="/auth/register" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
-                  <BookOpen className="h-4 w-4"/> Join & Contribute
+                  <BookOpen className="h-4 w-4" /> Join & Contribute
                 </Link>
               </>
             )}
@@ -395,23 +398,23 @@ export default function CertificatesPage() {
         {/* About Certificates */}
         <Card className="mb-12 bg-white/60 backdrop-blur-sm border border-orange-100 mt-8">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6"/>About Certificates</CardTitle>
+            <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6" />About Certificates</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base text-gray-700">
               {/* How to earn */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Trophy className="h-4 w-4 text-orange-600"/> How to Earn</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Trophy className="h-4 w-4 text-orange-600" /> How to Earn</h3>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Complete a translation project</li>
-                  <li>Pass cybersecurity expert review</li>
-                  <li>Submit successful GitHub PR</li>
-                  <li>Get your PR merged by maintainers</li>
+                  <li>{certificate_("about.howToEarn.steps.0")}</li>
+                  <li>{certificate_("about.howToEarn.steps.1")}</li>
+                  <li>{certificate_("about.howToEarn.steps.2")}</li>
+                  <li>{certificate_("about.howToEarn.steps.3")}</li>
                 </ul>
               </div>
               {/* Verification */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><CheckCircle className="h-4 w-4 text-green-600"/> Verification</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><CheckCircle className="h-4 w-4 text-green-600" /> Verification</h3>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Unique code for every certificate</li>
                   <li>Verifiable directly on our platform</li>
@@ -421,7 +424,7 @@ export default function CertificatesPage() {
               </div>
               {/* Types */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><FileBadge className="h-4 w-4 text-blue-600"/> Certificate Types</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><FileBadge className="h-4 w-4 text-blue-600" /> Certificate Types</h3>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Translation – completed translations</li>
                   <li>Review – expert reviews</li>
@@ -430,7 +433,7 @@ export default function CertificatesPage() {
               </div>
               {/* Benefits */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Target className="h-4 w-4 text-purple-600"/> Benefits</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Target className="h-4 w-4 text-purple-600" /> Benefits</h3>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Professional recognition</li>
                   <li>Portfolio enhancement</li>
