@@ -136,41 +136,48 @@ export default function UnifiedLoader({
   const colors = themeConfig[theme];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${colors.bg}`}>
+    <div className={`min-h-screen bg-gradient-to-br ${colors.bg} flex flex-col`}>
       {/* Header */}
       {showHeader && (
-        <header className="bg-white shadow-sm border-b">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <header className="bg-white shadow-sm border-b flex-shrink-0">
+          <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <BookOpen className={`h-8 w-8 ${colors.primary}`} />
-              <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+              <BookOpen className={`h-6 w-6 md:h-8 md:w-8 ${colors.primary}`} />
+              <span className="text-lg md:text-xl font-bold text-gray-900">
+                <span className="hidden sm:inline">Armenian CyberSec Docs</span>
+                <span className="sm:hidden">Armenian Docs</span>
+              </span>
             </div>
-            <nav className="flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-6">
               <div className="w-12 h-4 bg-gray-200 rounded animate-pulse"></div>
               <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
               <div className="w-14 h-4 bg-gray-200 rounded animate-pulse"></div>
               <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
             </nav>
+            <div className="md:hidden flex space-x-2">
+              <div className="w-8 h-3 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-8 h-3 bg-gray-200 rounded animate-pulse"></div>
+            </div>
           </div>
         </header>
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto text-center">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 md:py-16">
+        <div className="w-full max-w-3xl mx-auto text-center">
           {/* Loading Message */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">{message}</h1>
-          <p className="text-gray-600 mb-8 text-lg">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 px-2">{message}</h1>
+          <p className="text-gray-600 mb-6 md:mb-8 text-base md:text-lg px-2">
             Preparing your experience...
           </p>
 
           {/* Historical Linguist Quote */}
-          <div className={`bg-white rounded-lg shadow-lg p-10 border-l-4 ${colors.border} transition-all duration-500 ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-60 transform translate-y-2'}`}>
-            <Quote className={`h-10 w-10 ${colors.primary} mx-auto mb-6`} />
-            <blockquote className="text-xl text-gray-700 italic mb-6 leading-relaxed font-medium">
+          <div className={`bg-white rounded-lg shadow-lg p-4 md:p-6 lg:p-10 border-l-4 ${colors.border} transition-all duration-500 mx-2 md:mx-0 ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-60 transform translate-y-2'}`}>
+            <Quote className={`h-8 w-8 md:h-10 md:w-10 ${colors.primary} mx-auto mb-4 md:mb-6`} />
+            <blockquote className="text-base md:text-lg lg:text-xl text-gray-700 italic mb-4 md:mb-6 leading-relaxed font-medium px-2">
               &ldquo;{currentQuote.quote}&rdquo;
             </blockquote>
-            <cite className={`text-base ${colors.primary} font-semibold`}>
+            <cite className={`text-sm md:text-base ${colors.primary} font-semibold`}>
               — {currentQuote.author}
             </cite>
           </div>

@@ -25,12 +25,16 @@ import { FirestoreFile, FirestoreProject } from '@/lib/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
+import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
 export default function TranslationPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
   const fileId = params.id as string;
+  
+  // Mobile restriction check
+  const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
   
   // Core state
   const [file, setFile] = useState<FirestoreFile | null>(null);
@@ -286,6 +290,16 @@ export default function TranslationPage() {
         return { color: 'gray', label: file.status };
     }
   };
+
+  // Show mobile restriction if on mobile
+  if (!mobileLoading && shouldRestrict) {
+    return (
+      <MobileRestriction 
+        title="Translation Editor Not Available"
+        description="The translation editor requires a desktop environment for optimal text editing, review tools, and formatting controls."
+      />
+    );
+  }
 
   if (loading) {
     return (

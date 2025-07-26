@@ -4,6 +4,7 @@ import "../globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GlobalToaster from "@/components/ui/GlobalToaster";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "@/lib/messages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const messages = (await import(`../../../messages/${locale}.json`)).default;
+  const messages = getMessages(locale);
 
   return (
     <html lang={locale}>

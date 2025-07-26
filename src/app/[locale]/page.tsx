@@ -15,19 +15,19 @@ export default function Home() {
       <AppHeader currentPage="home" />
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
             Transform Cybersecurity Documentation into
             <span className="block text-orange-600">Armenian</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-3xl mx-auto px-2">
             {homePage("hero.subtitle")}
           </p>
-          <div className="flex justify-center space-x-4 mb-8">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-6 md:mb-8 px-4">
             <StartTranslatingButton />
             <Link href="/docs">
-              <Button size="lg" variant="outline" className="border-orange-200 hover:bg-orange-50 text-gray-700 hover:text-orange-700">
+              <Button size="lg" variant="outline" className="border-orange-200 hover:bg-orange-50 text-gray-700 hover:text-orange-700 w-full sm:w-auto">
                 <BookOpen className="mr-2 h-5 w-5 text-orange-600" />
                 Browse Translations
               </Button>
@@ -35,19 +35,21 @@ export default function Home() {
           </div>
 
           {/* Quick Access to Translations */}
-          <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-xl p-4 max-w-2xl mx-auto shadow-sm border border-orange-100">
-            <div className="flex items-center mb-3">
-              <BookOpen className="h-5 w-5 text-orange-600 mr-2" />
-              <h3 className="font-medium text-gray-800">Already Translated Documents</h3>
-              <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200">
+          <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-xl p-4 md:p-6 max-w-2xl mx-auto shadow-sm border border-orange-100">
+            <div className="flex flex-col sm:flex-row sm:items-center mb-3 gap-2">
+              <div className="flex items-center">
+                <BookOpen className="h-5 w-5 text-orange-600 mr-2" />
+                <h3 className="font-medium text-gray-800">Already Translated Documents</h3>
+              </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 w-fit">
                 New
               </Badge>
             </div>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
               Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts.
               All translations are available for free.
             </p>
-            <Link href="/docs" className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium">
+            <Link href="/docs" className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium justify-center sm:justify-start">
               View documentation library
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -56,36 +58,36 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">1,247</div>
-              <div className="text-gray-600">Security Docs Translated</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            <div className="bg-orange-50 rounded-lg p-4 md:p-6">
+              <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">1,247</div>
+              <div className="text-sm md:text-base text-gray-600">Security Docs Translated</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">89</div>
-              <div className="text-gray-600">Active Security Translators</div>
+            <div className="bg-orange-50 rounded-lg p-4 md:p-6">
+              <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">89</div>
+              <div className="text-sm md:text-base text-gray-600">Active Security Translators</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">15</div>
-              <div className="text-gray-600">CyberSec GitHub Projects</div>
+            <div className="bg-orange-50 rounded-lg p-4 md:p-6">
+              <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">15</div>
+              <div className="text-sm md:text-base text-gray-600">CyberSec GitHub Projects</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">47</div>
-              <div className="text-gray-600">Merged Pull Requests</div>
+            <div className="bg-orange-50 rounded-lg p-4 md:p-6">
+              <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">47</div>
+              <div className="text-sm md:text-base text-gray-600">Merged Pull Requests</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4">
+      <section id="features" className="py-12 md:py-20 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
             Why Choose Armenian CyberSec Docs?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <Card>
               <CardHeader>
                 <Github className="h-10 w-10 text-orange-600 mb-4" />
@@ -118,36 +120,36 @@ export default function Home() {
       </section>
 
       {/* Process Section */}
-      <section id="process" className="py-20 bg-gray-50 px-4">
+      <section id="process" className="py-12 md:py-20 bg-gray-50 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
             How It Works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-orange-600">1</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="text-center p-4">
+              <div className="bg-blue-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl md:text-2xl font-bold text-orange-600">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Choose a CyberSec Project</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg md:text-xl font-semibold mb-2">Choose a CyberSec Project</h3>
+              <p className="text-gray-600 text-sm md:text-base">
                 Browse available cybersecurity projects and select documentation that needs translation
               </p>
             </div>
-            <div className="text-center">
-              <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-orange-600">2</span>
+            <div className="text-center p-4">
+              <div className="bg-orange-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl md:text-2xl font-bold text-orange-600">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Translate &amp; Submit PR</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg md:text-xl font-semibold mb-2">Translate &amp; Submit PR</h3>
+              <p className="text-gray-600 text-sm md:text-base">
                 Use our editor to translate content and submit pull requests to GitHub repositories
               </p>
             </div>
-            <div className="text-center">
-              <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-orange-600">3</span>
+            <div className="text-center p-4">
+              <div className="bg-orange-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl md:text-2xl font-bold text-orange-600">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Earn Security Certificates</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg md:text-xl font-semibold mb-2">Earn Security Certificates</h3>
+              <p className="text-gray-600 text-sm md:text-base">
                 Receive certificates after your PRs are merged and build your cybersecurity reputation
               </p>
             </div>
@@ -156,12 +158,12 @@ export default function Home() {
       </section>
 
       {/* Community Section */}
-      <section id="community" className="py-20 px-4">
+      <section id="community" className="py-12 md:py-20 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
             Join Our Community
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div>
               <h3 className="text-2xl font-semibold mb-4">
                 Building Armenia&apos;s Tech Future

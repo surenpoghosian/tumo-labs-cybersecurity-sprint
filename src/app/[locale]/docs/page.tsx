@@ -95,25 +95,25 @@ export default async function DocsPage() {
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Armenian Documentation Library</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Armenian Documentation Library</h1>
+              <p className="text-gray-600 mt-1 text-sm md:text-base">
                 Browse all available translations across {projects?.length || 0} projects
               </p>
             </div>
             
             {/* Stats Bar */}
             {stats.totalTranslations > 0 && (
-              <div className="flex items-center gap-6 mt-4 md:mt-0">
-                <div>
-                  <div className="text-lg font-semibold text-orange-600">{stats.totalTranslations}</div>
+              <div className="flex items-center gap-4 md:gap-6 mt-4 md:mt-0">
+                <div className="text-center">
+                  <div className="text-base md:text-lg font-semibold text-orange-600">{stats.totalTranslations}</div>
                   <div className="text-xs text-gray-600">Documents</div>
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-orange-600">{categories?.length}</div>
+                <div className="text-center">
+                  <div className="text-base md:text-lg font-semibold text-orange-600">{categories?.length}</div>
                   <div className="text-xs text-gray-600">Categories</div>
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-orange-600">
+                <div className="text-center">
+                  <div className="text-base md:text-lg font-semibold text-orange-600">
                     {stats.totalWords >= 1000 ? `${Math.floor(stats.totalWords / 1000)}K+` : stats.totalWords.toLocaleString()}
                   </div>
                   <div className="text-xs text-gray-600">Words</div>
@@ -127,28 +127,30 @@ export default async function DocsPage() {
 
         {/* Recent Translations Section */}
         {recentTranslations.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recently Translated</h2>
+          <div className="mb-8 md:mb-10">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">Recently Translated</h2>
             <div className="overflow-x-auto pb-2">
-              <div className="flex gap-4" style={{ minWidth: 'max-content' }}>
+              <div className="flex gap-3 md:gap-4 px-2 md:px-0" style={{ minWidth: 'max-content' }}>
                 {recentTranslations.map((translation: Translation) => (
                   <Link 
                     key={translation.id}
                     href={`/docs/${encodeURIComponent(translation.project.title.toLowerCase().replace(/\s+/g, '-'))}/${translation.id}`}
-                    className="block w-80 flex-shrink-0"
+                    className="block w-72 md:w-80 flex-shrink-0"
                   >
-                    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50 transition-all">
-                      <div className="flex items-center gap-2 mb-2 text-xs">
-                        {getDifficultyBadge(translation.project.difficulty)}
-                        <span className="text-gray-500">•</span>
-                        <span>{formatDate(translation.completedAt)}</span>
+                    <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:border-orange-300 hover:bg-orange-50 transition-all h-full">
+                      <div className="flex items-center gap-2 mb-2 text-xs overflow-x-auto">
+                        <div className="flex-shrink-0">
+                          {getDifficultyBadge(translation.project.difficulty)}
+                        </div>
+                        <span className="text-gray-500 flex-shrink-0">•</span>
+                        <span className="whitespace-nowrap">{formatDate(translation.completedAt)}</span>
                       </div>
-                      <h3 className="font-medium text-gray-900 line-clamp-1">
+                      <h3 className="font-medium text-gray-900 line-clamp-2 text-sm md:text-base mb-2">
                         {translation.fileName.replace(/\.(md|rst|txt)$/i, '').replace(/[-_]/g, ' ')}
                       </h3>
-                      <div className="text-xs text-gray-600 mt-1 flex items-center">
-                        <Shield className="h-3 w-3 mr-1" />
-                        {translation.project.title}
+                      <div className="text-xs text-gray-600 flex items-center">
+                        <Shield className="h-3 w-3 mr-1 flex-shrink-0" />
+                        <span className="truncate">{translation.project.title}</span>
                       </div>
                     </div>
                   </Link>
@@ -161,47 +163,47 @@ export default async function DocsPage() {
         {/* Complete Project Directory */}
         {Object.keys(groupedByProject)?.length > 0 ? (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">All Projects</h2>
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">All Projects</h2>
             
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {Object.entries(groupedByProject).map(([projectTitle, projectTranslations]) => {
                 const translations = projectTranslations as Translation[];
                 const firstTranslation = translations[0];
                 const project = firstTranslation.project;
                 
                 return (
-                  <div key={projectTitle} className="border border-gray-200 rounded-lg bg-white overflow-hidden">
+                  <div key={projectTitle} className="border border-gray-200 rounded-lg bg-white overflow-hidden mx-2 md:mx-0">
                     {/* Project Header */}
-                    <div className="bg-gray-50 p-4 border-b border-gray-200">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 flex items-center">
-                            <Shield className="h-5 w-5 text-orange-600 mr-2" />
-                            {project.title}
+                    <div className="bg-gray-50 p-3 md:p-4 border-b border-gray-200">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-900 flex items-center text-sm md:text-base">
+                            <Shield className="h-4 w-4 md:h-5 md:w-5 text-orange-600 mr-2 flex-shrink-0" />
+                            <span className="truncate">{project.title}</span>
                           </h3>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-xs md:text-sm text-gray-600 mt-1 line-clamp-2">
                             {project.description}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           {getDifficultyBadge(project.difficulty)}
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs text-gray-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs text-gray-700 whitespace-nowrap">
                             {translations.length} doc{translations.length !== 1 ? 's' : ''}
                           </span>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Files Table */}
-                    <div className="p-0">
-                      <table className="w-full text-sm">
+                    {/* Files Table - Horizontal scroll on mobile */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs md:text-sm min-w-[600px]">
                         <thead className="bg-gray-50 text-gray-700">
                           <tr className="border-b border-gray-200">
-                            <th className="text-left py-2 px-4 font-medium">Document</th>
-                            <th className="text-left py-2 px-4 font-medium">Category</th>
-                            <th className="text-left py-2 px-4 font-medium">Words</th>
-                            <th className="text-left py-2 px-4 font-medium">Date</th>
-                            <th className="text-left py-2 px-4 font-medium">Translator</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[200px]">Document</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">Category</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[80px]">Words</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">Date</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[120px]">Translator</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -210,28 +212,29 @@ export default async function DocsPage() {
                               key={translation.id} 
                               className="border-b border-gray-100 hover:bg-gray-50"
                             >
-                              <td className="py-2 px-4">
+                              <td className="py-2 px-3 md:px-4">
                                 <Link 
                                   href={`/docs/${encodeURIComponent(project.title.toLowerCase().replace(/\s+/g, '-'))}/${translation.id}`}
                                   className="text-orange-600 hover:text-orange-800 font-medium flex items-center"
                                 >
-                                  <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
-                                  <span className="line-clamp-1">
+                                  <FileText className="h-3 w-3 md:h-4 md:w-4 mr-2 flex-shrink-0" />
+                                  <span className="line-clamp-2 leading-tight">
                                     {translation.fileName.replace(/\.(md|rst|txt)$/i, '').replace(/[-_]/g, ' ')}
                                   </span>
                                 </Link>
                               </td>
-                              <td className="py-2 px-4">
-                                <span className="capitalize">{translation.category?.replace('-', ' ') || '-'}</span>
+                              <td className="py-2 px-3 md:px-4">
+                                <span className="capitalize whitespace-nowrap">{translation.category?.replace('-', ' ') || '-'}</span>
                               </td>
-                              <td className="py-2 px-4 whitespace-nowrap">
+                              <td className="py-2 px-3 md:px-4 whitespace-nowrap">
                                 {translation.wordCount.toLocaleString()}
                               </td>
-                              <td className="py-2 px-4 whitespace-nowrap">
-                                {formatDate(translation.completedAt)}
+                              <td className="py-2 px-3 md:px-4 whitespace-nowrap">
+                                <span className="hidden md:inline">{formatDate(translation.completedAt)}</span>
+                                <span className="md:hidden">{new Date(translation.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                               </td>
-                              <td className="py-2 px-4">
-                                {translation.translator?.name || 'Community'}
+                              <td className="py-2 px-3 md:px-4">
+                                <span className="truncate block max-w-[100px]">{translation.translator?.name || 'Community'}</span>
                               </td>
                             </tr>
                           ))}

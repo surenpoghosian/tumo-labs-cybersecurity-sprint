@@ -10,6 +10,7 @@ import { BookOpen, Clock, Github, ArrowRight, Shield, Search, Zap, RefreshCw, Al
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 import AppHeader from '@/components/ui/AppHeader';
+import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -17,6 +18,9 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isSeeding, setIsSeeding] = useState(false);
+  
+  // Mobile restriction check
+  const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
 
   useEffect(() => {
     if (user) {
@@ -141,6 +145,16 @@ export default function ProjectsPage() {
         return <Shield className={iconClass} />;
     }
   };
+
+  // Show mobile restriction if on mobile
+  if (!mobileLoading && shouldRestrict) {
+    return (
+      <MobileRestriction 
+        title="Project Browser Not Available on Mobile"
+        description="Project browsing and file assignment require desktop tools for detailed project analysis and translation workflow management."
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">

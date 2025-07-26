@@ -29,6 +29,7 @@ import { DocumentVisibilityControl } from '@/components/moderation/DocumentVisib
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import { FirestoreFile } from '@/lib/firestore';
 import AppHeader from '@/components/ui/AppHeader';
+import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
 interface Review {
   id: string;
@@ -73,6 +74,9 @@ export default function ModerationPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats>({ total: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
+  
+  // Mobile restriction check
+  const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
   const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'assigned' | 'approved-docs'>('pending');
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDecision, setReviewDecision] = useState<{ [key: string]: { decision: string; comments: string } }>({});
@@ -272,6 +276,16 @@ export default function ModerationPage() {
       </Badge>
     );
   };
+
+  // Show mobile restriction if on mobile
+  if (!mobileLoading && shouldRestrict) {
+    return (
+      <MobileRestriction 
+        title="Moderation Tools Not Available on Mobile"
+        description="Content moderation and review tools require detailed interfaces and precise controls that work best on desktop environments."
+      />
+    );
+  }
 
   if (loading) {
     return (

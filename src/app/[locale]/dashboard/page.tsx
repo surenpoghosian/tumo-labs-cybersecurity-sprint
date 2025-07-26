@@ -14,6 +14,7 @@ import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import AppHeader from '@/components/ui/AppHeader';
+import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
 interface DashboardData {
   user: FirestoreUserProfile;
@@ -39,6 +40,9 @@ function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
+  
+  // Mobile restriction check
+  const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
   
   // Firestore test states
   // const [testOriginal, setTestOriginal] = useState('');
@@ -230,6 +234,16 @@ function DashboardPageContent() {
       // Could add error handling here if needed
     }
   };
+
+  // Show mobile restriction if on mobile
+  if (!mobileLoading && shouldRestrict) {
+    return (
+      <MobileRestriction 
+        title="Dashboard Not Available on Mobile"
+        description="The translation dashboard includes complex project management and detailed analytics that work best on desktop devices."
+      />
+    );
+  }
 
   if (loading) {
     return (

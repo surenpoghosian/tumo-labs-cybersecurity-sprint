@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { BookOpen, ArrowLeft, Github } from "lucide-react";
+import { ArrowLeft, Github } from "lucide-react";
 import Link from "next/link";
 import { fetchPublicTranslationById, PublicTranslation } from '@/lib/publicTranslations';
 import Markdown from '@/components/Markdown';
+import AppHeader from '@/components/ui/AppHeader';
 
 // Extend the base type with optional SEO fields that may or may not be present
 type ExtendedTranslation = PublicTranslation & {
@@ -164,68 +165,60 @@ export default async function DocumentPage({ params }: Props) {
       
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-orange-600" />
-              <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
-            </Link>
-            <nav className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-orange-600 transition-colors">Home</Link>
-              <Link href="/docs" className="text-orange-600 font-medium">Documentation</Link>
-              <Link href="/dashboard" className="text-gray-600 hover:text-orange-600 transition-colors">Dashboard</Link>
-            </nav>
-          </div>
-        </header>
+        <AppHeader currentPage="docs" />
 
         {/* Article Header Section */}
         <div className="bg-white border-b">
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="max-w-4xl mx-auto px-4 py-4 md:py-6">
             {/* Breadcrumb */}
-            <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-              <Link href="/docs" className="hover:text-orange-600 transition-colors">Documentation</Link>
+            <nav className="flex items-center space-x-2 text-xs md:text-sm text-gray-500 mb-3 md:mb-4 overflow-x-auto">
+              <Link href="/docs" className="hover:text-orange-600 transition-colors whitespace-nowrap">Documentation</Link>
               <span>›</span>
               <Link 
                 href={`/docs?project=${encodeURIComponent(translation.project.title)}`}
-                className="hover:text-orange-600 transition-colors"
+                className="hover:text-orange-600 transition-colors whitespace-nowrap"
               >
                 {translation.project.title}
               </Link>
               <span>›</span>
-              <span className="text-gray-900">{translation.fileName.replace(/\.(md|rst|txt)$/i, '')}</span>
+              <span className="text-gray-900 whitespace-nowrap">{translation.fileName.replace(/\.(md|rst|txt)$/i, '')}</span>
             </nav>
 
             {/* Article Header */}
             <div className="mb-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
                 {translation.fileName.replace(/\.(md|rst|txt)$/i, '').replace(/[-_]/g, ' ')}
               </h1>
               
-              {/* Compact meta info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+              {/* Compact meta info - Mobile scrollable */}
+              <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-600 overflow-x-auto pb-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
                     {(translation.translator?.name || 'AC').substring(0, 2).toUpperCase()}
                   </div>
-                  <span>{translation.translator?.name || 'Armenian CyberSec Community'}</span>
+                  <span className="hidden sm:inline">{translation.translator?.name || 'Armenian CyberSec Community'}</span>
+                  <span className="sm:hidden">AC</span>
                 </div>
                 
                 <span className="text-gray-400">•</span>
-                <span>{formatDate(translation.completedAt)}</span>
+                <span className="whitespace-nowrap">{formatDate(translation.completedAt)}</span>
                 
                 <span className="text-gray-400">•</span>
-                <span>{formatReadingTime(translation.wordCount)}</span>
+                <span className="whitespace-nowrap">{formatReadingTime(translation.wordCount)}</span>
                 
-                {getDifficultyBadge(translation.project.difficulty)}
+                <div className="whitespace-nowrap">
+                  {getDifficultyBadge(translation.project.difficulty)}
+                </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3 overflow-x-auto pb-2">
               <Link href="/docs">
-                <button className="flex items-center gap-2 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Articles
+                <button className="flex items-center gap-2 px-3 py-1 text-xs md:text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
+                  <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Back to Articles</span>
+                  <span className="sm:hidden">Back</span>
                 </button>
               </Link>
               
@@ -234,10 +227,11 @@ export default async function DocumentPage({ params }: Props) {
                   href={translation.project.source as string}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1 text-sm text-orange-600 hover:text-orange-700 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1 text-xs md:text-sm text-orange-600 hover:text-orange-700 transition-colors whitespace-nowrap"
                 >
-                  <Github className="h-4 w-4" />
-                  View Source
+                  <Github className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">View Source</span>
+                  <span className="sm:hidden">Source</span>
                 </a>
               )}
             </div>
@@ -245,27 +239,29 @@ export default async function DocumentPage({ params }: Props) {
         </div>
 
         {/* Translation Content */}
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <article className="mb-12">
-            <Markdown content={translation.translatedText} />
+        <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+          <article className="mb-8 md:mb-12">
+            <div className="prose prose-sm md:prose lg:prose-lg max-w-none">
+              <Markdown content={translation.translatedText} />
+            </div>
           </article>
 
           {/* Call to Action */}
-          <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl p-8 text-white text-center">
-            <h3 className="text-2xl font-bold mb-4">Help Improve Armenian Cybersecurity Knowledge</h3>
-            <p className="text-lg text-orange-100 mb-6 max-w-2xl mx-auto">
+          <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl md:rounded-2xl p-6 md:p-8 text-white text-center">
+            <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Help Improve Armenian Cybersecurity Knowledge</h3>
+            <p className="text-base md:text-lg text-orange-100 mb-4 md:mb-6 max-w-2xl mx-auto leading-relaxed">
               Found this translation helpful? Join our community of translators and security experts 
               to help make more resources available in Armenian.
             </p>
             
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
               <Link href="/dashboard">
-                <button className="bg-white text-orange-600 hover:bg-orange-50 px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
+                <button className="bg-white text-orange-600 hover:bg-orange-50 px-6 md:px-8 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl text-sm md:text-base">
                   Join Translation Community
                 </button>
               </Link>
               <Link href="/docs">
-                <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 rounded-xl font-semibold transition-all duration-200">
+                <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-6 md:px-8 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all duration-200 text-sm md:text-base">
                   Read More Articles
                 </button>
               </Link>
