@@ -266,7 +266,7 @@ export default function CertificatesPage() {
                         title="Download certificate PDF"
                       >
                         <Download className="h-4 w-4 mr-1" />
-                        {certificate_("recentCertificates.downloadPDF")}
+                        {certificate_("certificateCard.downloadPDF")}
                       </button>
                     </div>
                   </div>
