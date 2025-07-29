@@ -95,7 +95,7 @@
       "signIn": "Sign In",
       "signInWithGoogle": "Continue with Google",
       "signInWithGitHub": "Continue with GitHub",
-      "noAccount": "Don&apos;t have an account?",
+      "noAccount": "Don't have an account?",
       "signUp": "Sign Up",
       "showPassword": "Show password",
       "hidePassword": "Hide password"
@@ -371,7 +371,7 @@
     "certificateGenerated": "Certificate generated successfully!",
     "profileUpdated": "Profile updated successfully!"
   },
-  "Footer": {
+  "Footer":{
     "armDocs": {
       "title": "Armenian Docs",
       "description": "Making technology accessible to Armenian speakers through community-driven translation."
@@ -395,4 +395,4 @@
     },
     "Copyright": "© 2025 Armenian Docs. Built with ❤️ for the Armenian tech community."
   }
-}
+} 
