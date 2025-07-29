@@ -33,9 +33,6 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <head>
-        <meta name="google-site-verification" content="gbR2rvkLF2zzx5ybmttbsa1zl6ZonK3ZdSP1c1tY5uc" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
