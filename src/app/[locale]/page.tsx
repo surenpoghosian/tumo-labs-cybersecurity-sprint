@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, BookOpen, Users, Award, Github, Star } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Award, Github } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import StartTranslatingButton from '@/components/ui/StartTranslatingButton';
@@ -190,21 +190,31 @@ export default function Home() {
             </div>
             <div className="bg-white rounded-lg shadow-lg p-8">
               <div className="flex items-center mb-4">
-                <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center">
-                  <Star className="h-6 w-6 text-orange-600" />
+                <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <h4 className="font-semibold">Top Contributor</h4>
-                  <p className="text-sm text-gray-600">Arman Petrosyan</p>
+                  <h4 className="font-semibold">{homePage('recentTranslations.title')}</h4>
+                  <p className="text-sm text-gray-600">{homePage('recentTranslations.subtitle')}</p>
                 </div>
               </div>
-              <p className="text-gray-600 italic mb-4">
-                &quot;Contributing to Armenian Docs has been incredibly rewarding. I&apos;ve helped translate
-                React documentation and earned certificates that showcase my skills to potential employers.&quot;
-              </p>
-              <div className="flex items-center text-sm text-gray-500">
-                <Award className="h-4 w-4 mr-1" />
-                <span>12 Certificates Earned</span>
+              <div className="space-y-3">
+                <div className="border-l-4 border-orange-200 pl-4">
+                  <h5 className="font-medium text-gray-900">{homePage('recentTranslations.owasp.title')}</h5>
+                  <p className="text-sm text-gray-600">{homePage('recentTranslations.owasp.description')}</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="secondary" className="text-xs">SQL Injection</Badge>
+                    <span className="text-xs text-gray-500 ml-2">{homePage('recentTranslations.completed')}</span>
+                  </div>
+                </div>
+                <div className="border-l-4 border-blue-200 pl-4">
+                  <h5 className="font-medium text-gray-900">{homePage('recentTranslations.nmap.title')}</h5>
+                  <p className="text-sm text-gray-600">{homePage('recentTranslations.nmap.description')}</p>
+                  <div className="flex items-center mt-1">
+                    <Badge variant="secondary" className="text-xs">Network Scanning</Badge>
+                    <span className="text-xs text-gray-500 ml-2">{homePage('recentTranslations.completed')}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -233,7 +233,7 @@ export default function CertificatesPage() {
                       <div className="text-sm text-gray-600 mb-2">
                         <div className="flex items-center space-x-1 mb-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{certificate_("verify.issued")}: {new Date(certificate.mergedAt).toLocaleDateString()}</span>
+                          <span>{certificate_("verify.issued")}: {certificate.mergedAt ? new Date(certificate.mergedAt).toLocaleDateString() : 'N/A'}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Shield className="h-4 w-4" />

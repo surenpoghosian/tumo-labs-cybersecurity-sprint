@@ -83,6 +83,19 @@
     "contributor": {
       "VIP": "Top Contributor",
       "certNum": "Certificates Earned"
+    },
+    "recentTranslations": {
+      "title": "Recently completed translations",
+      "subtitle": "Browse our cybersecurity documentation",
+      "completed": "Completed",
+      "owasp": {
+        "title": "OWASP Top 10 Guide",
+        "description": "Critical web application security risks translated to Armenian"
+      },
+      "nmap": {
+        "title": "Nmap Network Scanning",
+        "description": "Comprehensive network discovery and security auditing guide"
+      }
     }
   },
   "Auth": {
