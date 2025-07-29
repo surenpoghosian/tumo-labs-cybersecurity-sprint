@@ -78,7 +78,8 @@
       "title": "Join Our Community",
       "subtitle": "Building Armenia's Tech Future",
       "description": "Every translation you contribute helps make technology more accessible to Armenian speakers. Join a growing community of developers, translators, and tech enthusiasts working together to bridge the language gap in technology education.",
-      "dashboard": "Start Contributing"
+      "dashboard": "Start Contributing",
+      "testimonial": "Contributing to Armenian Docs has been incredibly rewarding. I've helped translate React documentation and earned certificates that showcase my skills to potential employers."
     },
     "contributor": {
       "VIP": "Top Contributor",
@@ -371,6 +372,208 @@
     "certificateGenerated": "Certificate generated successfully!",
     "profileUpdated": "Profile updated successfully!"
   },
+  "MobileRestriction": {
+    "title": "Desktop Required",
+    "description": "Translation tools are optimized for desktop use to ensure the best translation experience.",
+    "whyDesktop": {
+      "title": "Why Desktop?",
+      "description": "Translation work requires side-by-side text editing, detailed formatting controls, and precise review tools that work best on larger screens."
+    },
+    "mobileActions": "What you can do on mobile:",
+    "actions": {
+      "browseDocs": "Browse Translated Docs",
+      "backHome": "Back to Home"
+    },
+    "contributionNote": "Want to contribute? Use a desktop or laptop computer to access the full translation platform."
+  },
+  "FilePreview": {
+    "title": "File Preview",
+    "originalContent": "Original Content",
+    "currentTranslation": "Current Translation",
+    "fileInfo": {
+      "words": "Words",
+      "estimatedTime": "Est. Time",
+      "size": "Size",
+      "folder": "Folder"
+    },
+    "previewNote": "This preview shows the first 5,000 characters of the file content. The full content will be available in the translation editor.",
+    "contentTruncated": "... (content truncated for preview)"
+  },
+  "Loader": {
+    "preparingExperience": "Preparing your experience...",
+    "loadingTranslationEditor": "Loading translation editor..."
+  },
+  "FileStatus": {
+    "unknown": "Unknown",
+    "available": "Available",
+    "inProgress": "In Progress", 
+    "pendingReview": "Pending Review",
+    "needsRevision": "Needs Revision",
+    "accepted": "Accepted"
+  },
+  "Buttons": {
+    "goBack": "Go Back",
+    "browseProjects": "Browse Projects",
+    "downloadPdf": "Download PDF",
+    "startTranslation": "Start Translation",
+    "viewDetails": "View Details",
+    "browseTranslations": "Browse Translations"
+  },
+  "Messages": {
+    "translationNotAvailable": "Translation Not Available",
+    "fileNotFound": "File not found",
+    "noCertificatesYet": "No certificates earned yet",
+    "completeCertificateInstruction": "Complete translation projects to earn certificates",
+    "translationEditorNotAvailable": "Translation Editor Not Available",
+    "translationEditorDescription": "The translation editor requires a desktop environment for optimal text editing, review tools, and formatting controls."
+  },
+  "HomePage": {
+    "alreadyTranslatedDocs": {
+      "title": "Already Translated Documents",
+      "new": "New",
+      "description": "Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts. All translations are available for free.",
+      "viewLibrary": "View documentation library"
+    },
+    "hero": {
+      "title": "Transform Cybersecurity Documentation into Armenian",
+      "subtitle": "Bridge the language gap in Armenian cybersecurity education. Help translate open-source security documentation, submit GitHub PRs, earn certificates, and build a stronger security community in Armenia.",
+      "startTranslating": "Start Translating"
+    },
+    "stats": {
+      "securityDocsTranslated": "Security Docs Translated",
+      "activeTranslators": "Active Security Translators", 
+      "githubProjects": "CyberSec GitHub Projects",
+      "mergedPRs": "Merged Pull Requests"
+    },
+    "features": {
+      "whyChoose": "Why Choose Armenian CyberSec Docs?",
+      "githubIntegration": {
+        "title": "GitHub PR Integration",
+        "description": "Direct integration with cybersecurity projects. Submit translations as pull requests and get them merged"
+      },
+      "expertReview": {
+        "title": "Security Expert Review", 
+        "description": "Community-driven security validation with cybersecurity expert reviews and feedback"
+      },
+      "earnCertificates": {
+        "title": "Earn Security Certificates",
+        "description": "Get verified certificates for cybersecurity translation contributions after GitHub PR merges"
+      }
+    },
+    "process": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Choose a CyberSec Project",
+        "description": "Browse available cybersecurity projects and select documentation that needs translation"
+      },
+      "step2": {
+        "title": "Translate & Submit PR", 
+        "description": "Use our editor to translate content and submit pull requests to GitHub repositories"
+      },
+      "step3": {
+        "title": "Earn Security Certificates",
+        "description": "Receive certificates after your PRs are merged and build your cybersecurity reputation"
+      }
+    },
+    "community": {
+      "title": "Join Our Community",
+      "subtitle": "Building Armenia's Tech Future",
+      "description": "Every translation you contribute helps make technology more accessible to Armenian speakers. Join a growing community of developers, translators, and tech enthusiasts working together to bridge the language gap in technology education.",
+      "startContributing": "Start Contributing",
+      "topContributor": "Top Contributor",
+      "certificatesEarned": "Certificates Earned",
+      "testimonial": "Contributing to Armenian Docs has been incredibly rewarding. I've helped translate React documentation and earned certificates that showcase my skills to potential employers.",
+      "projects": ["OWASP", "Metasploit", "Wireshark", "Nmap", "Burp Suite", "Kali Linux"]
+    },
+    "contributor": {
+      "VIP": "Top Contributor"
+    }
+  },
+  "Projects": {
+    "noProjectsAvailable": {
+      "title": "No Projects Available",
+      "description": "Get started by creating some example projects to test the translation system.",
+      "createExamples": "Create Example Projects",
+      "creating": "Creating...", 
+      "pleaseLogin": "Please log in to create example projects.",
+      "sampleDescription": "This will create sample cybersecurity projects with documentation files for translation."
+    },
+    "projectCard": {
+      "translationProgress": "Translation Progress",
+      "estimatedTime": "estimated",
+      "documentationFiles": "documentation files",
+      "moreCategories": "more"
+    },
+    "sorting": {
+      "latestFirst": "Latest First",
+      "wordCount": "Word Count", 
+      "titleAZ": "Title A-Z"
+    },
+    "placeholders": {
+      "searchProjects": "Search projects...",
+      "searchTranslations": "Search translations..."
+    }
+  },
+  "AlertMessages": {
+    "success": {
+      "documentVisibilityUpdated": "Document visibility updated",
+      "translationSaved": "Translation saved successfully!",
+      "translationSubmitted": "🎉 Translation submitted for review!\\n\\nReview ID: {reviewId}\\nYour translation has been saved and sent for expert review. You will be notified when the review is complete.",
+      "linkCopied": "Link copied to clipboard!",
+      "exampleDataCreated": "Example data created successfully!",
+      "certificateClaimed": "🎉 {message}"
+    },
+    "error": {
+      "documentVisibilityFailed": "Failed to update document visibility",
+      "reviewTakeFailed": "Failed to take review. Please try again.",
+      "reviewDecisionFailed": "Failed to {decision} review. Please try again.", 
+      "translationSaveFailed": "Failed to save translation. Please try again.",
+      "pleaseEnterTranslation": "Please enter a translation before submitting.",
+      "submitReviewFailed": "Failed to submit for review. Please try again.",
+      "certificateDownloadFailed": "Failed to download certificate. Please try again.",
+      "certificateClaimFailed": "Failed to claim certificate. Please try again.",
+      "exampleDataFailed": "Failed to create example data: {message}",
+      "exampleDataError": "Error creating example data",
+      "startTranslationError": "Error starting translation. Please try again.",
+      "accessDenied": "Access denied: This file may already be assigned to another translator or you do not have permission to take it.",
+      "fileNotFound": "File not found. It may have been removed.", 
+      "assignFileFailed": "Failed to assign file: {error}",
+      "networkError": "Network error. Please check your connection and try again."
+    }
+  },
+  "Placeholders": {
+    "armenianTranslation": "Armenian translation of cybersecurity documentation...",
+    "searchKeywords": "armenian cybersecurity, կիբեր անվտանգություն, security documentation",
+    "enterTranslation": "Enter Armenian translation here...",
+    "translationNotes": "Add notes about translation choices, context, etc.",
+    "reviewComments": "Add your review comments...",
+    "originalText": "Original text (e.g., 'security')",
+    "armenianTranslationShort": "Armenian translation"
+  },
+  "Tooltips": {
+    "goHome": "Go home",
+    "toggleMenu": "Toggle menu",
+    "goBackHomepage": "Go back to the homepage",
+    "browseCyberSecProjects": "Browse available cybersecurity projects",
+    "goToDashboard": "Go to your dashboard", 
+    "tryRecover": "Try to recover from the error",
+    "visitDashboard": "Visit your dashboard",
+    "downloadCertificatePdf": "Download certificate PDF",
+    "continueWorkingFiles": "Continue working on your assigned files",
+    "browseCyberSecTranslate": "Browse available cybersecurity projects to translate",
+    "viewManageCertificates": "View and manage your earned certificates",
+    "viewGithubSource": "View project source code on GitHub",
+    "startTranslatingArmenian": "Start translating this project to Armenian",
+    "projectFullyTranslated": "This project has been fully translated",
+    "selectFilePreview": "Please select a file to preview",
+    "previewBeforeTranslation": "Preview file content before starting translation",
+    "selectFileToTake": "Please select a file to take it for translation"
+  },
+  "Labels": {
+    "version": "v",
+    "words": "words",
+    "by": "by"
+  },
   "Footer":{
     "armDocs": {
       "title": "Armenian Docs",
@@ -385,7 +588,8 @@
     "Community": {
       "title": "Community",
       "guide": "Contributor Guide",
-      "event": "Events"
+      "event": "Events",
+      "discord": "Discord Server"
     },
     "Support": {
       "title": "Support",

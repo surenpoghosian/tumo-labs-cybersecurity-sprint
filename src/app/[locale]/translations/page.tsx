@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import AppHeader from '@/components/ui/AppHeader';
+import { useTranslations } from 'next-intl';
 
 interface PublicTranslation {
   id: string;
@@ -42,6 +43,7 @@ interface PublicTranslation {
 }
 
 export default function PublicTranslationsPage() {
+  const projectsT = useTranslations('Projects');
   const [translations, setTranslations] = useState<PublicTranslation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,7 +136,7 @@ export default function PublicTranslationsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search translations..."
+  placeholder={projectsT('placeholders.searchTranslations')}
                     className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -165,9 +167,9 @@ export default function PublicTranslationsPage() {
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'date' | 'words' | 'title')}
                 >
-                  <option value="date">Latest First</option>
-                  <option value="words">Word Count</option>
-                  <option value="title">Title A-Z</option>
+                                  <option value="date">{projectsT('sorting.latestFirst')}</option>
+                <option value="words">{projectsT('sorting.wordCount')}</option>
+                <option value="title">{projectsT('sorting.titleAZ')}</option>
                 </select>
               </div>
             </div>

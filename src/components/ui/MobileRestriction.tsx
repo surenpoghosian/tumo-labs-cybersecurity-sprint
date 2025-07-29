@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Monitor, Smartphone, BookOpen, ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { shouldRestrictMobile } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 import AppHeader from './AppHeader';
 
 interface MobileRestrictionProps {
@@ -20,24 +21,30 @@ interface MobileRestrictionProps {
 }
 
 export default function MobileRestriction({
-  title = "Desktop Required",
-  description = "Translation tools are optimized for desktop use to ensure the best translation experience.",
+  title,
+  description,
   showHeader = true,
-  allowedActions = [
+  allowedActions
+}: MobileRestrictionProps) {
+  const t = useTranslations('MobileRestriction');
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Use translations as defaults if props are not provided
+  const finalTitle = title || t('title');
+  const finalDescription = description || t('description');
+  const finalAllowedActions = allowedActions || [
     {
-      label: "Browse Translated Docs",
+      label: t('actions.browseDocs'),
       href: "/docs",
       icon: <BookOpen className="h-4 w-4" />
     },
     {
-      label: "Back to Home",
+      label: t('actions.backHome'),
       href: "/",
       icon: <ArrowLeft className="h-4 w-4" />
     }
-  ]
-}: MobileRestrictionProps) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  ];
 
   useEffect(() => {
     // Check if mobile on client side
@@ -70,22 +77,22 @@ export default function MobileRestriction({
               </div>
             </div>
             <CardTitle className="text-xl font-bold text-gray-900">
-              {title}
+              {finalTitle}
             </CardTitle>
           </CardHeader>
           
           <CardContent className="space-y-6">
             <div className="text-center">
               <p className="text-gray-600 mb-4">
-                {description}
+                {finalDescription}
               </p>
               
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start space-x-3">
                   <Monitor className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-blue-700">
-                    <p className="font-medium mb-1">Why Desktop?</p>
-                    <p>Translation work requires side-by-side text editing, detailed formatting controls, and precise review tools that work best on larger screens.</p>
+                    <p className="font-medium mb-1">{t('whyDesktop.title')}</p>
+                    <p>{t('whyDesktop.description')}</p>
                   </div>
                 </div>
               </div>
@@ -93,10 +100,10 @@ export default function MobileRestriction({
 
             <div className="space-y-3">
               <p className="text-sm font-medium text-gray-700 text-center">
-                What you can do on mobile:
+                {t('mobileActions')}
               </p>
               
-              {allowedActions.map((action, index) => (
+              {finalAllowedActions.map((action, index) => (
                 <Link key={index} href={action.href}>
                   <Button 
                     variant="outline" 
@@ -111,7 +118,7 @@ export default function MobileRestriction({
 
             <div className="border-t pt-4">
               <p className="text-xs text-gray-500 text-center">
-                Want to contribute? Use a desktop or laptop computer to access the full translation platform.
+                {t('contributionNote')}
               </p>
             </div>
           </CardContent>

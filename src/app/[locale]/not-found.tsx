@@ -2,8 +2,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Home, Search, Shield, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function NotFound() {
+  const tooltips = useTranslations('Tooltips');
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
@@ -77,7 +79,7 @@ export default function NotFound() {
             <Button 
               asChild 
               className="bg-orange-600 hover:bg-orange-700"
-              title="Go back to the homepage"
+  title={tooltips('goBackHomepage')}
             >
               <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
@@ -88,7 +90,7 @@ export default function NotFound() {
             <Button 
               asChild 
               variant="outline"
-              title="Browse available cybersecurity projects"
+  title={tooltips('browseCyberSecProjects')}
             >
               <Link href="/projects">
                 <Shield className="h-4 w-4 mr-2" />
@@ -99,7 +101,7 @@ export default function NotFound() {
             <Button 
               asChild 
               variant="outline"
-              title="Go to your dashboard"
+  title={tooltips('goToDashboard')}
             >
               <Link href="/dashboard">
                 <BookOpen className="h-4 w-4 mr-2" />

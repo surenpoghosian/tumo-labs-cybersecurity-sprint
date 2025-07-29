@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Clock, Hash } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { FirestoreFile } from '@/lib/firestore';
 
 interface FilePreviewDialogProps {
@@ -11,6 +12,8 @@ interface FilePreviewDialogProps {
 }
 
 export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProps) {
+  const t = useTranslations('FilePreview');
+  
   if (!file) return null;
 
   const formatFileSize = (bytes: number) => {
@@ -23,7 +26,7 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
 
   const getPreviewText = (text: string, maxLength: number = 5000) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '\n\n... (content truncated for preview)';
+    return text.substring(0, maxLength) + '\n\n' + t('contentTruncated');
   };
 
   return (
@@ -32,7 +35,7 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            File Preview
+            {t('title')}
           </DialogTitle>
         </DialogHeader>
         
@@ -55,23 +58,23 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Hash className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">Words:</span>
+                <span className="text-gray-600">{t('fileInfo.words')}:</span>
                 <span className="font-medium">{file.wordCount.toLocaleString()}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">Est. Time:</span>
+                <span className="text-gray-600">{t('fileInfo.estimatedTime')}:</span>
                 <span className="font-medium">{file.estimatedHours}h</span>
               </div>
               {file.fileSize && (
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">Size:</span>
+                  <span className="text-gray-600">{t('fileInfo.size')}:</span>
                   <span className="font-medium">{formatFileSize(file.fileSize)}</span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-gray-600">Folder:</span>
+                <span className="text-gray-600">{t('fileInfo.folder')}:</span>
                 <span className="font-medium text-xs">
                   {file.folderPath || file.filePath.split('/').slice(0, -1).join('/') || 'Root'}
                 </span>
@@ -83,7 +86,7 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
           <div className="flex-1 flex flex-col min-h-0 gap-4">
             {/* File Content */}
             <div className="flex-1 flex flex-col min-h-0">
-              <h4 className="font-medium text-gray-900 mb-2 flex-shrink-0">Original Content</h4>
+              <h4 className="font-medium text-gray-900 mb-2 flex-shrink-0">{t('originalContent')}</h4>
               <div className="flex-1 overflow-auto bg-white border rounded-lg min-h-0">
                 <pre className="p-4 text-sm text-gray-800 whitespace-pre-wrap font-mono leading-relaxed">
                   {getPreviewText(file.originalText)}
@@ -94,7 +97,7 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
             {/* Translated Content (if exists) */}
             {file.translatedText && file.translatedText.trim() && (
               <div className="flex-1 flex flex-col min-h-0">
-                <h4 className="font-medium text-gray-900 mb-2 flex-shrink-0">Current Translation</h4>
+                <h4 className="font-medium text-gray-900 mb-2 flex-shrink-0">{t('currentTranslation')}</h4>
                 <div className="flex-1 overflow-auto bg-orange-50 border border-orange-200 rounded-lg min-h-0">
                   <pre className="p-4 text-sm text-gray-800 whitespace-pre-wrap font-mono leading-relaxed">
                     {getPreviewText(file.translatedText)}
@@ -108,8 +111,7 @@ export function FilePreviewDialog({ file, open, onClose }: FilePreviewDialogProp
         {/* Footer Info */}
         <div className="flex-shrink-0 pt-4 border-t text-xs text-gray-500">
           <p>
-            This preview shows the first 5,000 characters of the file content. 
-            The full content will be available in the translation editor.
+            {t('previewNote')}
           </p>
         </div>
       </DialogContent>

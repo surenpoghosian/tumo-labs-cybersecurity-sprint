@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { FirestoreFile } from '@/lib/firestore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface DocumentVisibilityControlProps {
   file: FirestoreFile;
@@ -31,6 +32,9 @@ export function DocumentVisibilityControl({
   onClose 
 }: DocumentVisibilityControlProps) {
   const { user } = useAuth();
+  const alertMsg = useTranslations('AlertMessages');
+  const labels = useTranslations('Labels');
+  const placeholders = useTranslations('Placeholders');
   const [isOpen, setIsOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   
@@ -110,7 +114,7 @@ export function DocumentVisibilityControl({
         setIsOpen(false);
         // Show success notification
         if (window.alert) {
-          window.alert(`Document visibility updated to ${visibility}`);
+  window.alert(alertMsg('success.documentVisibilityUpdated'));
         }
       } else {
         throw new Error('Failed to update document');
@@ -118,7 +122,7 @@ export function DocumentVisibilityControl({
     } catch (error) {
       console.error('Error updating document visibility:', error);
       if (window.alert) {
-        window.alert('Failed to update document visibility');
+window.alert(alertMsg('error.documentVisibilityFailed'));
       }
     } finally {
       setSaving(false);
@@ -164,7 +168,7 @@ export function DocumentVisibilityControl({
                     <h4 className="font-medium text-gray-900">{file.fileName}</h4>
                     <p className="text-sm text-gray-500">{file.filePath}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline">{file.wordCount} words</Badge>
+      <Badge variant="outline">{file.wordCount} {labels('words')}</Badge>
                       <Badge variant="secondary">{file.status}</Badge>
                     </div>
                   </div>
@@ -243,7 +247,7 @@ export function DocumentVisibilityControl({
                     <textarea
                       value={seoDescription}
                       onChange={(e) => setSeoDescription(e.target.value)}
-                      placeholder="Armenian translation of cybersecurity documentation..."
+  placeholder={placeholders('armenianTranslation')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       rows={3}
                       maxLength={160}
@@ -261,7 +265,7 @@ export function DocumentVisibilityControl({
                       type="text"
                       value={seoKeywords}
                       onChange={(e) => setSeoKeywords(e.target.value)}
-                      placeholder="armenian cybersecurity, կիբեր անվտանգություն, security documentation"
+  placeholder={placeholders('searchKeywords')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                     <div className="text-xs text-gray-500 mt-1">

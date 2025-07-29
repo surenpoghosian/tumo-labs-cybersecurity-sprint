@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { useTranslations } from 'next-intl';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import AppHeader from '@/components/ui/AppHeader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
@@ -40,6 +41,12 @@ function DashboardPageContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<FirestoreUserProfile | null>(null);
+  
+  // Translations
+  const messages = useTranslations('Messages');
+  const buttons = useTranslations('Buttons');
+  const alertMsg = useTranslations('AlertMessages');
+  const tooltips = useTranslations('Tooltips');
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
@@ -436,7 +443,7 @@ function DashboardPageContent() {
                                 
                                 if (response.ok) {
                                   const result = await response.json();
-                                  alert(`🎉 ${result.message}`);
+                        alert(alertMsg('success.certificateClaimed', { message: result.message }));
                                   // Refresh dashboard to show updated certificates
                                   window.location.reload();
                                 } else {
@@ -444,7 +451,7 @@ function DashboardPageContent() {
                                 }
                               } catch (error) {
                                 console.error('Error claiming certificate:', error);
-                                alert('Failed to claim certificate. Please try again.');
+                      alert(alertMsg('error.certificateClaimFailed'));
                               }
                             }}
                           >
@@ -481,7 +488,7 @@ function DashboardPageContent() {
                 <Link href={`/translate/${dashboardData.currentFiles[0].id}`}>
                   <Button 
                     className="w-full bg-green-600 hover:bg-green-700"
-                    title="Continue working on your assigned files"
+                    title={tooltips('continueWorkingFiles')}
                   >
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Continue My Work
@@ -491,7 +498,7 @@ function DashboardPageContent() {
               <Link href="/projects">
                 <Button 
                   className="w-full bg-orange-600 hover:bg-orange-700"
-                                      title="Browse available cybersecurity projects to translate"
+              title={tooltips('browseCyberSecTranslate')}
                   >
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Browse CyberSec Projects
@@ -501,7 +508,7 @@ function DashboardPageContent() {
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  title="View and manage your earned certificates"
+                  title={tooltips('viewManageCertificates')}
                 >
                   <Award className="mr-2 h-4 w-4" />
                   View Certificates
@@ -736,9 +743,9 @@ function DashboardPageContent() {
                         <button
                           onClick={() => handleDownloadCertificate(certificate)}
                           className="text-xs text-orange-600 hover:underline"
-                          title="Download certificate PDF"
+  title={tooltips('downloadCertificatePdf')}
                         >
-                          Download PDF
+                          {buttons('downloadPdf')}
                         </button>
                       </div>
                     </div>
@@ -747,9 +754,9 @@ function DashboardPageContent() {
               ) : (
                 <div className="text-center py-8">
                   <Award className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No certificates earned yet</p>
+                  <p className="text-gray-500">{messages('noCertificatesYet')}</p>
                   <p className="text-sm text-gray-400 mt-2">
-                    Complete translation projects to earn certificates
+                    {messages('completeCertificateInstruction')}
                   </p>
                 </div>
               )}
@@ -767,14 +774,14 @@ function DashboardPageContent() {
               <div className="flex gap-4">
                 <input
                   type="text"
-                  placeholder="Original text (e.g., 'security')"
+                  placeholder={placeholders('originalText')}
                   className="flex-1 px-3 py-2 border rounded"
                   value={testOriginal}
                   onChange={(e) => setTestOriginal(e.target.value)}
                 />
                 <input
                   type="text"
-                  placeholder="Armenian translation"
+                  placeholder={placeholders('armenianTranslationShort')}
                   className="flex-1 px-3 py-2 border rounded"
                   value={testTranslated}
                   onChange={(e) => setTestTranslated(e.target.value)}

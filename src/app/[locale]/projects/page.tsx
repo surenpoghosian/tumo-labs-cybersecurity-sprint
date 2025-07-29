@@ -11,9 +11,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 import AppHeader from '@/components/ui/AppHeader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
+import { useTranslations } from 'next-intl';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
+  const alertMsg = useTranslations('AlertMessages');
+  const projectsT = useTranslations('Projects');
+  const labels = useTranslations('Labels');
+  const tooltips = useTranslations('Tooltips');
   const [projects, setProjects] = useState<FirestoreProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -78,14 +83,14 @@ export default function ProjectsPage() {
       const result = await response.json();
       
       if (result.success) {
-        alert('Example data created successfully!');
+        alert(alertMsg('success.exampleDataCreated'));
         await fetchProjects(); // Refresh projects list
       } else {
-        alert(`Failed to create example data: ${result.message}`);
+        alert(alertMsg('error.exampleDataFailed', { message: result.message }));
       }
     } catch (error) {
       console.error('Error seeding data:', error);
-      alert('Error creating example data');
+      alert(alertMsg('error.exampleDataError'));
     } finally {
       setIsSeeding(false);
     }
@@ -199,9 +204,9 @@ export default function ProjectsPage() {
           <div className="text-center py-12">
             <div className="bg-white rounded-lg p-8 max-w-md mx-auto shadow-sm border">
               <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Projects Available</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{projectsT('noProjectsAvailable.title')}</h3>
               <p className="text-gray-600 mb-6">
-                Get started by creating some example projects to test the translation system.
+                {projectsT('noProjectsAvailable.description')}
               </p>
               
               {user && (
@@ -216,10 +221,10 @@ export default function ProjectsPage() {
                     ) : (
                       <Zap className="h-4 w-4 mr-2" />
                     )}
-                    Create Example Projects
+                    {isSeeding ? projectsT('noProjectsAvailable.creating') : projectsT('noProjectsAvailable.createExamples')}
                   </Button>
                   <p className="text-sm text-gray-500">
-                    This will create sample cybersecurity projects with documentation files for translation.
+                    {projectsT('noProjectsAvailable.sampleDescription')}
                   </p>
                 </div>
               )}
@@ -227,7 +232,7 @@ export default function ProjectsPage() {
               {!user && (
                 <div className="text-sm text-gray-500">
                   <AlertCircle className="h-4 w-4 inline mr-1" />
-                  Please log in to create example projects.
+                  {projectsT('noProjectsAvailable.pleaseLogin')}
                 </div>
               )}
             </div>
@@ -245,7 +250,7 @@ export default function ProjectsPage() {
                       {getCategoryIcon(project.categories)}
                       <div>
                         <CardTitle className="text-lg">{project.title}</CardTitle>
-                        <p className="text-sm text-gray-500">by {project.developedBy}</p>
+                        <p className="text-sm text-gray-500">{labels('by')} {project.developedBy}</p>
                       </div>
                     </div>
                     {getDifficultyBadge(project.difficulty)}
@@ -259,7 +264,7 @@ export default function ProjectsPage() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span>Translation Progress</span>
+                        <span>{projectsT('projectCard.translationProgress')}</span>
                         <span>{project.translationProgress || 0}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -274,18 +279,18 @@ export default function ProjectsPage() {
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>{project.estimatedHours || 0}h estimated</span>
+                        <span>{project.estimatedHours || 0}h {projectsT('projectCard.estimatedTime')}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Badge variant="secondary" className="text-xs">
-                          v{project.version}
+{labels('version')}{project.version}
                         </Badge>
                       </div>
                     </div>
 
                     {/* File Count */}
                     <div className="text-sm text-gray-600">
-                      <span className="font-medium">{project.files?.length || 0}</span> documentation files
+<span className="font-medium">{project.files?.length || 0}</span> {projectsT('projectCard.documentationFiles')}
                     </div>
 
                     {/* Categories */}
@@ -297,7 +302,7 @@ export default function ProjectsPage() {
                       ))}
                       {project.categories?.length > 2 && (
                         <Badge variant="outline" className="text-xs">
-                          +{project.categories?.length - 2} more
+  +{project.categories?.length - 2} {projectsT('projectCard.moreCategories')}
                         </Badge>
                       )}
                     </div>
@@ -309,7 +314,7 @@ export default function ProjectsPage() {
                           href={project.source}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="View project source code on GitHub"
+title={tooltips('viewGithubSource')}
                         >
                           <Github className="h-4 w-4 mr-1" />
                         </a>
@@ -320,7 +325,7 @@ export default function ProjectsPage() {
                           <Button 
                             size="sm" 
                             className="bg-orange-600 hover:bg-orange-700"
-                            title="Start translating this project to Armenian"
+  title={tooltips('startTranslatingArmenian')}
                           >
                             Start Translation
                             <ArrowRight className="ml-2 h-4 w-4" />
@@ -331,7 +336,7 @@ export default function ProjectsPage() {
                           size="sm" 
                           variant="outline" 
                           disabled
-                          title="This project has been fully translated"
+title={tooltips('projectFullyTranslated')}
                         >
                           Complete
                         </Button>

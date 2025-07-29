@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation';
 import { DocumentVisibilityControl } from '@/components/moderation/DocumentVisibilityControl';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import { FirestoreFile } from '@/lib/firestore';
+import { useTranslations } from 'next-intl';
 import AppHeader from '@/components/ui/AppHeader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
@@ -71,6 +72,9 @@ interface ReviewStats {
 export default function ModerationPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const alertMsg = useTranslations('AlertMessages');
+  const labels = useTranslations('Labels');
+  const placeholders = useTranslations('Placeholders');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats>({ total: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
@@ -195,7 +199,7 @@ export default function ModerationPage() {
       
     } catch (error) {
       console.error('Error taking review:', error);
-      alert('Failed to take review. Please try again.');
+      alert(alertMsg('error.reviewTakeFailed'));
     } finally {
       setProcessing(prev => ({ ...prev, [reviewId]: false }));
     }
@@ -238,7 +242,7 @@ export default function ModerationPage() {
       
     } catch (error) {
       console.error(`Error ${decision}ing review:`, error);
-      alert(`Failed to ${decision} review. Please try again.`);
+      alert(alertMsg('error.reviewDecisionFailed', { decision }));
     } finally {
       setProcessing(prev => ({ ...prev, [reviewId]: false }));
     }
@@ -412,7 +416,7 @@ export default function ModerationPage() {
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{doc.fileName}</h3>
                         <p className="text-sm text-gray-600 mb-2">{doc.filePath}</p>
                         <div className="flex items-center gap-3 mb-3">
-                          <Badge variant="outline">{doc.wordCount} words</Badge>
+          <Badge variant="outline">{doc.wordCount} {labels('words')}</Badge>
                           <Badge variant="secondary">{doc.status}</Badge>
                           <Badge variant="outline">
                             {new Date(doc.updatedAt).toLocaleDateString()}
@@ -570,7 +574,7 @@ export default function ModerationPage() {
                           <textarea
                             className="w-full p-3 border rounded-md resize-none"
                             rows={3}
-                            placeholder="Add your review comments..."
+  placeholder={placeholders('reviewComments')}
                             value={reviewDecision[review.id]?.comments || ''}
                             onChange={(e) => setReviewDecision(prev => ({
                               ...prev,

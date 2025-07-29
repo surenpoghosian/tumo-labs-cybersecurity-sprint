@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { FirestoreFile, FirestoreProject } from '@/lib/firestore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
@@ -32,6 +33,14 @@ export default function TranslationPage() {
   const router = useRouter();
   const { user } = useAuth();
   const fileId = params.id as string;
+  
+  // Translations
+  const messages = useTranslations('Messages');
+  const buttons = useTranslations('Buttons');
+  const loader = useTranslations('Loader');
+  const fileStatus = useTranslations('FileStatus');
+  const alertMsg = useTranslations('AlertMessages');
+  const placeholders = useTranslations('Placeholders');
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
@@ -197,13 +206,13 @@ export default function TranslationPage() {
       setFile(result);
       
       if (showFeedback) {
-        alert('Translation saved successfully!');
+  alert(alertMsg('success.translationSaved'));
       }
       
     } catch (error) {
       console.error('Error saving translation:', error);
       if (showFeedback) {
-        alert('Failed to save translation. Please try again.');
+  alert(alertMsg('error.translationSaveFailed'));
       }
     } finally {
       if (showFeedback) setSaving(false);
@@ -212,7 +221,7 @@ export default function TranslationPage() {
 
   const submitForReview = async () => {
     if (!file || !user || !translatedText.trim()) {
-      alert('Please enter a translation before submitting.');
+alert(alertMsg('error.pleaseEnterTranslation'));
       return;
     }
     
@@ -244,7 +253,7 @@ export default function TranslationPage() {
 
       const result = await response.json();
 
-      alert(`🎉 Translation submitted for review!\n\nReview ID: ${result.data.reviewId}\nYour translation has been saved and sent for expert review. You will be notified when the review is complete.`);
+alert(alertMsg('success.translationSubmitted', { reviewId: result.data.reviewId }));
       
       // Redirect back to project
       if (project) {
@@ -255,7 +264,7 @@ export default function TranslationPage() {
       
     } catch (error) {
       console.error('Error submitting for review:', error);
-      alert('Failed to submit for review. Please try again.');
+alert(alertMsg('error.submitReviewFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -273,19 +282,19 @@ export default function TranslationPage() {
   };
 
   const getFileStatusInfo = () => {
-    if (!file) return { color: 'gray', label: 'Unknown' };
+    if (!file) return { color: 'gray', label: fileStatus('unknown') };
     
     switch (file.status) {
       case 'not taken':
-        return { color: 'blue', label: 'Available' };
+        return { color: 'blue', label: fileStatus('available') };
       case 'in progress':
-        return { color: 'orange', label: 'In Progress' };
+        return { color: 'orange', label: fileStatus('inProgress') };
       case 'pending':
-        return { color: 'yellow', label: 'Pending Review' };
+        return { color: 'yellow', label: fileStatus('pendingReview') };
       case 'rejected':
-        return { color: 'red', label: 'Needs Revision' };
+        return { color: 'red', label: fileStatus('needsRevision') };
       case 'accepted':
-        return { color: 'green', label: 'Accepted' };
+        return { color: 'green', label: fileStatus('accepted') };
       default:
         return { color: 'gray', label: file.status };
     }
@@ -295,8 +304,8 @@ export default function TranslationPage() {
   if (!mobileLoading && shouldRestrict) {
     return (
       <MobileRestriction 
-        title="Translation Editor Not Available"
-        description="The translation editor requires a desktop environment for optimal text editing, review tools, and formatting controls."
+        title={messages('translationEditorNotAvailable')}
+        description={messages('translationEditorDescription')}
       />
     );
   }
@@ -304,7 +313,7 @@ export default function TranslationPage() {
   if (loading) {
     return (
       <UnifiedLoader 
-        message="Loading translation editor..."
+        message={loader('loadingTranslationEditor')}
         showHeader={true}
         theme="orange"
       />
@@ -316,16 +325,16 @@ export default function TranslationPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
         <Card className="p-6 text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Translation Not Available</h2>
-          <p className="text-red-600 mb-4">{error || 'File not found'}</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{messages('translationNotAvailable')}</h2>
+          <p className="text-red-600 mb-4">{error || messages('fileNotFound')}</p>
           <div className="space-y-2">
             <Button onClick={() => router.back()} variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
+              {buttons('goBack')}
             </Button>
             <Link href="/projects">
               <Button className="bg-orange-600 hover:bg-orange-700">
-                Browse Projects
+                {buttons('browseProjects')}
               </Button>
             </Link>
           </div>
@@ -576,7 +585,7 @@ export default function TranslationPage() {
                     <textarea
                       value={translatedText}
                       onChange={(e) => handleTranslationChange(e.target.value)}
-                      placeholder="Enter Armenian translation here..."
+    placeholder={placeholders('enterTranslation')}
                       className="w-full h-80 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                       style={{ 
                         fontFamily: 'Arial, sans-serif',
@@ -593,7 +602,7 @@ export default function TranslationPage() {
                       <textarea
                         value={translatorNotes}
                         onChange={(e) => setTranslatorNotes(e.target.value)}
-                        placeholder="Add notes about translation choices, context, etc."
+      placeholder={placeholders('translationNotes')}
                         className="w-full h-20 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                       />
                     </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, RefreshCw, AlertTriangle, Home, Bug } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function Error({
   error,
@@ -13,6 +14,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const tooltips = useTranslations('Tooltips');
   useEffect(() => {
     // Log the error to an error reporting service
     console.error('Application error:', error);
@@ -119,7 +121,7 @@ export default function Error({
             <Button
               onClick={reset}
               className="bg-orange-600 hover:bg-orange-700"
-              title="Try to recover from the error"
+  title={tooltips('tryRecover')}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
@@ -128,7 +130,7 @@ export default function Error({
             <Button
               asChild
               variant="outline"
-              title="Go back to the homepage"
+  title={tooltips('goBackHomepage')}
             >
               <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
@@ -139,7 +141,7 @@ export default function Error({
             <Button
               asChild
               variant="outline"
-              title="Visit your dashboard"
+  title={tooltips('visitDashboard')}
             >
               <Link href="/dashboard">
                 <BookOpen className="h-4 w-4 mr-2" />
