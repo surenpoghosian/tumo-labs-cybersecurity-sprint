@@ -6,14 +6,21 @@ import { FirestoreUserProfile } from '@/lib/firestore';
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    await verifyAuthToken(authHeader);
+    const requesterId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();
     const { targetUserId, role = 'moderator' } = body;
     
-    // For now, allow any authenticated user to promote (we can add admin checks later)
-    // In production, you'd want to check if the current user is an admin
+    // Only administrators can promote other users
+    const requesterDoc = await firestore.collection('userProfiles').doc(requesterId).get();
+    const requester = requesterDoc.exists ? (requesterDoc.data() as FirestoreUserProfile) : null;
+    if (!requester || requester.role !== 'administrator') {
+      return NextResponse.json(
+        { error: 'Forbidden: Only administrators can promote users' },
+        { status: 403 }
+      );
+    }
     
     if (!targetUserId) {
       return NextResponse.json(
@@ -39,7 +46,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update the user's role and moderator status
+    // Update the target user's role and moderator status
     const updateData = {
       role: role,
       isModerator: true,

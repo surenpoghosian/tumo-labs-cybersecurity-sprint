@@ -19,26 +19,47 @@ export async function GET(request: Request) {
       let snapshot;
       
       if (statusFilter === 'accepted') {
-        // For approved documents view, get all accepted files
-        snapshot = await firestore
+        // For approved documents view, return only publicly visible accepted files
+        const publicAccepted = await firestore
           .collection('files')
           .where('status', '==', 'accepted')
+          .where('visibility', 'in', ['public', 'unlisted'] as unknown as string)
           .get();
+
+        // Also include accepted files that this user owns/works on
+        const [ownedAccepted, assignedAccepted, reviewerAccepted] = await Promise.all([
+          firestore.collection('files').where('status', '==', 'accepted').where('uId', '==', userId).get(),
+          firestore.collection('files').where('status', '==', 'accepted').where('assignedTranslatorId', '==', userId).get(),
+          firestore.collection('files').where('status', '==', 'accepted').where('reviewerId', '==', userId).get(),
+        ]);
+
+        const allDocs = [
+          ...publicAccepted.docs,
+          ...ownedAccepted.docs,
+          ...assignedAccepted.docs,
+          ...reviewerAccepted.docs,
+        ];
+
+        const seen = new Set<string>();
+        allDocs.forEach((doc) => {
+          if (seen.has(doc.id)) return;
+          seen.add(doc.id);
+          files.push({ id: doc.id, ...doc.data() } as FirestoreFile);
+        });
       } else {
         // Get all files accessible to the user (assigned or available)
         snapshot = await firestore
           .collection('files')
           .where('uId', '==', userId)
           .get();
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          files.push({
+            ...data,
+            id: doc.id,
+          } as FirestoreFile);
+        });
       }
-
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        files.push({
-          ...data,
-          id: doc.id,
-        } as FirestoreFile);
-      });
 
       // Also get files assigned to the user
       const assignedSnapshot = await firestore

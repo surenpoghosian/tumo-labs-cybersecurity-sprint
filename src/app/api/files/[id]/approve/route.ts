@@ -43,7 +43,9 @@ export async function POST(
       status: approved ? 'accepted' : 'rejected',
       reviewerId: userId,
       updatedAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
+      // If approved, make file public by default unless explicitly set otherwise elsewhere
+      ...(approved ? { visibility: currentData.visibility || 'public', publishedAt: currentData.publishedAt || new Date().toISOString() } : {}),
     };
 
     // Update the file

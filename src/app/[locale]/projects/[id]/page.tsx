@@ -34,7 +34,7 @@ interface ProjectDetailData extends FirestoreProject {
 }
 
 export default function ProjectDetailPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string };
   const router = useRouter();
   const { user } = useAuth();
   const [project, setProject] = useState<ProjectDetailData | null>(null);
@@ -48,7 +48,7 @@ export default function ProjectDetailPage() {
     if (user && params.id) {
       fetchProject();
     }
-  }, [params.id, user]);
+  }, [params?.id, user]);
 
   const fetchProject = async () => {
     if (!user) {
@@ -60,7 +60,7 @@ export default function ProjectDetailPage() {
       setLoading(true);
       const token = await user.getIdToken();
       
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${params?.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
