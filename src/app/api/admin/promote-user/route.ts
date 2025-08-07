@@ -3,17 +3,24 @@ import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreUserProfile } from '@/lib/firestore';
 
+function isAdmin(userId: string): boolean {
+  const allowlist = (process.env.ADMIN_USER_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return allowlist.includes(userId);
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    await verifyAuthToken(authHeader);
+    const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
     const body = await request.json();
     const { targetUserId, role = 'moderator' } = body;
     
-    // For now, allow any authenticated user to promote (we can add admin checks later)
-    // In production, you'd want to check if the current user is an admin
+    // Restrict to admins only via allowlist
+    if (!isAdmin(userId)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     
     if (!targetUserId) {
       return NextResponse.json(

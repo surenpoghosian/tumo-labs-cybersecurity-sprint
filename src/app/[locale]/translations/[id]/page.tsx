@@ -59,13 +59,21 @@ export default function TranslationDetailPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetchTranslation();
-  }, [params.id]);
+    const id = (params as { id?: string } | null)?.id;
+    if (id) {
+      fetchTranslation();
+    }
+  }, [params]);
 
   const fetchTranslation = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/translations/${params.id}/public`);
+      const id = (params as { id?: string } | null)?.id;
+      if (!id) {
+        setError('Translation ID is missing.');
+        return;
+      }
+      const response = await fetch(`/api/translations/${id}/public`);
       
       if (!response.ok) {
         if (response.status === 404) {

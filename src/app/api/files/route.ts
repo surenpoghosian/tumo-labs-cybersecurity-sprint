@@ -2,10 +2,61 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreFile, updateUserStats } from '@/lib/firestore';
+import { verifyNextAuthBearerToken } from '@/lib/auth-server';
+import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+
+function isObjectId(val: unknown): val is { toString: () => string } {
+  return !!val && typeof (val as { toString: unknown }).toString === 'function';
+}
+
+function serializeDoc(doc: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(doc)) {
+    if (key === '_id' && isObjectId(value)) {
+      result.id = value.toString();
+      continue;
+    }
+    result[key] = isObjectId(value) ? value.toString() : value;
+  }
+  return result;
+}
 
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
+
+    if (process.env.USE_MONGO === 'true') {
+      const authRes = await verifyNextAuthBearerToken(authHeader);
+      if (!authRes.success || !authRes.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const client = await clientPromise;
+      const db = client.db('armenian-docs');
+      const documents = db.collection('documents');
+      const url = new URL(request.url);
+      const statusFilter = url.searchParams.get('status');
+
+      let query: Record<string, unknown> = {};
+      if (statusFilter === 'accepted') {
+        query.status = 'accepted';
+      } else {
+        query = { $or: [ { userId: new ObjectId(authRes.userId) }, { assignedTranslatorId: new ObjectId(authRes.userId) } ] };
+      }
+      const files = await documents.find(query).toArray();
+      const serialized = files.map((f) => serializeDoc(f as unknown as Record<string, unknown>));
+
+      const stats = {
+        total: files.length,
+        available: files.filter(f => f.status === 'not taken').length,
+        inProgress: files.filter(f => f.status === 'in progress').length,
+        pending: files.filter(f => f.status === 'pending').length,
+        accepted: files.filter(f => f.status === 'accepted').length,
+        rejected: files.filter(f => f.status === 'rejected').length,
+      };
+
+      return NextResponse.json({ success: true, data: serialized, meta: { ...stats, isEmpty: files.length === 0, userId: authRes.userId } });
+    }
+
     const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     
@@ -110,6 +161,48 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
+
+    if (process.env.USE_MONGO === 'true') {
+      const authRes = await verifyNextAuthBearerToken(authHeader);
+      if (!authRes.success || !authRes.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const body = await request.json();
+      const { projectId, fileName, filePath, originalText, wordCount, estimatedHours } = body;
+      if (!projectId || !fileName || !filePath || !originalText) {
+        return NextResponse.json({ error: 'Missing required fields: projectId, fileName, filePath, originalText', success: false }, { status: 400 });
+      }
+      if (!originalText.trim()) {
+        return NextResponse.json({ error: 'Original text cannot be empty', success: false }, { status: 400 });
+      }
+      const calculatedWordCount = wordCount || originalText.trim().split(/\s+/).filter((w: string) => w?.length > 0)?.length;
+      const calculatedEstimatedHours = estimatedHours || Math.max(0.5, Math.ceil(calculatedWordCount / 250));
+
+      const client = await clientPromise;
+      const db = client.db('armenian-docs');
+      const documents = db.collection('documents');
+      const fileData = {
+        userId: new ObjectId(authRes.userId),
+        projectId: new ObjectId(projectId),
+        fileName: fileName.trim(),
+        filePath: filePath.trim(),
+        originalText: originalText.trim(),
+        translatedText: '',
+        status: 'not taken',
+        translations: [],
+        metadata: {
+          wordCount: calculatedWordCount,
+          estimatedHours: calculatedEstimatedHours,
+          actualHours: 0,
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastModified: new Date(),
+        visibility: 'private',
+      };
+      const result = await documents.insertOne(fileData);
+      return NextResponse.json({ success: true, data: { id: result.insertedId.toString(), ...fileData }, message: 'File created successfully' }, { status: 201 });
+    }
+
     const userId = await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
     

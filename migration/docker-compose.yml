@@ -1,0 +1,179 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/cache:/var/cache/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  app:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/armenian-docs
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./certificates:/app/certificates
+    depends_on:
+      - mongo
+      - redis
+      - minio
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=armenian-docs
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9001:9001"  # MinIO console
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Optional: Analytics replacement
+  matomo:
+    image: matomo:latest
+    volumes:
+      - matomo_data:/var/www/html
+    environment:
+      - MATOMO_DATABASE_HOST=mariadb
+      - MATOMO_DATABASE_USERNAME=matomo
+      - MATOMO_DATABASE_PASSWORD=${MATOMO_DB_PASSWORD}
+      - MATOMO_DATABASE_DBNAME=matomo
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  mariadb:
+    image: mariadb:10
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=matomo
+      - MYSQL_USER=matomo
+      - MYSQL_PASSWORD=${MATOMO_DB_PASSWORD}
+    volumes:
+      - matomo_db:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Backup service
+  backup:
+    image: alpine:latest
+    volumes:
+      - ./backups:/backups
+      - mongo_data:/mongo_data:ro
+      - minio_data:/minio_data:ro
+      - redis_data:/redis_data:ro
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/armenian-docs
+      - REDIS_URL=redis://redis:6379
+    command: |
+      sh -c "
+        apk add --no-cache mongodb-tools redis mc &&
+        while true; do
+          echo 'Running backup...' &&
+          mongodump --uri=$$MONGODB_URI --gzip --archive=/backups/mongo-$$(date +%Y%m%d-%H%M%S).gz &&
+          redis-cli -u $$REDIS_URL --rdb /backups/redis-$$(date +%Y%m%d-%H%M%S).rdb &&
+          mc mirror --overwrite /minio_data /backups/minio-$$(date +%Y%m%d-%H%M%S)/ &&
+          find /backups -name '*.gz' -mtime +30 -delete &&
+          find /backups -name '*.rdb' -mtime +30 -delete &&
+          find /backups -type d -name 'minio-*' -mtime +30 -exec rm -rf {} + &&
+          echo 'Backup complete. Sleeping for 24 hours...' &&
+          sleep 86400
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  matomo_data:
+  matomo_db:
+
+networks:
+  app-network:
+    driver: bridge

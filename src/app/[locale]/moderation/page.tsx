@@ -106,9 +106,10 @@ export default function ModerationPage() {
         params.append('status', filter);
       }
 
+      const token = user && (user as any).getIdToken ? await (user as any).getIdToken() : undefined;
       const response = await fetch(`/api/reviews?${params.toString()}`, {
         headers: {
-          'Authorization': `Bearer ${await user?.getIdToken()}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
       });
 
@@ -139,9 +140,10 @@ export default function ModerationPage() {
     try {
       setLoadingDocs(true);
       
+      const token = user && (user as any).getIdToken ? await (user as any).getIdToken() : undefined;
       const response = await fetch('/api/files?status=accepted', {
         headers: {
-          'Authorization': `Bearer ${await user?.getIdToken()}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
       });
 
@@ -174,11 +176,12 @@ export default function ModerationPage() {
     setProcessing(prev => ({ ...prev, [reviewId]: true }));
     
     try {
+      const token = user && (user as any).getIdToken ? await (user as any).getIdToken() : undefined;
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user?.getIdToken()}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           reviewId,
@@ -207,11 +210,12 @@ export default function ModerationPage() {
     setProcessing(prev => ({ ...prev, [reviewId]: true }));
     
     try {
+      const token = user && (user as any).getIdToken ? await (user as any).getIdToken() : undefined;
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user?.getIdToken()}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           reviewId,
@@ -561,7 +565,7 @@ export default function ModerationPage() {
                       </div>
                     )}
                     
-                    {(review.status === 'in-progress' && review.reviewerId === user?.uid) && (
+                    {(review.status === 'in-progress' && review.reviewerId === user?.id) && (
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">

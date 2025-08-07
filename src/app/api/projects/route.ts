@@ -3,11 +3,54 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { FirestoreProject } from '@/lib/firestore';
+import { verifyNextAuthBearerToken } from '@/lib/auth-server';
+import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
-    await verifyAuthToken(authHeader); // Verify user is authenticated
+
+    // Feature flag: use Mongo + NextAuth when enabled
+    if (process.env.USE_MONGO === 'true') {
+      const authRes = await verifyNextAuthBearerToken(authHeader);
+      if (!authRes.success) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const client = await clientPromise;
+      const db = client.db('armenian-docs');
+      const projectsCol = db.collection('projects');
+      const documentsCol = db.collection('documents');
+
+      const projects = await projectsCol.find({ availableForTranslation: true }).toArray();
+      const enriched = await Promise.all(projects.map(async (p) => {
+        const files = await documentsCol.find({ projectId: p._id }).toArray();
+        const totalFiles = files.length;
+        const completedFiles = files.filter(f => ['accepted','pending'].includes(f.status)).length;
+        const estimatedHours = files.reduce((s, f) => s + (f.metadata?.estimatedHours || 0), 0);
+        const translationProgress = totalFiles ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        return {
+          id: p._id.toString(),
+          ...p,
+          _id: undefined,
+          files: files.map(f => f._id.toString()),
+          translationProgress,
+          estimatedHours: estimatedHours || p.estimatedHours || 0,
+        } as unknown as FirestoreProject;
+      }));
+
+      return NextResponse.json({
+        success: true,
+        data: enriched,
+        meta: {
+          total: enriched.length,
+          available: enriched.filter(p => p.availableForTranslation).length,
+          isEmpty: enriched.length === 0
+        }
+      });
+    }
+
+    // Default: Firebase
+    await verifyAuthToken(authHeader);
     const firestore = await getFirestore();
 
     let projects: FirestoreProject[] = [];
@@ -95,6 +138,48 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // Feature flag
+    if (process.env.USE_MONGO === 'true') {
+      const authHeader = request.headers.get('authorization') || '';
+      const authRes = await verifyNextAuthBearerToken(authHeader);
+      if (!authRes.success || !authRes.userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      const body = await request.json();
+      const { title, version, description, developedBy, difficulty, source, categories, estimatedHours, availableForTranslation = true } = body;
+      if (!title || !version || !description || !developedBy || difficulty === undefined || !source || !categories) {
+        return NextResponse.json({ error: 'Missing required fields: title, version, description, developedBy, difficulty, source, categories', success: false }, { status: 400 });
+      }
+      if (!Array.isArray(categories)) {
+        return NextResponse.json({ error: 'Categories must be an array', success: false }, { status: 400 });
+      }
+
+      const client = await clientPromise;
+      const db = client.db('armenian-docs');
+      const projectsCol = db.collection('projects');
+      const projectData = {
+        userId: new ObjectId(authRes.userId),
+        title: title.trim(),
+        version: version.trim(),
+        description: description.trim(),
+        developedBy: developedBy.trim(),
+        difficulty: Math.max(1, Math.min(5, Number(difficulty))),
+        source: source.trim(),
+        categories: categories.filter((c: string) => c && c.trim()),
+        status: 'not started',
+        files: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        estimatedHours: Math.max(0, estimatedHours || 0),
+        translationProgress: 0,
+        availableForTranslation,
+      };
+      const result = await projectsCol.insertOne(projectData);
+      return NextResponse.json({ success: true, data: { id: result.insertedId.toString(), ...projectData }, message: 'Project created successfully' }, { status: 201 });
+    }
+
+    // Default: Firebase
     const userId = await verifyAuthToken();
     const firestore = await getFirestore();
     
