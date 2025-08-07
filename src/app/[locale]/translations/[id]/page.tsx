@@ -51,7 +51,7 @@ interface TranslationDetail {
 }
 
 export default function TranslationDetailPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string };
   const [translation, setTranslation] = useState<TranslationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,12 +60,12 @@ export default function TranslationDetailPage() {
 
   useEffect(() => {
     fetchTranslation();
-  }, [params.id]);
+  }, [params?.id]);
 
   const fetchTranslation = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/translations/${params.id}/public`);
+      const response = await fetch(`/api/translations/${params?.id}/public`);
       
       if (!response.ok) {
         if (response.status === 404) {

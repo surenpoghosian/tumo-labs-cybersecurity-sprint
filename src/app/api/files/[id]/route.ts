@@ -95,12 +95,32 @@ export async function PUT(
     };
 
     if (translatedText !== undefined) updateData.translatedText = translatedText;
-    if (status !== undefined) updateData.status = status;
+
+    // Prevent users from self-approving or arbitrarily publishing files via status
+    if (status !== undefined) {
+      const allowedStatuses: Array<FirestoreFile['status']> = ['in progress', 'pending'];
+      if (!allowedStatuses.includes(status)) {
+        return NextResponse.json({ error: 'Invalid status transition' }, { status: 400 });
+      }
+      updateData.status = status;
+    }
+
+    // Only allow assigning yourself when taking an available file; otherwise block
+    if (assignedTranslatorId !== undefined && assignedTranslatorId !== userId) {
+      return NextResponse.json({ error: 'Cannot assign other users' }, { status: 403 });
+    }
     if (assignedTranslatorId !== undefined) updateData.assignedTranslatorId = assignedTranslatorId;
-    if (reviewerId !== undefined) updateData.reviewerId = reviewerId;
+
+    // Reviewer can only be set by moderators in dedicated endpoints
+    if (reviewerId !== undefined) {
+      return NextResponse.json({ error: 'Reviewer can only be assigned by moderators' }, { status: 403 });
+    }
     if (actualHours !== undefined) updateData.actualHours = actualHours;
     if (translations !== undefined) updateData.translations = translations;
-    if (visibility !== undefined) updateData.visibility = visibility;
+    // Visibility changes restricted: only moderators can change visibility in approval flow
+    if (visibility !== undefined) {
+      return NextResponse.json({ error: 'Visibility can only be changed by moderators' }, { status: 403 });
+    }
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
     if (seoTitle !== undefined) updateData.seoTitle = seoTitle;
     if (seoDescription !== undefined) updateData.seoDescription = seoDescription;

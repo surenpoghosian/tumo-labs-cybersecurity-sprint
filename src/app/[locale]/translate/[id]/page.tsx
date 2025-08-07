@@ -28,10 +28,10 @@ import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
 
 export default function TranslationPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string };
   const router = useRouter();
   const { user } = useAuth();
-  const fileId = params.id as string;
+  const fileId = (params?.id || '') as string;
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();

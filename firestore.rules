@@ -43,8 +43,9 @@ service cloud.firestore {
       // Allow public read access for projects (needed for public documentation)
       allow read: if true;
       allow create: if canCreate();
-      allow update: if hasAccess() || isAdminOrModerator();
-      allow delete: if hasAccess() || isAdminOrModerator();
+      // Only owner can update project; admins/moderators can also update
+      allow update: if (isAuthenticated() && request.auth.uid == resource.data.createdBy) || isAdminOrModerator();
+      allow delete: if (isAuthenticated() && request.auth.uid == resource.data.createdBy) || isAdminOrModerator();
     }
 
     // Files Collection (core of file-based model)
@@ -61,11 +62,18 @@ service cloud.firestore {
         ))
       );
       allow create: if canCreate();
+      // Restrict who can update files and which fields can be changed
       allow update: if isAuthenticated() && (
-        hasAccess() || 
-        resource.data.assignedTranslatorId == request.auth.uid ||
-        resource.data.reviewerId == request.auth.uid ||
-        isAdminOrModerator()
+        // Translators can only update translation-related fields
+        (
+          (hasAccess() || resource.data.assignedTranslatorId == request.auth.uid) &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['translatedText','status','assignedTranslatorId','translations','actualHours','updatedAt','lastModified'])
+        ) ||
+        // Reviewers/moderators can update review/status/visibility
+        (
+          (resource.data.reviewerId == request.auth.uid || isAdminOrModerator()) &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['status','reviewerId','visibility','publishedAt','seoTitle','seoDescription','seoKeywords','updatedAt','lastModified'])
+        )
       );
       allow delete: if hasAccess() || isAdminOrModerator();
     }
