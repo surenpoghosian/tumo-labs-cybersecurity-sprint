@@ -45,10 +45,11 @@ export default function ProjectDetailPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    if (user && params.id) {
+    const pid = (params as { id?: string } | null)?.id;
+    if (user && pid) {
       fetchProject();
     }
-  }, [params.id, user]);
+  }, [params, user]);
 
   const fetchProject = async () => {
     if (!user) {
@@ -58,11 +59,12 @@ export default function ProjectDetailPage() {
 
     try {
       setLoading(true);
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const pid = (params as { id?: string } | null)?.id;
+      const response = await fetch(`/api/projects/${pid}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       });
       
@@ -84,8 +86,9 @@ export default function ProjectDetailPage() {
         // Auto-select file with priority: assigned to user > available > any file
         if (result.data.projectFiles && result.data.projectFiles?.length > 0) {
           // First priority: files assigned to the current user
+          const currentUserId = user?.id;
           const myAssignedFile = result.data.projectFiles.find((f: FirestoreFile) => 
-            f.assignedTranslatorId === user?.uid
+            f.assignedTranslatorId === currentUserId
           );
           
           if (myAssignedFile) {
@@ -135,17 +138,17 @@ export default function ProjectDetailPage() {
     if (!selectedFile || !user) return;
 
     try {
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
       const response = await fetch(`/api/files/${selectedFile.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           status: 'in progress',
-          assignedTranslatorId: user.uid,
+          assignedTranslatorId: user.id,
         }),
       });
 
@@ -181,13 +184,13 @@ export default function ProjectDetailPage() {
     
     setIsSeeding(true);
     try {
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
       const response = await fetch('/api/admin/seed-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ action: 'seed' }),
       });
@@ -240,7 +243,7 @@ export default function ProjectDetailPage() {
     }
 
     // Files assigned to current user
-    if (selectedFile.assignedTranslatorId === user.uid) {
+    if (selectedFile.assignedTranslatorId === user?.id) {
       if (selectedFile.status === 'in progress') {
         return (
           <Button onClick={handleStartTranslation} className="flex-1 bg-green-600 hover:bg-green-700">
@@ -308,7 +311,7 @@ export default function ProjectDetailPage() {
         </Button>
         <p className="text-xs text-gray-500 text-center">
           Status: {selectedFile.status}
-          {selectedFile.assignedTranslatorId && selectedFile.assignedTranslatorId !== user.uid && 
+          {selectedFile.assignedTranslatorId && selectedFile.assignedTranslatorId !== user?.id && 
             ' • Assigned to another translator'}
         </p>
       </div>
@@ -365,7 +368,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  const isProjectAdmin = project.createdBy === user?.uid;
+  const isProjectAdmin = project.createdBy === user?.id;
   const hasFiles = project.projectFiles && project.projectFiles?.length > 0;
 
   return (
@@ -469,8 +472,8 @@ export default function ProjectDetailPage() {
                         'text-gray-600'
                       }`}>
                         {file.status}
-                        {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && ' (other user)'}
-                        {file.assignedTranslatorId === user?.uid && ' (YOU)'}
+                       {file.assignedTranslatorId && file.assignedTranslatorId !== user?.id && ' (other user)'}
+                        {file.assignedTranslatorId === user?.id && ' (YOU)'}
                       </span>
                     </div>
                   ))}

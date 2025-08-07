@@ -31,7 +31,7 @@ export default function TranslationPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  const fileId = params.id as string;
+  const fileId = (params as { id?: string } | null)?.id || '';
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
@@ -86,12 +86,12 @@ export default function TranslationPage() {
         throw new Error('User not authenticated');
       }
 
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
       // Load file details
       const fileResponse = await fetch(`/api/files/${fileId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       });
       if (!fileResponse.ok) {
@@ -107,7 +107,7 @@ export default function TranslationPage() {
         try {
           const reviewRes = await fetch(`/api/reviews?fileId=${fileId}`, {
             headers: {
-              'Authorization': `Bearer ${token}`
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             }
           });
           if (reviewRes.ok) {
@@ -125,7 +125,7 @@ export default function TranslationPage() {
       if (fileData.projectId) {
         const projectResponse = await fetch(`/api/projects/${fileData.projectId}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           }
         });
         if (projectResponse.ok) {
@@ -175,13 +175,13 @@ export default function TranslationPage() {
     try {
       if (showFeedback) setSaving(true);
       
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
       const response = await fetch(`/api/files/${fileId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           translatedText,
@@ -222,14 +222,14 @@ export default function TranslationPage() {
       // First save the translation
       await saveTranslation(false);
       
-      const token = await user.getIdToken();
+      const token = user?.getIdToken ? await user.getIdToken() : undefined;
       
       // Submit for review and create review entry
       const response = await fetch(`/api/files/${fileId}/submit-review`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           translatedText,
@@ -335,13 +335,13 @@ export default function TranslationPage() {
   }
 
   // Check if user has permission to translate this file
-  const canTranslate = file.assignedTranslatorId === user?.uid || 
+  const canTranslate = file.assignedTranslatorId === user?.id || 
                        (file.status === 'not taken' && !file.assignedTranslatorId) ||
-                       file.createdBy === user?.uid; // Allow file creator to edit
+                       file.createdBy === user?.id; // Allow file creator to edit
 
   // Check if file is in read-only mode (submitted for review)
   const isUnderReview = file.status === 'pending';
-  const isReadOnly = isUnderReview && file.assignedTranslatorId === user?.uid;
+  const isReadOnly = isUnderReview && file.assignedTranslatorId === user?.id;
   
   const statusInfo = getFileStatusInfo();
 
@@ -353,7 +353,7 @@ export default function TranslationPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h2>
           <p className="text-gray-600 mb-4">
             This file is assigned to another translator. Current status: {file.status}
-            {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && 
+            {file.assignedTranslatorId && file.assignedTranslatorId !== user?.id && 
               " (assigned to someone else)"}
           </p>
           <div className="space-y-2 space-x-2">

@@ -36,11 +36,11 @@ export default function ProjectsPage() {
 
     try {
       setLoading(true);
-      const token = await user.getIdToken();
+      const token = user.getIdToken ? await user.getIdToken() : undefined;
       
       const response = await fetch('/api/projects', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       });
       const result = await response.json();
@@ -64,13 +64,13 @@ export default function ProjectsPage() {
     
     setIsSeeding(true);
     try {
-      const token = await user.getIdToken();
+      const token = user.getIdToken ? await user.getIdToken() : undefined;
       
       const response = await fetch('/api/admin/seed-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ action: 'seed' }),
       });

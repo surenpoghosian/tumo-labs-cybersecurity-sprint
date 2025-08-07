@@ -78,7 +78,7 @@ export function DocumentVisibilityControl({
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || !user.getIdToken) return;
 
     setSaving(true);
     try {

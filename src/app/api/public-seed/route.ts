@@ -3,6 +3,13 @@ import { seedExampleData } from '@/lib/seed-example-data';
 
 export async function POST() {
   try {
+    // Restrict to development and explicit allow flag
+    const allow = process.env.ALLOW_PUBLIC_SEED === 'true';
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (!(isDev && allow)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     // Use a test user ID for seeding public data
     const testUserId = 'test-user-123';
     

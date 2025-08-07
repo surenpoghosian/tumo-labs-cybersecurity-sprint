@@ -1,16 +1,21 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { auth, googleProvider, githubProvider } from '@/lib/firebase';
+import React, { createContext, useContext } from 'react';
+import { useSession, signIn, signOut, SessionProvider } from 'next-auth/react';
+
+interface AuthUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role?: 'contributor' | 'bot' | 'moderator' | 'administrator';
+  username?: string;
+  githubUsername?: string;
+  getIdToken?: () => Promise<string>;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithGitHub: () => Promise<void>;
@@ -27,53 +32,47 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+function AuthProviderInner({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
 
   const signInWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      throw error;
-    }
+    await signIn('google');
   };
 
   const signInWithGitHub = async () => {
-    try {
-      await signInWithPopup(auth, githubProvider);
-    } catch (error) {
-      console.error('Error signing in with GitHub:', error);
-      throw error;
-    }
+    await signIn('github');
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
+    await signOut();
   };
 
+  const nextAuthUser = (session?.user as AuthUser) || null;
   const value: AuthContextType = {
-    user,
-    loading,
+    user: nextAuthUser
+      ? {
+          ...nextAuthUser,
+          getIdToken: async () => {
+            const res = await fetch('/api/auth/token');
+            if (!res.ok) throw new Error('Failed to get token');
+            const data = await res.json();
+            return data.token as string;
+          },
+        }
+      : null,
+    loading: status === 'loading',
     signInWithGoogle,
     signInWithGitHub,
     logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}; 
+}
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <SessionProvider>
+      <AuthProviderInner>{children}</AuthProviderInner>
+    </SessionProvider>
+  );
+};

@@ -271,7 +271,7 @@ export function FolderBrowser({
     }
 
     // File node
-    const isAssignedToMe = node.file?.assignedTranslatorId === user?.uid;
+    const isAssignedToMe = node.file?.assignedTranslatorId === user?.id;
     const statusInfo = node.file ? getStatusBadge(node.file.status) : null;
     const canSelectFile = statusInfo?.canAccess && (isAssignedToMe || node.file?.status === 'not taken');
     
@@ -309,7 +309,7 @@ export function FolderBrowser({
               <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
                 {node.file.status === 'pending' && 'Under Review'}
                 {node.file.status === 'accepted' && 'Completed'}
-                {node.file.assignedTranslatorId && node.file.assignedTranslatorId !== user?.uid && 'Assigned to Other'}
+                {node.file.assignedTranslatorId && node.file.assignedTranslatorId !== user?.id && 'Assigned to Other'}
               </Badge>
             )}
             

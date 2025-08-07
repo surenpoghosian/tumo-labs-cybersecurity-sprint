@@ -42,7 +42,7 @@ export default function CertificatesPage() {
       try {
         // Prepare headers - include auth token if user is logged in
         const headers: Record<string, string> = {};
-        if (user) {
+        if (user?.getIdToken) {
           const token = await user.getIdToken();
           headers['Authorization'] = `Bearer ${token}`;
         }
@@ -93,7 +93,7 @@ export default function CertificatesPage() {
   const handleDownloadCertificate = async (certificate: Certificate) => {
     try {
       const filename = `${certificate.id}.pdf`;
-      const token = user ? await user.getIdToken() : null;
+      const token = user?.getIdToken ? await user.getIdToken() : null;
       const response = await fetch(`/api/certificates/download/${filename}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });

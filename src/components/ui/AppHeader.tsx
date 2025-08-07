@@ -147,10 +147,10 @@ export default function AppHeader({
                     className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-1 hover:bg-gray-200 transition-colors"
                   >
                     <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {authUser?.displayName?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
+                      {authUser?.name?.charAt(0) || authUser?.username?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
                     </div>
                     <span className="text-sm font-medium hidden lg:block">
-                      {authUser?.displayName || authUser?.email?.split('@')[0] || 'User'}
+                      {authUser?.name || authUser?.username || authUser?.email?.split('@')[0] || 'User'}
                     </span>
                     <ChevronDown className="h-4 w-4 text-gray-500" />
                   </button>
@@ -160,7 +160,7 @@ export default function AppHeader({
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                       <div className="p-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">
-                          {authUser?.displayName || 'User'}
+                          {authUser?.name || 'User'}
                         </p>
                         <p className="text-xs text-gray-500">{authUser?.email}</p>
                       </div>
@@ -196,7 +196,7 @@ export default function AppHeader({
               {/* User Avatar on Mobile */}
               {authUser && currentPage !== 'home' && (
                 <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  {authUser?.displayName?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
+                  {authUser?.name?.charAt(0) || authUser?.email?.charAt(0) || 'U'}
                 </div>
               )}
               
@@ -325,7 +325,7 @@ export default function AppHeader({
                     <div className="border-t border-gray-200 mt-3 pt-3">
                       <div className="px-3 py-2">
                         <p className="text-sm font-medium text-gray-900">
-                          {authUser?.displayName || 'User'}
+                          {authUser?.name || 'User'}
                         </p>
                         <p className="text-xs text-gray-500">{authUser?.email}</p>
                       </div>

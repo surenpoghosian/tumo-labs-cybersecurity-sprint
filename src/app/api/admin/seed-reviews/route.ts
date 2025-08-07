@@ -2,10 +2,18 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
 
+function isAdmin(userId: string): boolean {
+  const allowlist = (process.env.ADMIN_USER_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return allowlist.includes(userId);
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
     const userId = await verifyAuthToken(authHeader);
+    if (!isAdmin(userId)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const firestore = await getFirestore();
     
     // Create sample review data

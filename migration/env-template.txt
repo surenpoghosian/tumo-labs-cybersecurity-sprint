@@ -1,0 +1,85 @@
+# Database Configuration
+MONGODB_URI=mongodb://mongo:27017/armenian-docs
+MONGO_ROOT_USER=admin
+MONGO_ROOT_PASSWORD=secure_mongo_password_here
+
+# Redis Configuration
+REDIS_URL=redis://redis:6379
+REDIS_PASSWORD=secure_redis_password_here
+
+# Authentication (NextAuth.js)
+NEXTAUTH_URL=https://translate.yourdomain.com
+NEXTAUTH_SECRET=generate_32_char_secret_here
+
+# OAuth Providers
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# Object Storage (MinIO)
+MINIO_ENDPOINT=minio:9000
+MINIO_ROOT_USER=minio_admin
+MINIO_ROOT_PASSWORD=secure_minio_password_here
+MINIO_ACCESS_KEY=armenian_docs_access
+MINIO_SECRET_KEY=secure_access_key_here
+MINIO_BUCKET=armenian-docs
+
+# Monitoring
+GRAFANA_PASSWORD=secure_grafana_password
+
+# Analytics (Optional - Matomo)
+MATOMO_DB_PASSWORD=secure_matomo_db_password
+MARIADB_ROOT_PASSWORD=secure_mariadb_root_password
+
+# Application Settings
+NODE_ENV=production
+PORT=3000
+
+# GitHub Integration (for document fetching)
+GITHUB_TOKEN=your_github_personal_access_token
+
+# Email Configuration (Optional)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=notifications@yourdomain.com
+SMTP_PASSWORD=smtp_password_here
+EMAIL_FROM=Armenian Docs <notifications@yourdomain.com>
+
+# Sentry Error Tracking (Optional)
+SENTRY_DSN=https://your_sentry_dsn@sentry.io/project_id
+
+# Domain Configuration
+PUBLIC_URL=https://translate.yourdomain.com
+
+# Firebase Admin (for migration only)
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your_firebase_project.iam.gserviceaccount.com
+# IMPORTANT: keep line breaks as \n if using single-line env files
+FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nYOUR_KEY_LINES\n-----END PRIVATE KEY-----\n
+# Feature Flags
+ENABLE_PUBLIC_TRANSLATIONS=true
+ENABLE_CERTIFICATE_GENERATION=true
+ENABLE_ANALYTICS=true
+ENABLE_RATE_LIMITING=true
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000 # 15 minutes
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Session Configuration
+SESSION_MAX_AGE=2592000 # 30 days in seconds
+SESSION_UPDATE_AGE=86400 # 24 hours in seconds
+
+# File Upload Limits
+MAX_FILE_SIZE_MB=10
+ALLOWED_FILE_TYPES=.md,.txt,.rst,.adoc
+
+# Translation Memory
+TM_MIN_SIMILARITY_SCORE=0.8
+TM_MAX_RESULTS=10
+
+# Certificate Generation
+CERTIFICATE_ISSUER_NAME=Armenian CyberSec Docs
+CERTIFICATE_ISSUER_URL=https://translate.yourdomain.com
+CERTIFICATE_SIGNATURE_IMAGE_PATH=/app/certificates/signature.png

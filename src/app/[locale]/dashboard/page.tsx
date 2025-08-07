@@ -9,6 +9,8 @@ import { CertificationProgress } from "@/lib/certificationSystem";
 import { Award, Clock, CheckCircle, ArrowRight, Eye } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from '@/contexts/AuthContext';
+
+type UserWithToken = { getIdToken?: () => Promise<string>; id?: string; name?: string; username?: string };
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -52,6 +54,7 @@ function DashboardPageContent() {
   // const [loadingTest, setLoadingTest] = useState(false);
   
   const { user: authUser } = useAuth();
+  const authUserWithToken: UserWithToken | null = authUser as unknown as UserWithToken | null;
 
   // Firestore test functions
   // const addTestEntry = async () => {
@@ -112,16 +115,16 @@ function DashboardPageContent() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!authUser) {
+      if (!authUserWithToken) {
         setLoading(false);
         return;
       }
 
       try {
-        const token = await authUser.getIdToken();
+        const token = authUserWithToken?.getIdToken ? await authUserWithToken.getIdToken() : undefined;
         const response = await fetch('/api/dashboard', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           }
         });
         const result = await response.json();
@@ -139,20 +142,20 @@ function DashboardPageContent() {
       }
     };
 
-    if (authUser) {
+    if (authUserWithToken) {
       fetchDashboardData();
     }
-  }, [authUser]);
+  }, [authUserWithToken]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!authUser) return;
+      if (!authUserWithToken) return;
       
       try {
-        const idToken = await authUser.getIdToken();
+        const idToken = authUserWithToken?.getIdToken ? await authUserWithToken.getIdToken() : undefined;
         const response = await fetch('/api/user', {
           headers: {
-            'Authorization': `Bearer ${idToken}`
+            ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
           }
         });
         
@@ -166,13 +169,13 @@ function DashboardPageContent() {
     };
 
     fetchUserProfile();
-  }, [authUser]);
+  }, [authUserWithToken]);
 
   // Listen in real-time for changes to the user's profile (e.g., approvedTranslations)
   useEffect(() => {
-    if (!authUser) return;
+    if (!authUserWithToken || !authUserWithToken.id) return;
 
-    const profileDocRef = doc(db, 'userProfiles', authUser.uid);
+    const profileDocRef = doc(db, 'userProfiles', authUserWithToken.id!);
 
     const unsubscribe = onSnapshot(profileDocRef, (docSnap) => {
       if (!docSnap.exists()) return;
@@ -205,11 +208,11 @@ function DashboardPageContent() {
     });
 
     return () => unsubscribe();
-  }, [authUser]);
+  }, [authUserWithToken]);
 
   const handleDownloadCertificate = async (certificate: FirestoreCertificate) => {
     try {
-      const token = await authUser?.getIdToken();
+      const token = authUserWithToken?.getIdToken ? await authUserWithToken.getIdToken() : undefined;
       const response = await fetch(`/api/certificates/download/${certificate.id}.pdf`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
@@ -273,7 +276,7 @@ function DashboardPageContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {authUser?.displayName}!</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {authUser?.username || authUser?.name || 'Contributor'}!</h1>
           <p className="text-gray-600">Continue contributing to Armenian cybersecurity education</p>
         </div>
 
@@ -424,12 +427,12 @@ function DashboardPageContent() {
                             className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
                             onClick={async () => {
                               try {
-                                const token = await authUser?.getIdToken();
+                                const token = authUserWithToken?.getIdToken ? await authUserWithToken.getIdToken() : undefined;
                                 const response = await fetch('/api/certificates/claim', {
                                   method: 'POST',
                                   headers: {
                                     'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
+                                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                                   },
                                   body: JSON.stringify({ tierId: tier.id })
                                 });

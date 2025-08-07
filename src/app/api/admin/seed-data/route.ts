@@ -2,10 +2,18 @@ import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { seedExampleData, clearExampleData } from '@/lib/seed-example-data';
 
+function isAdmin(userId: string): boolean {
+  const allowlist = (process.env.ADMIN_USER_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return allowlist.includes(userId);
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
     const userId = await verifyAuthToken(authHeader);
+    if (!isAdmin(userId)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const body = await request.json();
     const { action = 'seed' } = body; // 'seed' or 'clear'
 
