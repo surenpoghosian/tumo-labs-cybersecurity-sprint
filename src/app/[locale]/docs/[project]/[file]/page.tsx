@@ -5,6 +5,7 @@ import Link from "next/link";
 import { fetchPublicTranslationById, PublicTranslation } from '@/lib/publicTranslations';
 import Markdown from '@/components/Markdown';
 import AppHeader from '@/components/ui/AppHeader';
+import { getTranslations } from 'next-intl/server';
 
 // Extend the base type with optional SEO fields that may or may not be present
 type ExtendedTranslation = PublicTranslation & {
@@ -35,7 +36,7 @@ async function getPublicTranslation(fileId: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { file: fileId } = await params;
   const translation = await getPublicTranslation(fileId) as ExtendedTranslation;
-  
+
   if (!translation) {
     return {
       title: 'Document Not Found | Armenian CyberSec Docs',
@@ -44,9 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const title = (translation.seoTitle as string | undefined) || `${translation.fileName} - ${translation.project.title} | Armenian Translation`;
-  const description = (translation.seoDescription as string | undefined) || 
+  const description = (translation.seoDescription as string | undefined) ||
     `Armenian translation of ${translation.fileName} from ${translation.project.title}. ${translation.project.description.substring(0, 100)}...`;
-  
+
   return {
     title,
     description,
@@ -90,19 +91,23 @@ export default async function DocumentPage({ params }: Props) {
   const { file: fileId } = await params;
   const translation = await getPublicTranslation(fileId) as ExtendedTranslation;
 
+  const docDetails = await getTranslations("DocDetails");
+  const projectDetail = await getTranslations("ProjectDetail");
+  const common = await getTranslations("Common");
+
   if (!translation) {
     notFound();
   }
 
   const getDifficultyBadge = (difficulty: number) => {
     const configs = {
-      1: { label: 'Beginner', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-      2: { label: 'Beginner+', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-      3: { label: 'Intermediate', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-      4: { label: 'Advanced', className: 'bg-red-100 text-red-700 border-red-200' },
-      5: { label: 'Expert', className: 'bg-purple-100 text-purple-700 border-purple-200' },
+      1: { label: docDetails("difficulty.beginner"), className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+      2: { label: docDetails("difficulty.beginnerPlus"), className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+      3: { label: docDetails("difficulty.intermediate"), className: 'bg-amber-100 text-amber-700 border-amber-200' },
+      4: { label: docDetails("difficulty.advanced"), className: 'bg-red-100 text-red-700 border-red-200' },
+      5: { label: docDetails("difficulty.expert"), className: 'bg-purple-100 text-purple-700 border-purple-200' },
     };
-    
+
     const config = configs[difficulty as keyof typeof configs] || configs[3];
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.className}`}>
@@ -114,7 +119,7 @@ export default async function DocumentPage({ params }: Props) {
   const formatReadingTime = (wordCount: number) => {
     const wordsPerMinute = 200;
     const minutes = Math.ceil(wordCount / wordsPerMinute);
-    return `${minutes} min read`;
+    return docDetails("readingTime", { minutes: minutes });
   };
 
   const formatDate = (dateString: string) => {
@@ -162,7 +167,7 @@ export default async function DocumentPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      
+
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <AppHeader currentPage="docs" />
@@ -172,9 +177,9 @@ export default async function DocumentPage({ params }: Props) {
           <div className="max-w-4xl mx-auto px-4 py-4 md:py-6">
             {/* Breadcrumb */}
             <nav className="flex items-center space-x-2 text-xs md:text-sm text-gray-500 mb-3 md:mb-4 overflow-x-auto">
-              <Link href="/docs" className="hover:text-orange-600 transition-colors whitespace-nowrap">Documentation</Link>
+              <Link href="/docs" className="hover:text-orange-600 transition-colors whitespace-nowrap">{projectDetail("projectInfo.documentation")}</Link>
               <span>›</span>
-              <Link 
+              <Link
                 href={`/docs?project=${encodeURIComponent(translation.project.title)}`}
                 className="hover:text-orange-600 transition-colors whitespace-nowrap"
               >
@@ -189,23 +194,23 @@ export default async function DocumentPage({ params }: Props) {
               <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
                 {translation.fileName.replace(/\.(md|rst|txt)$/i, '').replace(/[-_]/g, ' ')}
               </h1>
-              
+
               {/* Compact meta info - Mobile scrollable */}
               <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-600 overflow-x-auto pb-2">
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                    {(translation.translator?.name || 'AC').substring(0, 2).toUpperCase()}
+                    {(translation.translator?.name || docDetails("acShort"))}
                   </div>
                   <span className="hidden sm:inline">{translation.translator?.name || 'Armenian CyberSec Community'}</span>
                   <span className="sm:hidden">AC</span>
                 </div>
-                
+
                 <span className="text-gray-400">•</span>
                 <span className="whitespace-nowrap">{formatDate(translation.completedAt)}</span>
-                
+
                 <span className="text-gray-400">•</span>
                 <span className="whitespace-nowrap">{formatReadingTime(translation.wordCount)}</span>
-                
+
                 <div className="whitespace-nowrap">
                   {getDifficultyBadge(translation.project.difficulty)}
                 </div>
@@ -217,21 +222,21 @@ export default async function DocumentPage({ params }: Props) {
               <Link href="/docs">
                 <button className="flex items-center gap-2 px-3 py-1 text-xs md:text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
                   <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="hidden sm:inline">Back to Articles</span>
-                  <span className="sm:hidden">Back</span>
+                  <span className="hidden sm:inline">{docDetails("backToArticles")}</span>
+                  <span className="sm:hidden">{common("back")}</span>
                 </button>
               </Link>
-              
+
               {translation.project.source && (
-                <a 
+                <a
                   href={translation.project.source as string}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1 text-xs md:text-sm text-orange-600 hover:text-orange-700 transition-colors whitespace-nowrap"
                 >
                   <Github className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="hidden sm:inline">View Source</span>
-                  <span className="sm:hidden">Source</span>
+                  <span className="hidden sm:inline">{docDetails("viewSource")}</span>
+                  <span className="sm:hidden">{docDetails("source")}</span>
                 </a>
               )}
             </div>
@@ -248,21 +253,20 @@ export default async function DocumentPage({ params }: Props) {
 
           {/* Call to Action */}
           <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl md:rounded-2xl p-6 md:p-8 text-white text-center">
-            <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Help Improve Armenian Cybersecurity Knowledge</h3>
+            <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">{docDetails("ctaTitle")}</h3>
             <p className="text-base md:text-lg text-orange-100 mb-4 md:mb-6 max-w-2xl mx-auto leading-relaxed">
-              Found this translation helpful? Join our community of translators and security experts 
-              to help make more resources available in Armenian.
+              {docDetails("ctaDescription")}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
               <Link href="/dashboard">
                 <button className="bg-white text-orange-600 hover:bg-orange-50 px-6 md:px-8 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl text-sm md:text-base">
-                  Join Translation Community
+                  {docDetails("ctaJoin")}
                 </button>
               </Link>
               <Link href="/docs">
                 <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-6 md:px-8 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all duration-200 text-sm md:text-base">
-                  Read More Articles
+                  {docDetails("ctaReadMore")}
                 </button>
               </Link>
             </div>
@@ -271,4 +275,4 @@ export default async function DocumentPage({ params }: Props) {
       </div>
     </>
   );
-} 
+}

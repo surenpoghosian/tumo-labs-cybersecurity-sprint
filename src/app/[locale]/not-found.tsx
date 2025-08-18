@@ -2,8 +2,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Home, Search, Shield, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function NotFound() {
+  const t = useTranslations('HomePage');
+  const navigation = useTranslations('Navigation');
+  const errors = useTranslations('Errors');
+  const notFound = useTranslations('NotFoundPage'); // <-- Add this line
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       {/* Header */}
@@ -11,13 +17,13 @@ export default function NotFound() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-orange-600" />
-            <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+            <span className="text-xl font-bold text-gray-900">{t('title')}</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            <Link href="/" className="text-gray-600 hover:text-orange-600">{navigation('home')}</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">{navigation('dashboard')}</Link>
+            <Link href="/projects" className="text-gray-600 hover:text-orange-600">{navigation('projects')}</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">{navigation('certificates')}</Link>
           </nav>
         </div>
       </header>
@@ -34,10 +40,10 @@ export default function NotFound() {
           </div>
 
           {/* Error Message */}
-          <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Page Not Found</h2>
+          <h1 className="text-6xl font-bold text-gray-900 mb-4">{errors('404')}</h1>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">{errors('pageNotFound')}</h2>
           <p className="text-gray-600 mb-8 text-lg">
-            The cybersecurity documentation page you&apos;re looking for doesn&apos;t exist or has been moved.
+            {errors('pageNotFoundDescription')}
           </p>
 
           {/* Search Suggestions */}
@@ -45,13 +51,13 @@ export default function NotFound() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Search className="h-5 w-5" />
-                What were you looking for?
+                {notFound('searchPrompt')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="text-left">
-                  <h4 className="font-medium text-gray-900 mb-2">🔒 CyberSec Projects</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">🔒 {notFound('cybersecProjects')}</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
                     <li>• OWASP Top 10 translations</li>
                     <li>• Metasploit documentation</li>
@@ -60,12 +66,12 @@ export default function NotFound() {
                   </ul>
                 </div>
                 <div className="text-left">
-                  <h4 className="font-medium text-gray-900 mb-2">📚 Platform Features</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">📚 {notFound('platformFeatures')}</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Translation editor</li>
-                    <li>• Certificate verification</li>
-                    <li>• Project dashboard</li>
-                    <li>• GitHub integration</li>
+                    <li>• {notFound('translationEditor')}</li>
+                    <li>• {notFound('certificateVerification')}</li>
+                    <li>• {notFound('projectDashboard')}</li>
+                    <li>• {notFound('githubIntegration')}</li>
                   </ul>
                 </div>
               </div>
@@ -77,49 +83,49 @@ export default function NotFound() {
             <Button 
               asChild 
               className="bg-orange-600 hover:bg-orange-700"
-              title="Go back to the homepage"
+              title={notFound('goHome')}
             >
               <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
-                Back to Home
+                {notFound('backToHome')}
               </Link>
             </Button>
             
             <Button 
               asChild 
               variant="outline"
-              title="Browse available cybersecurity projects"
+              title={notFound('browseProjects')}
             >
               <Link href="/projects">
                 <Shield className="h-4 w-4 mr-2" />
-                Browse Projects
+                {notFound('browseProjects')}
               </Link>
             </Button>
             
             <Button 
               asChild 
               variant="outline"
-              title="Go to your dashboard"
+              title={notFound('dashboard')}
             >
               <Link href="/dashboard">
                 <BookOpen className="h-4 w-4 mr-2" />
-                Dashboard
+                {notFound('dashboard')}
               </Link>
             </Button>
           </div>
 
           {/* Help Links */}
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Need Help?</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{notFound('needHelp')}</h3>
             <div className="flex justify-center space-x-6 text-sm">
               <Link href="/certificates" className="text-orange-600 hover:text-orange-700">
-                Certificate Verification
+                {notFound('certificateVerification')}
               </Link>
               <Link href="/projects" className="text-orange-600 hover:text-orange-700">
-                Available Projects
+                {notFound('availableProjects')}
               </Link>
               <Link href="/dashboard" className="text-orange-600 hover:text-orange-700">
-                Your Dashboard
+                {notFound('yourDashboard')}
               </Link>
             </div>
           </div>
@@ -127,4 +133,4 @@ export default function NotFound() {
       </div>
     </div>
   );
-} 
+}

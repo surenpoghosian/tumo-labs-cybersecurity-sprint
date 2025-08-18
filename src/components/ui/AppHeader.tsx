@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 interface UserProfile {
   isModerator?: boolean;
@@ -27,6 +28,7 @@ export default function AppHeader({
   const { user: authUser, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigation = useTranslations("Navigation");
   const router = useRouter();
 
   // Close mobile menu when screen size changes
@@ -77,12 +79,12 @@ export default function AppHeader({
             <nav className="hidden md:flex items-center space-x-6">
               {currentPage === 'home' ? (
                 <div className="flex items-center space-x-8">
-                  <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
-                  <a href="#process" className="text-gray-600 hover:text-gray-900">How It Works</a>
-                  <a href="#community" className="text-gray-600 hover:text-gray-900">Community</a>
+                  <a href="#features" className="text-gray-600 hover:text-gray-900">{navigation("features")}</a>
+                  <a href="#process" className="text-gray-600 hover:text-gray-900">{navigation("howItWorks")}</a>
+                  <a href="#community" className="text-gray-600 hover:text-gray-900">{navigation("community")}</a>
                   <Link href="/dashboard">
                     <Button variant="outline" className="bg-white hover:bg-gray-50 border border-gray-200 shadow-sm text-gray-900">
-                      Dashboard
+                      {navigation('dashboard')}
                     </Button>
                   </Link>
                 </div>
@@ -92,32 +94,32 @@ export default function AppHeader({
                     href="/docs" 
                     className={currentPage === 'docs' ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 transition-colors'}
                   >
-                    Documentation
+                    {navigation('documentation')}
                   </Link>
                   <Link 
                     href="/dashboard" 
                     className={currentPage === 'dashboard' ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 transition-colors'}
                   >
-                    Dashboard
+                    {navigation('dashboard')}
                   </Link>
                   <Link 
                     href="/projects" 
                     className={currentPage === 'projects' ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 transition-colors'}
                   >
-                    Projects
+                    {navigation('projects')}
                   </Link>
                   <Link 
                     href="/certificates" 
                     className={currentPage === 'certificates' ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 transition-colors'}
                   >
-                    Certificates
+                    {navigation('certificates')}
                   </Link>
                   {currentPage === 'translations' && (
                     <Link 
                       href="/translations" 
                       className="text-orange-600 font-medium"
                     >
-                      Translations
+                      {navigation('translations')}
                     </Link>
                   )}
                   {(userProfile?.isModerator || userProfile?.role === 'administrator') && (
@@ -125,7 +127,7 @@ export default function AppHeader({
                       href="/moderation" 
                       className={currentPage === 'moderation' ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 transition-colors'}
                     >
-                      Moderation
+                      {navigation('moderation')}
                     </Link>
                   )}
                 </>
@@ -177,7 +179,7 @@ export default function AppHeader({
                           className="w-full flex items-center space-x-2 px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
                         >
                           <LogOut className="h-4 w-4" />
-                          <span>Sign Out</span>
+                          <span>{navigation("signOut")}</span>
                         </button>
                       </div>
                     </div>

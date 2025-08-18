@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, RefreshCw, AlertTriangle, Home, Bug } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function Error({
   error,
@@ -17,6 +18,8 @@ export default function Error({
     // Log the error to an error reporting service
     console.error('Application error:', error);
   }, [error]);
+  const navigation = useTranslations("Navigation");
+  const errorPage = useTranslations("ErrorPage"); // <-- Add this line
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
@@ -28,10 +31,10 @@ export default function Error({
             <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-gray-600 hover:text-orange-600">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            <Link href="/" className="text-gray-600 hover:text-orange-600">{navigation("home")}</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">{navigation("dashboard")}</Link>
+            <Link href="/projects" className="text-gray-600 hover:text-orange-600">{navigation("projects")}</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">{navigation("certificates")}</Link>
           </nav>
         </div>
       </header>
@@ -48,10 +51,10 @@ export default function Error({
           </div>
 
           {/* Error Message */}
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Something went wrong!</h1>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">System Error</h2>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{errorPage("somethingWentWrong")}</h1>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">{errorPage("systemError")}</h2>
           <p className="text-gray-600 mb-8 text-lg">
-            We encountered an unexpected error while processing your request. Our security team has been notified.
+            {errorPage("unexpectedError")}
           </p>
 
           {/* Error Details */}
@@ -59,20 +62,20 @@ export default function Error({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bug className="h-5 w-5" />
-                Error Details
+                {errorPage("errorDetails")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-left">
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Error Message:</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">{errorPage("errorMessage")}</h4>
                   <code className="text-sm text-red-600 bg-red-50 p-2 rounded block">
-                    {error.message || 'Unknown error occurred'}
+                    {error.message || errorPage("unknownError")}
                   </code>
                 </div>
                 {error.digest && (
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Error ID:</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">{errorPage("errorId")}</h4>
                     <code className="text-sm text-gray-600 bg-gray-100 p-2 rounded block">
                       {error.digest}
                     </code>
@@ -87,27 +90,27 @@ export default function Error({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <RefreshCw className="h-5 w-5" />
-                Recovery Options
+                {errorPage("recoveryOptions")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="text-left">
-                  <h4 className="font-medium text-gray-900 mb-2">🔄 Try Again</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">🔄 {errorPage("tryAgain")}</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Refresh the page</li>
-                    <li>• Clear browser cache</li>
-                    <li>• Try a different browser</li>
-                    <li>• Check your internet connection</li>
+                    <li>• {errorPage("refreshPage")}</li>
+                    <li>• {errorPage("clearCache")}</li>
+                    <li>• {errorPage("tryDifferentBrowser")}</li>
+                    <li>• {errorPage("checkConnection")}</li>
                   </ul>
                 </div>
                 <div className="text-left">
-                  <h4 className="font-medium text-gray-900 mb-2">📱 Alternative Actions</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">📱 {errorPage("alternativeActions")}</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Visit your dashboard</li>
-                    <li>• Browse available projects</li>
-                    <li>• Check your certificates</li>
-                    <li>• Return to homepage</li>
+                    <li>• {errorPage("visitDashboard")}</li>
+                    <li>• {errorPage("browseProjects")}</li>
+                    <li>• {errorPage("checkCertificates")}</li>
+                    <li>• {errorPage("returnHome")}</li>
                   </ul>
                 </div>
               </div>
@@ -119,50 +122,50 @@ export default function Error({
             <Button
               onClick={reset}
               className="bg-orange-600 hover:bg-orange-700"
-              title="Try to recover from the error"
+              title={errorPage("tryToRecover")}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Try Again
+              {errorPage("tryAgain")}
             </Button>
 
             <Button
               asChild
               variant="outline"
-              title="Go back to the homepage"
+              title={errorPage("goHome")}
             >
               <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
-                Back to Home
+                {errorPage("backToHome")}
               </Link>
             </Button>
 
             <Button
               asChild
               variant="outline"
-              title="Visit your dashboard"
+              title={errorPage("visitDashboard")}
             >
               <Link href="/dashboard">
                 <BookOpen className="h-4 w-4 mr-2" />
-                Dashboard
+                {navigation("dashboard")}
               </Link>
             </Button>
           </div>
 
           {/* Help Information */}
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Still having issues?</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{errorPage("stillHavingIssues")}</h3>
             <div className="flex justify-center space-x-6 text-sm">
               <Link href="/projects" className="text-orange-600 hover:text-orange-700">
-                Browse Projects
+                {errorPage("browseProjects")}
               </Link>
               <Link href="/certificates" className="text-orange-600 hover:text-orange-700">
-                View Certificates
+                {errorPage("viewCertificates")}
               </Link>
               <button
                 onClick={() => window.location.reload()}
                 className="text-orange-600 hover:text-orange-700"
               >
-                Refresh Page
+                {errorPage("refreshPage")}
               </button>
             </div>
           </div>
@@ -170,4 +173,4 @@ export default function Error({
       </div>
     </div>
   );
-} 
+}

@@ -10,6 +10,8 @@ import AppHeader from '@/components/ui/AppHeader';
 
 export default function Home() {
   const homePage = useTranslations('HomePage');
+  const common = useTranslations('Common');
+  const footer = useTranslations('Footer');
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
       <AppHeader currentPage="home" />
@@ -18,8 +20,8 @@ export default function Home() {
       <section className="py-12 md:py-20 px-4">
         <div className="container mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
-            Transform Cybersecurity Documentation into
-            <span className="block text-orange-600">Armenian</span>
+            {homePage("hero.title").split(" ").slice(0, -1).join(" ")}
+            <span className="block text-orange-600">{homePage("hero.title").split(" ").pop()}</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-3xl mx-auto px-2">
             {homePage("hero.subtitle")}
@@ -29,7 +31,7 @@ export default function Home() {
             <Link href="/docs">
               <Button size="lg" variant="outline" className="border-orange-200 hover:bg-orange-50 text-gray-700 hover:text-orange-700 w-full sm:w-auto">
                 <BookOpen className="mr-2 h-5 w-5 text-orange-600" />
-                Browse Translations
+                {homePage("hero.browseTranslations")}
               </Button>
             </Link>
           </div>
@@ -39,18 +41,17 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row sm:items-center mb-3 gap-2">
               <div className="flex items-center">
                 <BookOpen className="h-5 w-5 text-orange-600 mr-2" />
-                <h3 className="font-medium text-gray-800">Already Translated Documents</h3>
+                <h3 className="font-medium text-gray-800">{homePage("hero.quickAccess.alreadyTranslated")}</h3>
               </div>
               <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 w-fit">
-                New
+                {common("new")}
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-              Access our collection of Armenian cybersecurity documentation, translated and reviewed by security experts.
-              All translations are available for free.
+              {homePage("hero.quickAccess.access")}
             </p>
             <Link href="/docs" className="flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium justify-center sm:justify-start">
-              View documentation library
+              {homePage("hero.quickAccess.viewDocument")}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
@@ -63,19 +64,19 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             <div className="bg-orange-50 rounded-lg p-4 md:p-6">
               <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">1,247</div>
-              <div className="text-sm md:text-base text-gray-600">Security Docs Translated</div>
+              <div className="text-sm md:text-base text-gray-600">{homePage("stats.docsTranslated")}</div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4 md:p-6">
               <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">89</div>
-              <div className="text-sm md:text-base text-gray-600">Active Security Translators</div>
+              <div className="text-sm md:text-base text-gray-600">{homePage("stats.translators")}</div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4 md:p-6">
               <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">15</div>
-              <div className="text-sm md:text-base text-gray-600">CyberSec GitHub Projects</div>
+              <div className="text-sm md:text-base text-gray-600">{homePage("stats.projects")}</div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4 md:p-6">
               <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">47</div>
-              <div className="text-sm md:text-base text-gray-600">Merged Pull Requests</div>
+              <div className="text-sm md:text-base text-gray-600">{homePage("stats.pullRequests")}</div>
             </div>
           </div>
         </div>
@@ -85,33 +86,33 @@ export default function Home() {
       <section id="features" className="py-12 md:py-20 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
-            Why Choose Armenian CyberSec Docs?
+            {homePage("features.title")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <Card>
               <CardHeader>
                 <Github className="h-10 w-10 text-orange-600 mb-4" />
-                <CardTitle>GitHub PR Integration</CardTitle>
+                <CardTitle>{homePage("features.github.title")}</CardTitle>
                 <CardDescription>
-                  Direct integration with cybersecurity projects. Submit translations as pull requests and get them merged
+                  {homePage("features.github.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
             <Card>
               <CardHeader>
                 <Users className="h-10 w-10 text-orange-600 mb-4" />
-                <CardTitle>Security Expert Review</CardTitle>
+                <CardTitle>{homePage("features.review.title")}</CardTitle>
                 <CardDescription>
-                  Community-driven security validation with cybersecurity expert reviews and feedback
+                  {homePage("features.review.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
             <Card>
               <CardHeader>
                 <Award className="h-10 w-10 text-orange-600 mb-4" />
-                <CardTitle>Earn Security Certificates</CardTitle>
+                <CardTitle>{homePage("features.certificates.title")}</CardTitle>
                 <CardDescription>
-                  Get verified certificates for cybersecurity translation contributions after GitHub PR merges
+                  {homePage("features.certificates.description")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -123,34 +124,34 @@ export default function Home() {
       <section id="process" className="py-12 md:py-20 bg-gray-50 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
-            How It Works
+            {homePage("process.title")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <div className="text-center p-4">
               <div className="bg-blue-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-xl md:text-2xl font-bold text-orange-600">1</span>
               </div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Choose a CyberSec Project</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">{homePage("process.step1.title")}</h3>
               <p className="text-gray-600 text-sm md:text-base">
-                Browse available cybersecurity projects and select documentation that needs translation
+                {homePage("process.step1.description")}
               </p>
             </div>
             <div className="text-center p-4">
               <div className="bg-orange-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-xl md:text-2xl font-bold text-orange-600">2</span>
               </div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Translate &amp; Submit PR</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">{homePage("process.step2.title")}</h3>
               <p className="text-gray-600 text-sm md:text-base">
-                Use our editor to translate content and submit pull requests to GitHub repositories
+                {homePage("process.step2.description")}
               </p>
             </div>
             <div className="text-center p-4">
               <div className="bg-orange-100 rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-xl md:text-2xl font-bold text-orange-600">3</span>
               </div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Earn Security Certificates</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">{homePage("process.step3.title")}</h3>
               <p className="text-gray-600 text-sm md:text-base">
-                Receive certificates after your PRs are merged and build your cybersecurity reputation
+                {homePage("process.step3.description")}
               </p>
             </div>
           </div>
@@ -161,29 +162,27 @@ export default function Home() {
       <section id="community" className="py-12 md:py-20 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 md:mb-12">
-            Join Our Community
+            {homePage("community.title")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div>
               <h3 className="text-2xl font-semibold mb-4">
-                Building Armenia&apos;s Tech Future
+                {homePage("community.subtitle")}
               </h3>
               <p className="text-gray-600 mb-6">
-                Every translation you contribute helps make technology more accessible to Armenian speakers.
-                Join a growing community of developers, translators, and tech enthusiasts working together
-                to bridge the language gap in technology education.
+                {homePage("community.description")}
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
-                <Badge variant="secondary">OWASP</Badge>
-                <Badge variant="secondary">Metasploit</Badge>
-                <Badge variant="secondary">Wireshark</Badge>
-                <Badge variant="secondary">Nmap</Badge>
-                <Badge variant="secondary">Burp Suite</Badge>
-                <Badge variant="secondary">Kali Linux</Badge>
+                <Badge variant="secondary">{homePage('tools.owasp')}</Badge>
+                <Badge variant="secondary">{homePage('tools.metasploit')}</Badge>
+                <Badge variant="secondary">{homePage('tools.wireshark')}</Badge>
+                <Badge variant="secondary">{homePage('tools.nmap')}</Badge>
+                <Badge variant="secondary">{homePage('tools.burpSuite')}</Badge>
+                <Badge variant="secondary">{homePage('tools.kaliLinux')}</Badge>
               </div>
               <Link href="/dashboard">
                 <Button size="lg" className="bg-orange-600 hover:bg-orange-700">
-                  Start Contributing
+                  {homePage("community.dashboard")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -203,7 +202,7 @@ export default function Home() {
                   <h5 className="font-medium text-gray-900">{homePage('recentTranslations.owasp.title')}</h5>
                   <p className="text-sm text-gray-600">{homePage('recentTranslations.owasp.description')}</p>
                   <div className="flex items-center mt-1">
-                    <Badge variant="secondary" className="text-xs">SQL Injection</Badge>
+                    <Badge variant="secondary" className="text-xs">{homePage('badges.sqlInjection')}</Badge>
                     <span className="text-xs text-gray-500 ml-2">{homePage('recentTranslations.completed')}</span>
                   </div>
                 </div>
@@ -211,7 +210,7 @@ export default function Home() {
                   <h5 className="font-medium text-gray-900">{homePage('recentTranslations.nmap.title')}</h5>
                   <p className="text-sm text-gray-600">{homePage('recentTranslations.nmap.description')}</p>
                   <div className="flex items-center mt-1">
-                    <Badge variant="secondary" className="text-xs">Network Scanning</Badge>
+                    <Badge variant="secondary" className="text-xs">{homePage('badges.networkScanning')}</Badge>
                     <span className="text-xs text-gray-500 ml-2">{homePage('recentTranslations.completed')}</span>
                   </div>
                 </div>
@@ -228,39 +227,39 @@ export default function Home() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <BookOpen className="h-6 w-6" />
-                <span className="text-lg font-semibold">Armenian Docs</span>
+                <span className="text-lg font-semibold">{footer("armDocs.title")}</span>
               </div>
               <p className="text-gray-400">
-                Making technology accessible to Armenian speakers through community-driven translation.
+                {footer("armDocs.description")}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
+              <h4 className="font-semibold mb-4">{footer("Platform.title")}</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Browse Projects</a></li>
-                <li><a href="#" className="hover:text-white">Translation Guidelines</a></li>
-                <li><a href="#" className="hover:text-white">Quality Standards</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Platform.projects")}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Platform.guide")}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Platform.standards")}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Community</h4>
+              <h4 className="font-semibold mb-4">{footer("Community.title")}</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Discord Server</a></li>
-                <li><a href="#" className="hover:text-white">Contributor Guide</a></li>
-                <li><a href="#" className="hover:text-white">Events</a></li>
+                <li><a href="#" className="hover:text-white">{homePage('footer.discordServer')}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Community.guide")}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Community.event")}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">{footer("Support.title")}</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white">Report Issues</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Support.help")}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Support.contact")}</a></li>
+                <li><a href="#" className="hover:text-white">{footer("Support.report")}</a></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Armenian Docs. Built with ❤️ for the Armenian tech community.</p>
+            <p>&copy; {footer("Copyright")}</p>
           </div>
         </div>
       </footer>

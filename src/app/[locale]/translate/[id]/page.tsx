@@ -26,6 +26,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
+import { useTranslations } from 'next-intl';
 
 export default function TranslationPage() {
   const params = useParams();
@@ -35,6 +36,9 @@ export default function TranslationPage() {
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
+  
+  // Translations
+  const t = useTranslations('TranslationEditor');
   
   // Core state
   const [file, setFile] = useState<FirestoreFile | null>(null);
@@ -316,7 +320,7 @@ export default function TranslationPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
         <Card className="p-6 text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Translation Not Available</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('translationNotAvailable')}</h2>
           <p className="text-red-600 mb-4">{error || 'File not found'}</p>
           <div className="space-y-2">
             <Button onClick={() => router.back()} variant="outline">
@@ -350,7 +354,7 @@ export default function TranslationPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
         <Card className="p-6 text-center max-w-md">
           <User className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('accessRestricted')}</h2>
           <p className="text-gray-600 mb-4">
             This file is assigned to another translator. Current status: {file.status}
             {file.assignedTranslatorId && file.assignedTranslatorId !== user?.uid && 
@@ -381,7 +385,7 @@ export default function TranslationPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
         <Card className="p-6 text-center max-w-lg">
           <Timer className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Translation Under Review</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('translationUnderReview')}</h2>
           <p className="text-gray-600 mb-4">
             Your translation has been submitted and is currently being reviewed by our moderation team. 
             You cannot make changes until the review is complete.
@@ -610,7 +614,7 @@ export default function TranslationPage() {
                     {translatedText.trim() ? (
                       <span className="text-green-600">✓ Translation in progress</span>
                     ) : (
-                      <span>Start typing to begin translation</span>
+                      <span>{t('startTypingToBegin')}</span>
                     )}
                   </div>
                   
@@ -693,7 +697,7 @@ export default function TranslationPage() {
             {project && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Project Info</CardTitle>
+                  <CardTitle>{t('projectInfo')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -720,7 +724,7 @@ export default function TranslationPage() {
             {/* Translation Guidelines */}
             <Card>
               <CardHeader>
-                <CardTitle>Translation Guidelines</CardTitle>
+                <CardTitle>{t('translationGuidelines')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 text-sm">
