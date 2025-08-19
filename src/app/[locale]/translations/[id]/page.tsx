@@ -7,11 +7,12 @@ import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpen, 
-  ArrowLeft, 
-  Calendar, 
-  User, 
+import { useTranslations } from 'next-intl';
+import {
+  BookOpen,
+  ArrowLeft,
+  Calendar,
+  User,
   Star,
   CheckCircle,
   Copy,
@@ -58,6 +59,10 @@ export default function TranslationDetailPage() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Translations
+  const t = useTranslations('Translations');
+  const navigation = useTranslations('Navigation');
+
   useEffect(() => {
     fetchTranslation();
   }, [params.id]);
@@ -66,7 +71,7 @@ export default function TranslationDetailPage() {
     try {
       setLoading(true);
       const response = await fetch(`/api/translations/${params.id}/public`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           setError('Translation not found or not yet approved.');
@@ -92,7 +97,7 @@ export default function TranslationDetailPage() {
 
   const handleCopyTranslation = async () => {
     if (!translation) return;
-    
+
     try {
       await navigator.clipboard.writeText(translation.translatedText);
       setCopied(true);
@@ -104,7 +109,7 @@ export default function TranslationDetailPage() {
 
   const handleDownload = () => {
     if (!translation) return;
-    
+
     const content = `${translation.project.title} - ${translation.fileName}
 
 Armenian Translation:
@@ -134,7 +139,7 @@ Source: ${translation.project.source}
 
   const handleShare = async () => {
     if (!translation) return;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -168,7 +173,7 @@ Source: ${translation.project.source}
 
   if (loading) {
     return (
-      <UnifiedLoader 
+      <UnifiedLoader
         message="Loading translation..."
         showHeader={false}
         theme="blue"
@@ -183,11 +188,11 @@ Source: ${translation.project.source}
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-orange-600" />
-              <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
+              <span className="text-xl font-bold text-gray-900">{t('title')}</span>
             </Link>
             <nav className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-              <Link href="/translations" className="text-gray-600 hover:text-orange-600">Translations</Link>
+              <Link href="/" className="text-gray-600 hover:text-orange-600">{navigation('home')}</Link>
+              <Link href="/translations" className="text-gray-600 hover:text-orange-600">{navigation('translations')}</Link>
             </nav>
           </div>
         </header>
@@ -196,7 +201,7 @@ Source: ${translation.project.source}
           <Card className="max-w-md text-center">
             <CardContent className="p-6">
               <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Translation Not Available</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{t('translationNotAvailable')}</h2>
               <p className="text-gray-600 mb-4">{error}</p>
               <div className="space-y-2">
                 <Link href="/translations">
@@ -223,8 +228,8 @@ Source: ${translation.project.source}
             <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600">Home</Link>
-            <Link href="/translations" className="text-gray-600 hover:text-orange-600">Translations</Link>
+            <Link href="/" className="text-gray-600 hover:text-orange-600">{navigation('home')}</Link>
+            <Link href="/translations" className="text-gray-600 hover:text-orange-600">{navigation('translations')}</Link>
           </nav>
         </div>
       </header>
@@ -279,7 +284,7 @@ Source: ${translation.project.source}
               )}
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-gray-500" />
-                <span>Public Translation</span>
+                <span>{t('publicTranslation')}</span>
               </div>
             </div>
           </CardContent>
@@ -297,7 +302,7 @@ Source: ${translation.project.source}
                 <FileText className="h-4 w-4 mr-2" />
                 {showOriginal ? 'Show Translation' : 'Show Original'}
               </Button>
-              
+
               <Button
                 onClick={handleCopyTranslation}
                 variant="outline"
@@ -306,7 +311,7 @@ Source: ${translation.project.source}
                 <Copy className="h-4 w-4 mr-2" />
                 {copied ? 'Copied!' : 'Copy Text'}
               </Button>
-              
+
               <Button
                 onClick={handleDownload}
                 variant="outline"
@@ -315,7 +320,7 @@ Source: ${translation.project.source}
                 <Download className="h-4 w-4 mr-2" />
                 Download
               </Button>
-              
+
               <Button
                 onClick={handleShare}
                 variant="outline"
@@ -350,7 +355,7 @@ Source: ${translation.project.source}
         {/* Source Information */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="text-lg">Source Information</CardTitle>
+            <CardTitle className="text-lg">{t('sourceInformation')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
@@ -362,10 +367,10 @@ Source: ${translation.project.source}
               </div>
               {translation.project.source && (
                 <div>
-                  <strong>Source Repository:</strong>{' '}
-                  <a 
-                    href={translation.project.source} 
-                    target="_blank" 
+                  <strong>{t('sourceRepository')}:</strong>{' '}
+                  <a
+                    href={translation.project.source}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800"
                   >

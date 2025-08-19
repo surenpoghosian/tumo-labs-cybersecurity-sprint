@@ -68,7 +68,7 @@ export default function LoginPage() {
       <div className="container mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors mb-4">
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Home</span>
+          <span>{login("backToHome")}</span>
         </Link>
 
         <div className="max-w-md mx-auto">
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <Card>
             <CardHeader>
               <CardTitle>{login("signIn")}</CardTitle>
-              <CardDescription>Choose your preferred sign-in method</CardDescription>
+              <CardDescription>{login("choose")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* OAuth Buttons */}
@@ -123,7 +123,7 @@ export default function LoginPage() {
               <p className="text-center text-sm text-gray-600">
                 {login("noAccount")}{" "}
                 <Link href="/auth/register" className="text-orange-600 hover:text-orange-800 font-medium">
-                  Sign up here
+                  {login("signUpHere")}
                 </Link>
               </p>
             </CardContent>

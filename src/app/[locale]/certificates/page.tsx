@@ -139,14 +139,14 @@ export default function CertificatesPage() {
         {/* Page Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">{navigation("certificates")}</h1>
-          <p className="text-gray-600 text-lg">Earn recognition for your work and track your achievements</p>
+          <p className="text-gray-600 text-lg">{certificate_('subtitle')}</p>
         </div>
 
         {/* Certificate Verification */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>{certificate_("verify.title")}</CardTitle>
-            <p className="text-sm text-gray-600">Enter a verification code to confirm a certificate&apos;s authenticity. Only public information is shown for privacy protection.</p>
+            <p className="text-sm text-gray-600">{certificate_("verify.description")}</p>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
@@ -180,8 +180,8 @@ export default function CertificatesPage() {
                     <div className="space-y-1 text-sm text-green-800">
                       <p><strong>{certificate_("verify.project")}:</strong> {verificationResult.data?.projectName}</p>
                       <p><strong>{certificate_("verify.category")}:</strong> {verificationResult.data?.category}</p>
-                      <p><strong>Certificate Type:</strong> {verificationResult.data?.certificateType}</p>
-                      <p><strong>Holder:</strong> {verificationResult.data?.holderName}</p>
+                      <p><strong>{certificate_('certificateType')}:</strong> {verificationResult.data?.certificateType}</p>
+                      <p><strong>{certificate_('holder')}:</strong> {verificationResult.data?.holderName}</p>
                       <p><strong>{certificate_("verify.issued")}:</strong> {verificationResult.data?.issuedDate ? new Date(verificationResult.data.issuedDate).toLocaleDateString() : 'N/A'}</p>
                       <p><strong>{certificate_("certificateCard.verificationCode")}:</strong> {verificationResult.data?.verificationCode}</p>
                     </div>
@@ -203,7 +203,7 @@ export default function CertificatesPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading certificates...</p>
+            <p className="text-gray-600">{certificate_('loadingCertificates')}</p>
           </div>
         )}
 
@@ -285,15 +285,15 @@ export default function CertificatesPage() {
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">{certificate_("noCertificates.title")}</h4>
                 <p className="text-gray-600 mb-4">{certificate_("noCertificates.description")}</p>
                 <Link href="/projects" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
-                  <BookOpen className="h-4 w-4" /> Explore Projects
+                  <BookOpen className="h-4 w-4" /> {certificate_("noCertificates.exploreProjects")}
                 </Link>
               </>
             ) : (
               <>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Earn certificates by contributing!</h4>
-                <p className="text-gray-600 mb-4">Create an account and start translating to collect achievements.</p>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{certificate_('earnCertificatesByContributing')}</h4>
+                <p className="text-gray-600 mb-4">{certificate_('createAccountDescription')}</p>
                 <Link href="/auth/register" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md transition-colors">
-                  <BookOpen className="h-4 w-4" /> Join & Contribute
+                  <BookOpen className="h-4 w-4" /> {certificate_('joinContribute')}
                 </Link>
               </>
             )}
@@ -304,31 +304,31 @@ export default function CertificatesPage() {
         {!loading && certificates?.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Certificate Statistics</CardTitle>
+              <CardTitle>{certificate_('statistics.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
                   <div className="text-2xl font-bold text-orange-600 mb-1">{certificates?.length}</div>
-                  <div className="text-sm text-gray-600">Total Certificates</div>
+                  <div className="text-sm text-gray-600">{certificate_('statistics.totalEarned')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600 mb-1">
                     {new Set(certificates.map(c => c.category)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Categories</div>
+                  <div className="text-sm text-gray-600">{certificate_('statistics.byCategory')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {new Set(certificates.map(c => c.githubRepo)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Projects</div>
+                  <div className="text-sm text-gray-600">{certificate_('statistics.projects')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {certificates.filter(c => c.certificateType === 'translation')?.length}
                   </div>
-                  <div className="text-sm text-gray-600">Translation Certs</div>
+                  <div className="text-sm text-gray-600">{certificate_('about.types.list.0')}</div>
                 </div>
               </div>
             </CardContent>
@@ -338,7 +338,7 @@ export default function CertificatesPage() {
         {/* Certificate Info
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>About Certificates</CardTitle>
+            <CardTitle>{certificate_('about.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -384,13 +384,13 @@ export default function CertificatesPage() {
         {/* About Certificates */}
         <Card className="mb-12 bg-white/60 backdrop-blur-sm border border-orange-100 mt-8">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6" />About Certificates</CardTitle>
+            <CardTitle className="text-2xl flex items-center gap-2 text-orange-700"><Trophy className="h-6 w-6" />{certificate_("about.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base text-gray-700">
               {/* How to earn */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Trophy className="h-4 w-4 text-orange-600" /> How to Earn</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Trophy className="h-4 w-4 text-orange-600" /> {certificate_("about.howToEarn.title")}</h3>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>{certificate_("about.howToEarn.steps.0")}</li>
                   <li>{certificate_("about.howToEarn.steps.1")}</li>
@@ -400,31 +400,31 @@ export default function CertificatesPage() {
               </div>
               {/* Verification */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><CheckCircle className="h-4 w-4 text-green-600" /> Verification</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><CheckCircle className="h-4 w-4 text-green-600" /> {certificate_("about.verification.title")}</h3>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Unique code for every certificate</li>
-                  <li>Verifiable directly on our platform</li>
-                  <li>Linked to your GitHub contributions</li>
-                  <li>Permanent publicly-viewable record</li>
+                  <li>{certificate_('verification.uniqueCode')}</li>
+                  <li>{certificate_('verification.verifiableOnPlatform')}</li>
+                  <li>{certificate_('verification.linkedToGithub')}</li>
+                  <li>{certificate_('verification.permanentRecord')}</li>
                 </ul>
               </div>
               {/* Types */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><FileBadge className="h-4 w-4 text-blue-600" /> Certificate Types</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><FileBadge className="h-4 w-4 text-blue-600" /> {certificate_("about.types.title")}</h3>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Translation – completed translations</li>
-                  <li>Review – expert reviews</li>
-                  <li>Contribution – community help</li>
+                  <li>{certificate_("about.types.list.0")}</li>
+                  <li>{certificate_("about.types.list.1")}</li>
+                  <li>{certificate_("about.types.list.2")}</li>
                 </ul>
               </div>
               {/* Benefits */}
               <div>
-                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Target className="h-4 w-4 text-purple-600" /> Benefits</h3>
+                <h3 className="flex items-center gap-2 font-semibold mb-2 text-gray-900"><Target className="h-4 w-4 text-purple-600" /> {certificate_('benefits.title')}</h3>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Professional recognition</li>
-                  <li>Portfolio enhancement</li>
-                  <li>Community building</li>
-                  <li>Career advancement</li>
+                  <li>{certificate_('benefits.professionalRecognition')}</li>
+                  <li>{certificate_('benefits.portfolioEnhancement')}</li>
+                  <li>{certificate_('benefits.communityBuilding')}</li>
+                  <li>{certificate_('benefits.careerAdvancement')}</li>
                 </ul>
               </div>
             </div>

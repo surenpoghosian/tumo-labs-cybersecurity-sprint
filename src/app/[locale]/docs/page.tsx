@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { fetchPublicTranslations } from '@/lib/publicTranslations';
 import type { PublicTranslation } from '@/lib/publicTranslations';
 import AppHeader from '@/components/ui/AppHeader';
+import { getTranslations } from 'next-intl/server';
 
 // Always render at request time so we serve fresh data and preserve SEO
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DocsPage() {
   const { translations, projects, categories, stats } = await fetchPublicTranslations({ limit: 100 });
+  const docs = await getTranslations('Docs');
 
 
 
@@ -95,9 +97,9 @@ export default async function DocsPage() {
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Armenian Documentation Library</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{docs('title')}</h1>
               <p className="text-gray-600 mt-1 text-sm md:text-base">
-                Browse all available translations across {projects?.length || 0} projects
+                {docs('subtitle', { count: projects?.length || 0 })}
               </p>
             </div>
             
@@ -106,17 +108,17 @@ export default async function DocsPage() {
               <div className="flex items-center gap-4 md:gap-6 mt-4 md:mt-0">
                 <div className="text-center">
                   <div className="text-base md:text-lg font-semibold text-orange-600">{stats.totalTranslations}</div>
-                  <div className="text-xs text-gray-600">Documents</div>
+                  <div className="text-xs text-gray-600">{docs('documents')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-base md:text-lg font-semibold text-orange-600">{categories?.length}</div>
-                  <div className="text-xs text-gray-600">Categories</div>
+                  <div className="text-xs text-gray-600">{docs('categories')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-base md:text-lg font-semibold text-orange-600">
                     {stats.totalWords >= 1000 ? `${Math.floor(stats.totalWords / 1000)}K+` : stats.totalWords.toLocaleString()}
                   </div>
-                  <div className="text-xs text-gray-600">Words</div>
+                  <div className="text-xs text-gray-600">{docs('words')}</div>
                 </div>
               </div>
             )}
@@ -128,7 +130,7 @@ export default async function DocsPage() {
         {/* Recent Translations Section */}
         {recentTranslations.length > 0 && (
           <div className="mb-8 md:mb-10">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">Recently Translated</h2>
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">{docs('recentlyTranslated')}</h2>
             <div className="overflow-x-auto pb-2">
               <div className="flex gap-3 md:gap-4 px-2 md:px-0" style={{ minWidth: 'max-content' }}>
                 {recentTranslations.map((translation: Translation) => (
@@ -163,7 +165,7 @@ export default async function DocsPage() {
         {/* Complete Project Directory */}
         {Object.keys(groupedByProject)?.length > 0 ? (
           <div>
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">All Projects</h2>
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 px-2 md:px-0">{docs('allProjects')}</h2>
             
             <div className="space-y-4 md:space-y-6">
               {Object.entries(groupedByProject).map(([projectTitle, projectTranslations]) => {
@@ -188,7 +190,7 @@ export default async function DocsPage() {
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {getDifficultyBadge(project.difficulty)}
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs text-gray-700 whitespace-nowrap">
-                            {translations.length} doc{translations.length !== 1 ? 's' : ''}
+                            {translations.length} {translations.length !== 1 ? docs('docs') : docs('doc')}
                           </span>
                         </div>
                       </div>
@@ -199,11 +201,11 @@ export default async function DocsPage() {
                       <table className="w-full text-xs md:text-sm min-w-[600px]">
                         <thead className="bg-gray-50 text-gray-700">
                           <tr className="border-b border-gray-200">
-                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[200px]">Document</th>
-                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">Category</th>
-                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[80px]">Words</th>
-                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">Date</th>
-                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[120px]">Translator</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[200px]">{docs('document')}</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">{docs('category')}</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[80px]">{docs('words')}</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[100px]">{docs('date')}</th>
+                            <th className="text-left py-2 px-3 md:px-4 font-medium min-w-[120px]">{docs('translator')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -234,7 +236,7 @@ export default async function DocsPage() {
                                 <span className="md:hidden">{new Date(translation.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                               </td>
                               <td className="py-2 px-3 md:px-4">
-                                <span className="truncate block max-w-[100px]">{translation.translator?.name || 'Community'}</span>
+                                <span className="truncate block max-w-[100px]">{translation.translator?.name || docs('community')}</span>
                               </td>
                             </tr>
                           ))}
@@ -249,14 +251,13 @@ export default async function DocsPage() {
         ) : (
           <div className="border border-gray-200 rounded-lg bg-white overflow-hidden p-8 text-center">
             <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Documents Available Yet</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{docs('noDocumentsTitle')}</h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Our community is actively translating cybersecurity documentation into Armenian. 
-              Join us to help build this valuable resource, or seed some sample data for testing.
+              {docs('noDocumentsDescription')}
             </p>
             <Link href="/dashboard">
               <button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                Start Translating
+                {docs('startTranslating')}
               </button>
             </Link>
           </div>
@@ -266,33 +267,32 @@ export default async function DocsPage() {
         <div className="mt-20">
           <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-3xl p-12 text-white text-center">
             <h3 className="text-3xl font-bold mb-4">
-              Join the Armenian Cybersecurity Community
+              {docs('communityTitle')}
             </h3>
             <p className="text-xl text-orange-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Help make cybersecurity knowledge accessible to Armenian speakers. Every translation 
-              strengthens our community&apos;s digital literacy and security awareness.
+              {docs('communityDescription')}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <BookOpen className="h-8 w-8 text-orange-200 mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Translate</h4>
+                <h4 className="font-semibold mb-2">{docs('translate')}</h4>
                 <p className="text-sm text-orange-100">
-                  Convert security documentation into professional Armenian translations
+                  {docs('translateDescription')}
                 </p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <Users className="h-8 w-8 text-orange-200 mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Collaborate</h4>
+                <h4 className="font-semibold mb-2">{docs('collaborate')}</h4>
                 <p className="text-sm text-orange-100">
-                  Work with security experts and native speakers for quality assurance
+                  {docs('collaborateDescription')}
                 </p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <Shield className="h-8 w-8 text-orange-200 mx-auto mb-3" />
-                <h4 className="font-semibold mb-2">Secure</h4>
+                <h4 className="font-semibold mb-2">{docs("secure")}</h4>
                 <p className="text-sm text-orange-100">
-                  Contribute to Armenia&apos;s cybersecurity knowledge and digital safety
+                  {docs("secureDescription")}
                 </p>
               </div>
             </div>
@@ -300,12 +300,12 @@ export default async function DocsPage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="/dashboard">
                 <button className="bg-white text-orange-600 hover:bg-orange-50 px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
-                  Start Contributing
+                  {docs("startContributing")}
                 </button>
               </Link>
               <Link href="/projects">
                 <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 rounded-xl font-semibold transition-all duration-200">
-                  Explore Projects
+                  {docs("exploreProjects")}
                 </button>
               </Link>
             </div>

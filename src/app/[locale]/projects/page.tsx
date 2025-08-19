@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 import AppHeader from '@/components/ui/AppHeader';
 import MobileRestriction, { useMobileRestriction } from '@/components/ui/MobileRestriction';
+import { useTranslations } from 'next-intl';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -21,6 +22,9 @@ export default function ProjectsPage() {
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
+  
+  // Translations
+  const projects_ = useTranslations('Projects');
 
   useEffect(() => {
     if (user) {
@@ -92,14 +96,14 @@ export default function ProjectsPage() {
   };
 
   const categories = [
-    { id: 'all', name: 'All Projects', icon: Shield },
-    { id: 'web-security', name: 'Web Security', icon: Shield },
-    { id: 'network-security', name: 'Network Security', icon: Shield },
-    { id: 'pen-testing', name: 'Penetration Testing', icon: Shield },
-    { id: 'forensics', name: 'Digital Forensics', icon: Search },
-    { id: 'fundamentals', name: 'Fundamentals', icon: BookOpen },
-    { id: 'application-security', name: 'App Security', icon: Shield },
-    { id: 'protocols', name: 'Protocols', icon: Shield }
+    { id: 'all', name: projects_('categories.all'), icon: Shield },
+    { id: 'web-security', name: projects_('categories.webSecurity'), icon: Shield },
+    { id: 'network-security', name: projects_('categories.networkSecurity'), icon: Shield },
+    { id: 'pen-testing', name: projects_('categories.penetrationTesting'), icon: Shield },
+    { id: 'forensics', name: projects_('categories.digitalForensics'), icon: Search },
+    { id: 'fundamentals', name: projects_('categories.fundamentals'), icon: BookOpen },
+    { id: 'application-security', name: projects_('categories.applicationSecurity'), icon: Shield },
+    { id: 'protocols', name: projects_('categories.protocols'), icon: Shield }
   ];
 
   const filteredProjects = selectedCategory === 'all' 
@@ -108,11 +112,11 @@ export default function ProjectsPage() {
 
   const getDifficultyBadge = (difficulty: number) => {
     const configs = {
-      1: { label: 'Beginner', className: 'bg-green-100 text-green-800' },
-      2: { label: 'Beginner+', className: 'bg-green-100 text-green-800' },
-      3: { label: 'Intermediate', className: 'bg-yellow-100 text-yellow-800' },
-      4: { label: 'Advanced', className: 'bg-red-100 text-red-800' },
-      5: { label: 'Expert', className: 'bg-red-100 text-red-800' },
+      1: { label: projects_('difficulty.beginner'), className: 'bg-green-100 text-green-800' },
+      2: { label: projects_('difficulty.beginnerPlus'), className: 'bg-green-100 text-green-800' },
+      3: { label: projects_('difficulty.intermediate'), className: 'bg-yellow-100 text-yellow-800' },
+      4: { label: projects_('difficulty.advanced'), className: 'bg-red-100 text-red-800' },
+      5: { label: projects_('difficulty.expert'), className: 'bg-red-100 text-red-800' },
     };
     
     const config = configs[difficulty as keyof typeof configs] || configs[3];
@@ -150,8 +154,8 @@ export default function ProjectsPage() {
   if (!mobileLoading && shouldRestrict) {
     return (
       <MobileRestriction 
-        title="Project Browser Not Available on Mobile"
-        description="Project browsing and file assignment require desktop tools for detailed project analysis and translation workflow management."
+        title={projects_('mobile.title')}
+        description={projects_('mobile.description')}
       />
     );
   }
@@ -163,8 +167,8 @@ export default function ProjectsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Cybersecurity Projects</h1>
-          <p className="text-gray-600">Choose a project to start translating cybersecurity documentation into Armenian</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{projects_('title')}</h1>
+          <p className="text-gray-600">{projects_('subtitle')}</p>
         </div>
 
         {/* Category Filter */}
@@ -190,7 +194,7 @@ export default function ProjectsPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading projects...</p>
+            <p className="text-gray-600">{projects_('loading')}</p>
           </div>
         )}
 
@@ -199,9 +203,9 @@ export default function ProjectsPage() {
           <div className="text-center py-12">
             <div className="bg-white rounded-lg p-8 max-w-md mx-auto shadow-sm border">
               <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Projects Available</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{projects_('noProjects')}</h3>
               <p className="text-gray-600 mb-6">
-                Get started by creating some example projects to test the translation system.
+                {projects_('noProjectsDescription')}
               </p>
               
               {user && (
@@ -216,10 +220,10 @@ export default function ProjectsPage() {
                     ) : (
                       <Zap className="h-4 w-4 mr-2" />
                     )}
-                    Create Example Projects
+                    {projects_('createExampleProjects')}
                   </Button>
                   <p className="text-sm text-gray-500">
-                    This will create sample cybersecurity projects with documentation files for translation.
+                    {projects_('createExampleDescription')}
                   </p>
                 </div>
               )}
@@ -227,7 +231,7 @@ export default function ProjectsPage() {
               {!user && (
                 <div className="text-sm text-gray-500">
                   <AlertCircle className="h-4 w-4 inline mr-1" />
-                  Please log in to create example projects.
+                  {projects_('loginRequired')}
                 </div>
               )}
             </div>
@@ -259,7 +263,7 @@ export default function ProjectsPage() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span>Translation Progress</span>
+                        <span>{projects_('projectCard.translationProgress')}</span>
                         <span>{project.translationProgress || 0}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -274,7 +278,7 @@ export default function ProjectsPage() {
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>{project.estimatedHours || 0}h estimated</span>
+                        <span>{project.estimatedHours || 0}h {projects_('projectCard.estimatedTime')}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Badge variant="secondary" className="text-xs">
@@ -285,7 +289,7 @@ export default function ProjectsPage() {
 
                     {/* File Count */}
                     <div className="text-sm text-gray-600">
-                      <span className="font-medium">{project.files?.length || 0}</span> documentation files
+                      <span className="font-medium">{project.files?.length || 0}</span> {projects_('projectCard.documentationFiles')}
                     </div>
 
                     {/* Categories */}
@@ -322,7 +326,7 @@ export default function ProjectsPage() {
                             className="bg-orange-600 hover:bg-orange-700"
                             title="Start translating this project to Armenian"
                           >
-                            Start Translation
+                            {projects_('projectCard.startTranslation')}
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </Link>
@@ -331,9 +335,9 @@ export default function ProjectsPage() {
                           size="sm" 
                           variant="outline" 
                           disabled
-                          title="This project has been fully translated"
+                          title={projects_('projectCard.projectFullyTranslated')}
                         >
-                          Complete
+                          {projects_('projectCard.complete')}
                         </Button>
                       )}
                     </div>
@@ -348,15 +352,15 @@ export default function ProjectsPage() {
         {!loading && projects?.length > 0 && filteredProjects?.length === 0 && (
           <div className="text-center py-12">
             <Shield className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{projects_('noProjectsFound')}</h3>
             <p className="text-gray-600 mb-4">
-              No cybersecurity projects match your current filter.
+              {projects_('noProjectsFoundDescription')}
             </p>
             <Button 
               onClick={() => setSelectedCategory('all')}
               variant="outline"
             >
-              View All Projects
+              {projects_('viewAllProjects')}
             </Button>
           </div>
         )}
@@ -367,25 +371,25 @@ export default function ProjectsPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
                   <div className="text-2xl font-bold text-orange-600 mb-1">{projects?.length}</div>
-                  <div className="text-sm text-gray-600">Total Projects</div>
+                  <div className="text-sm text-gray-600">{t('stats.totalProjects')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600 mb-1">
                     {projects.filter(p => p.availableForTranslation)?.length}
                   </div>
-                  <div className="text-sm text-gray-600">Available</div>
+                  <div className="text-sm text-gray-600">{t('stats.available')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {projects.reduce((total, p) => total + (p.files?.length || 0), 0)}
                   </div>
-                  <div className="text-sm text-gray-600">Total Files</div>
+                  <div className="text-sm text-gray-600">{t('stats.totalFiles')}</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {new Set(projects.flatMap(p => p.categories)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Categories</div>
+                  <div className="text-sm text-gray-600">{t('stats.categories')}</div>
                 </div>
               </div>
             </CardContent>

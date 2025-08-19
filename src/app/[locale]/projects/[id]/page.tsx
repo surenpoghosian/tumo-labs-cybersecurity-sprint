@@ -28,6 +28,7 @@ import { ProjectSync } from '@/components/projects/ProjectSync';
 import { FilePreviewDialog } from '@/components/projects/FilePreviewDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
+import { useTranslations } from 'next-intl';
 
 interface ProjectDetailData extends FirestoreProject {
   projectFiles: FirestoreFile[];
@@ -38,6 +39,10 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [project, setProject] = useState<ProjectDetailData | null>(null);
+  
+  // Translations
+  const t = useTranslations('ProjectDetail');
+  const navigation = useTranslations('Navigation');
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<FirestoreFile | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -211,11 +216,11 @@ export default function ProjectDetailPage() {
 
   const getDifficultyBadge = (difficulty: number) => {
     const configs = {
-      1: { label: 'Beginner', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
-      2: { label: 'Beginner+', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
-      3: { label: 'Intermediate', variant: 'default' as const, className: 'bg-yellow-100 text-yellow-800' },
-      4: { label: 'Advanced', variant: 'default' as const, className: 'bg-red-100 text-red-800' },
-      5: { label: 'Expert', variant: 'default' as const, className: 'bg-red-100 text-red-800' },
+      1: { label: t('difficulty.beginner'), variant: 'default' as const, className: 'bg-green-100 text-green-800' },
+      2: { label: t('difficulty.beginnerPlus'), variant: 'default' as const, className: 'bg-green-100 text-green-800' },
+      3: { label: t('difficulty.intermediate'), variant: 'default' as const, className: 'bg-yellow-100 text-yellow-800' },
+      4: { label: t('difficulty.advanced'), variant: 'default' as const, className: 'bg-red-100 text-red-800' },
+      5: { label: t('difficulty.expert'), variant: 'default' as const, className: 'bg-red-100 text-red-800' },
     };
     
     const config = configs[difficulty as keyof typeof configs] || configs[3];
@@ -318,7 +323,7 @@ export default function ProjectDetailPage() {
   if (loading) {
     return (
       <UnifiedLoader 
-        message="Loading project..."
+        message={t('loadingProject')}
         showHeader={false}
         theme="orange"
       />
@@ -330,7 +335,7 @@ export default function ProjectDetailPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center">
         <Card className="p-6 text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Project Not Found</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('projectNotFound')}</h2>
           <p className="text-red-600 mb-4">{error}</p>
           
           {/* Show seed data button if no projects exist */}
@@ -346,10 +351,10 @@ export default function ProjectDetailPage() {
                 ) : (
                   <Zap className="h-4 w-4 mr-2" />
                 )}
-                Create Example Data for Testing
+                {t('createExampleDataForTesting')}
               </Button>
               <p className="text-sm text-gray-600">
-                This will create sample projects and files for testing the translation system.
+                {t('createExampleDescription')}
               </p>
             </div>
           )}
@@ -357,7 +362,7 @@ export default function ProjectDetailPage() {
           <Link href="/projects">
             <Button variant="outline" className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Projects
+              {t('backToProjects')}
             </Button>
           </Link>
         </Card>
@@ -378,9 +383,9 @@ export default function ProjectDetailPage() {
             <span className="text-xl font-bold text-gray-900">Armenian CyberSec Docs</span>
           </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">Dashboard</Link>
-            <Link href="/projects" className="text-orange-600 font-medium">Projects</Link>
-            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">Certificates</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-orange-600">{navigation('dashboard')}</Link>
+            <Link href="/projects" className="text-orange-600 font-medium">{navigation('projects')}</Link>
+            <Link href="/certificates" className="text-gray-600 hover:text-orange-600">{navigation('certificates')}</Link>
           </nav>
         </div>
       </header>
@@ -390,7 +395,7 @@ export default function ProjectDetailPage() {
         <div className="mb-6">
           <Link href="/projects" className="text-orange-600 hover:underline flex items-center">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Projects
+            {t('backToProjects')}
           </Link>
         </div>
 

@@ -168,7 +168,7 @@ export default function UnifiedLoader({
           {/* Loading Message */}
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 px-2">{message}</h1>
           <p className="text-gray-600 mb-6 md:mb-8 text-base md:text-lg px-2">
-            Preparing your experience...
+            {common('preparing')}
           </p>
 
           {/* Historical Linguist Quote */}
