@@ -27,10 +27,8 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id } = await params;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const body = request;
+  await params;
+  // Simulate API response
   // Simulate deleting translation project
   await new Promise(resolve => setTimeout(resolve, 400));
   

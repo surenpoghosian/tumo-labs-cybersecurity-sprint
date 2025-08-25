@@ -9,7 +9,6 @@ export default function FirebaseAnalyticsInit() {
     isSupported().then((supported) => {
       if (supported) {
         getAnalytics(app);
-        console.log("Analytics initialized");
       }
     });
   }, []);

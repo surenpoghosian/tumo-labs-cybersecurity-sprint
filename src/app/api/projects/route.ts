@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebaseAdmin';
 import { getFirestore } from '@/lib/firebaseAdmin';
@@ -32,7 +32,6 @@ export async function GET(request: Request) {
 
         let totalFiles = 0;
         let completedFiles = 0;
-        let totalWords = 0;
         let estimatedHours = 0;
 
         filesSnapshot.forEach(fileDoc => {
@@ -42,7 +41,6 @@ export async function GET(request: Request) {
           if (fileData.status === 'accepted' || fileData.status === 'pending') {
             completedFiles++;
           }
-          totalWords += fileData.wordCount || 0;
           estimatedHours += fileData.estimatedHours || 0;
         });
 

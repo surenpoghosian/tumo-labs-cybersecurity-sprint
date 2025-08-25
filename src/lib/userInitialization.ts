@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { getFirestore } from './firebaseAdmin';
 import { FirestoreUserProfile, FirestoreFile, FirestoreProject, FirestoreCertificate, TranslationMemoryEntry } from './firestore';
-import { calculateCertificationProgress, checkAndAwardMilestoneCertificates, CertificationProgress } from './certificationSystem';
+import { calculateCertificationProgress, checkAndAwardMilestoneCertificates } from './certificationSystem';
 
 export async function initializeNewUser(userId: string, userEmail?: string, userName?: string): Promise<FirestoreUserProfile> {
   const firestore = await getFirestore();
@@ -78,7 +78,7 @@ export async function getUserDashboardData(userId: string) {
           ...doc.data()
         } as FirestoreFile);
       });
-    } catch (error) {
+    } catch {
       console.log('No current files found for user:', userId);
       currentFiles = [];
     }
@@ -98,7 +98,7 @@ export async function getUserDashboardData(userId: string) {
           ...doc.data()
         } as FirestoreProject);
       });
-    } catch (error) {
+    } catch {
       console.log('No projects found');
       recentProjects = [];
     }
@@ -118,7 +118,7 @@ export async function getUserDashboardData(userId: string) {
           ...doc.data()
         } as FirestoreCertificate);
       });
-    } catch (error) {
+    } catch {
       console.log('No certificates found for user:', userId);
       certificates = [];
     }
@@ -138,7 +138,7 @@ export async function getUserDashboardData(userId: string) {
           ...doc.data()
         } as TranslationMemoryEntry);
       });
-    } catch (error) {
+    } catch {
       console.log('No translation memory found for user:', userId);
       translationMemory = [];
     }

@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -364,57 +364,7 @@ export default function ProjectsPage() {
             </Button>
           </div>
         )}
-       {/* Stats Summary
-        {!loading && projects?.length > 0 && (
-          <Card className="mt-8">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{projects?.length}</div>
-                  <div className="text-sm text-gray-600">{t('stats.totalProjects')}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600 mb-1">
-                    {projects.filter(p => p.availableForTranslation)?.length}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('stats.available')}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600 mb-1">
-                    {projects.reduce((total, p) => total + (p.files?.length || 0), 0)}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('stats.totalFiles')}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 mb-1">
-                    {new Set(projects.flatMap(p => p.categories)).size}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('stats.categories')}</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )} */}
-       
 
-        {/* Admin Actions
-        {!loading && projects?.length > 0 && user && (
-          <div className="mt-6 text-center">
-            <Button 
-              onClick={handleSeedData} 
-              disabled={isSeeding}
-              variant="outline"
-              size="sm"
-            >
-              {isSeeding ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Zap className="h-4 w-4 mr-2" />
-              )}
-              Add More Example Data
-            </Button>
-          </div>
-        )} */}
       </div>
     </div>
   );

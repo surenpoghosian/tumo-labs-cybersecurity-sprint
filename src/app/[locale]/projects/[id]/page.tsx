@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -50,10 +50,10 @@ export default function ProjectDetailPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    if (user && params.id) {
+    if (user && params?.id) {
       fetchProject();
     }
-  }, [params.id, user]);
+  }, [params?.id, user]);
 
   const fetchProject = async () => {
     if (!user) {
@@ -65,7 +65,7 @@ export default function ProjectDetailPage() {
       setLoading(true);
       const token = await user.getIdToken();
       
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${params?.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -491,38 +491,7 @@ export default function ProjectDetailPage() {
           <div className="lg:col-span-2">
             {hasFiles ? (
               <div className="space-y-4">
-                {/* Show notice if no files are available */}
-                {/* {project.projectFiles.filter(f => f.status === 'not taken')?.length === 0 && (
-                  <Card className="border-orange-200 bg-orange-50">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-5 w-5 text-orange-600" />
-                        <div>
-                          <h4 className="font-medium text-orange-900">All files are currently assigned</h4>
-                          <p className="text-sm text-orange-700">
-                            All files in this project are being worked on. You can view the progress below or try another project.
-                          </p>
-                          {user && (
-                            <Button 
-                              onClick={handleSeedData} 
-                              disabled={isSeeding}
-                              size="sm"
-                              className="mt-2 bg-orange-600 hover:bg-orange-700"
-                            >
-                              {isSeeding ? (
-                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                              ) : (
-                                <Zap className="h-4 w-4 mr-2" />
-                              )}
-                              Create Available Test Files
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )} */}
-                
+
                 <FolderBrowser
                   files={project.projectFiles}
                   onFileSelect={handleFileSelect}

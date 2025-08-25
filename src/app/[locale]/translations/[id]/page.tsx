@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,15 +12,12 @@ import {
   ArrowLeft,
   Calendar,
   User,
-  Star,
   CheckCircle,
   Copy,
   Download,
   Share,
   Globe,
-  Clock,
-  FileText,
-  Shield
+  FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import UnifiedLoader from '@/components/ui/UnifiedLoader';
@@ -65,12 +61,12 @@ export default function TranslationDetailPage() {
 
   useEffect(() => {
     fetchTranslation();
-  }, [params.id]);
+  }, [params?.id]);
 
   const fetchTranslation = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/translations/${params.id}/public`);
+      const response = await fetch(`/api/translations/${params?.id}/public`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -148,7 +144,7 @@ Source: ${translation.project.source}
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        console.error('Error sharing:', error);
       }
     } else {
       // Fallback to copying URL

@@ -78,8 +78,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ reviewId: string }> }
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { reviewId } = await params;
+  await params;
   const body = await request.json();
   
   // Simulate adding new review comment
@@ -107,8 +106,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ reviewId: string }> }
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { reviewId } = await params;
+  await params;
   const { commentId, action, ...body } = await request.json();
   
   // Handle comment actions

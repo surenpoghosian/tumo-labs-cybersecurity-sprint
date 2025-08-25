@@ -24,8 +24,7 @@ export async function GET(request: Request) {
           id: doc.id,
         } as TranslationMemoryEntry);
       });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       console.log('No translation memory entries found for user:', userId);
       entries = [];
     }
