@@ -1,9 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +9,6 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  User,
   FileText,
   AlertCircle,
   Eye,
@@ -19,9 +16,7 @@ import {
   BarChart3,
   Filter,
   RefreshCw,
-  Globe,
-  Lock,
-  Settings
+  Globe
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -79,26 +74,14 @@ export default function ModerationPage() {
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
   const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'assigned' | 'approved-docs'>('pending');
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDecision, setReviewDecision] = useState<{ [key: string]: { decision: string; comments: string } }>({});
   const [processing, setProcessing] = useState<{ [key: string]: boolean }>({});
-  const [userRole, setUserRole] = useState<string>('contributor');
   const [approvedDocuments, setApprovedDocuments] = useState<FirestoreFile[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
 
   const moderation = useTranslations("Moderation");
 
-  useEffect(() => {
-    if (user) {
-      if (filter === 'approved-docs') {
-        fetchApprovedDocuments();
-      } else {
-        fetchReviews();
-      }
-    }
-  }, [user, filter]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -122,7 +105,7 @@ export default function ModerationPage() {
       const result = await response.json();
       setReviews(result.data || []);
       setStats(result.stats || { total: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0 });
-      setUserRole(result.meta?.userRole || 'contributor');
+      // Check user role for authorization
 
       // Allow access if user is explicitly marked as moderator or if their role is moderator/administrator
       if (!result.meta?.isModerator && !['moderator', 'administrator'].includes(result.meta?.userRole)) {
@@ -136,9 +119,9 @@ export default function ModerationPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, user, router]);
 
-  const fetchApprovedDocuments = async () => {
+  const fetchApprovedDocuments = useCallback(async () => {
     try {
       setLoadingDocs(true);
 
@@ -161,7 +144,17 @@ export default function ModerationPage() {
     } finally {
       setLoadingDocs(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      if (filter === 'approved-docs') {
+        fetchApprovedDocuments();
+      } else {
+        fetchReviews();
+      }
+    }
+  }, [user, filter, fetchReviews, fetchApprovedDocuments]);
 
   const handleDocumentUpdate = (fileId: string, updates: Partial<FirestoreFile>) => {
     setApprovedDocuments(prev =>
@@ -364,7 +357,7 @@ export default function ModerationPage() {
                     key={status}
                     variant={filter === status ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setFilter(status as any)}
+                    onClick={() => setFilter(status as 'all' | 'pending' | 'in-progress' | 'assigned' | 'approved-docs')}
                     className={filter === status ? 'bg-blue-600 hover:bg-blue-700' : ''}
                   >
                     {status === 'assigned' ? 'Assigned to Me' :

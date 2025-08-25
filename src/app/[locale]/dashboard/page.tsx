@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile, TranslationMemoryEntry } from "@/lib/firestore";
+import { FirestoreUserProfile, FirestoreProject, FirestoreCertificate, FirestoreFile } from "@/lib/firestore";
 import { CertificationProgress } from "@/lib/certificationSystem";
 import { Award, Clock, CheckCircle, ArrowRight, Eye } from "lucide-react";
 import Link from "next/link";
@@ -32,7 +32,6 @@ interface DashboardData {
   currentFiles: FirestoreFile[];
   recentProjects: FirestoreProject[];
   certificates: FirestoreCertificate[];
-  translationMemory: TranslationMemoryEntry[];
   certificationProgress: CertificationProgress;
   isEmpty: boolean;
 }
@@ -45,71 +44,11 @@ function DashboardPageContent() {
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
   
-  // Firestore test states
-  // const [testOriginal, setTestOriginal] = useState('');
-  // const [testTranslated, setTestTranslated] = useState('');
-  // const [testEntries, setTestEntries] = useState<{id: string, originalText: string, translatedText: string, category: string}[]>([]);
-  // const [addingTest, setAddingTest] = useState(false);
-  // const [loadingTest, setLoadingTest] = useState(false);
+
   
   const { user: authUser } = useAuth();
 
-  // Firestore test functions
-  // const addTestEntry = async () => {
-    //   if (!testOriginal || !testTranslated || !authUser) return;
 
-  //   setAddingTest(true);
-  //   try {
-  //     // Get the user's ID token
-  //     const idToken = await authUser.getIdToken();
-  
-  //     const response = await fetch('/api/translation-memory', {
-    //       method: 'POST',
-    //       headers: { 
-      //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${idToken}`
-  //       },
-  //       body: JSON.stringify({
-    //         uId: authUser.uid,
-    //         originalText: testOriginal,
-    //         translatedText: testTranslated,
-    //         context: 'test',
-  //         category: 'cybersecurity',
-  //         confidence: 0.9
-  //       })
-  //     });
-
-  //     if (response.ok) {
-  //       setTestOriginal('');
-  //       setTestTranslated('');
-  //       loadTestEntries(); // Reload entries
-  //     }
-  //   } catch (error) {
-    //     console.error('Error adding test entry:', error);
-    //   } finally {
-      //     setAddingTest(false);
-      //   }
-      // };
-      
-  // const loadTestEntries = async () => {
-    //   setLoadingTest(true);
-    //   try {
-      //     // Get the user's ID token for GET requests too
-  //     const idToken = authUser ? await authUser.getIdToken() : null;
-  
-  //     const response = await fetch('/api/translation-memory', {
-    //       headers: idToken ? { 'Authorization': `Bearer ${idToken}` } : {}
-    //     });
-    //     const data = await response.json();
-    //     if (data.success) {
-      //       setTestEntries(data.data);
-  //     }
-  //   } catch (error) {
-    //     console.error('Error loading test entries:', error);
-    //   } finally {
-  //     setLoadingTest(false);
-  //   }
-  // };
   
   const dashboard = useTranslations("Dashboard");
   const projectDetail = useTranslations("ProjectDetail");
@@ -762,53 +701,7 @@ function DashboardPageContent() {
           </Card>
         </div>
 
-        {/* Firestore Test Section
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Translation Memory (Firestore Test)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  placeholder="Original text (e.g., 'security')"
-                  className="flex-1 px-3 py-2 border rounded"
-                  value={testOriginal}
-                  onChange={(e) => setTestOriginal(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Armenian translation"
-                  className="flex-1 px-3 py-2 border rounded"
-                  value={testTranslated}
-                  onChange={(e) => setTestTranslated(e.target.value)}
-                />
-                <Button onClick={addTestEntry} disabled={addingTest}>
-                  {addingTest ? 'Adding...' : 'Add to Firestore'}
-                </Button>
-              </div>
-              
-              <div>
-                <Button onClick={loadTestEntries} disabled={loadingTest} variant="outline">
-                  {loadingTest ? 'Loading...' : 'Load from Firestore'}
-                </Button>
-              </div>
-              
-              {testEntries?.length && testEntries.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-medium">{dashboard('entriesFromFirestore')}</h4>
-                  {testEntries.map((entry) => (
-                    <div key={entry.id} className="bg-gray-50 p-2 rounded text-sm">
-                      <strong>{entry.originalText}</strong> → {entry.translatedText}
-                      <span className="text-gray-500 ml-2">({entry.category})</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card> */}
+
       </div>
     </div>
   );

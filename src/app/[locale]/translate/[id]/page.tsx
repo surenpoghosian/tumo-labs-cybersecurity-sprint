@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -32,7 +32,7 @@ export default function TranslationPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  const fileId = params.id as string;
+  const fileId = params?.id as string;
   
   // Mobile restriction check
   const { shouldRestrict, isLoading: mobileLoading } = useMobileRestriction();
@@ -121,7 +121,7 @@ export default function TranslationPage() {
             }
           }
         } catch (err) {
-          console.log('Could not load review info:', err);
+          console.error('Could not load review info:', err);
         }
       }
       
@@ -662,34 +662,8 @@ export default function TranslationPage() {
                     <span className="text-sm text-gray-600">Words translated:</span>
                     <span className="font-medium">{wordCount}</span>
                   </div>
-                  {/* <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Progress:</span>
-                    <span className="font-medium">
-                      {file.wordCount > 0 ? Math.round((wordCount / file.wordCount) * 100) : 0}%
-                    </span>
-                  </div> */}
-                  {/* <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Words/hour:</span>
-                    <span className="font-medium">
-                      {timeElapsed > 0 ? Math.round((wordCount / timeElapsed) * 3600) : 0}
-                    </span>
-                  </div> */}
                 </div>
                 
-                {/* Progress bar
-                <div className="mt-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-500"
-                      style={{ 
-                        width: `${file.wordCount > 0 ? Math.min(100, (wordCount / file.wordCount) * 100) : 0}%` 
-                      }}
-                    />
-                  </div>
-                  <div className="text-xs text-gray-500 text-center mt-1">
-                    {wordCount} / {file.wordCount} words
-                  </div>
-                </div> */}
               </CardContent>
             </Card>
 
